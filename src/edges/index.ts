@@ -1,6 +1,6 @@
-import { type Edge, type EdgeTypes } from '@xyflow/react';
+import { type EdgeTypes } from '@xyflow/react';
 import CustomEdge from './CustomEdge';
-import { CustomEdge as CustomEdgeType} from './types';
+import { CustomEdge as CustomEdgeType } from './types';
 
 export const initialEdges: CustomEdgeType[] = [
 ];

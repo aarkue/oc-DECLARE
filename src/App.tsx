@@ -31,16 +31,16 @@ export default function App() {
 
   const [edges, setEdges, onEdgesChange] = useEdgesState<CustomEdge>([]);
   // const instance = useReactFlow();
-  console.log("Re-render of App", [...edges])
+  console.log("Re-render of App")
   const onConnect = useCallback<OnConnect>((connection) => {
     console.log(connection);
     return flowRef.current?.setEdges((edges) => {
-      const edgeType: EdgeType = Math.random() > 0.7 ? "ass" : (Math.random() > 0.5 ? "ef" : "nef");
-      const newEdge = {
+      const edgeType: EdgeType = "ef";
+      const newEdge: CustomEdge = {
         ...connection,
         id: Math.random() + connection.source + "@" + connection.sourceHandle + "-" + connection.target + "@" + connection.targetHandle,
         type: "default",
-        data: { type: edgeType },
+        data: { type: edgeType, objectTypes: ["order"]  },
         ...getMarkersForEdge(edgeType)
         // markerStart: 'dot-marker',
         // style: { stroke: "var(--arrow-primary)", strokeWidth: 2, strokeDasharray: isAssociationEdge ? "5 5" : undefined },
@@ -141,11 +141,11 @@ export default function App() {
                 if(typeof blob === 'string'){
                   blob = await (await fetch(blob)).blob()
                 }
-                downloadBlob(blob as Blob,"oc-DECLARE.svg")
+                downloadBlob(blob as Blob,"oc-DECLARE" +( useSVG ? ".svg" : ".png"))
               }).finally(() => 
                 button.disabled = false);
               })})
-        }}>Download SVG</button>
+        }}>Download Image</button>
       </Panel>
     </ReactFlow><svg width="0" height="0">
         <defs>

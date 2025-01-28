@@ -1,8 +1,9 @@
 import { Handle, Position, useConnection, useReactFlow, type NodeProps } from '@xyflow/react';
 
 import clsx from 'clsx';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { type ActivityNode } from './types';
+import { getRandomStringColor } from '@/lib/random-colors';
 const OBJECT_INIT = "<init>";
 export function ActivityNode({
   id,
@@ -35,8 +36,13 @@ export function ActivityNode({
     });
   }
 
+  const objectColor = useMemo(() => {
+    return data.isObject ? getRandomStringColor(data.type) : undefined;
+  }, [data.isObject, data.type])
+
   return (
-    <div className={clsx("border-2 w-[8rem] py-1 px-1 flex items-center justify-center relative min-h-[3.5rem] h-fit bg-white rounded group", !data.isObject && "border-gray-600", data.isObject && " border-blue-600", selected && "border-dashed")}>
+    <div className={clsx("border-2 w-[8rem] py-1 px-1 flex items-center justify-center relative min-h-[3.5rem] h-fit bg-white rounded group", !data.isObject && "border-gray-600", selected && "shadow-lg")}
+      style={{ borderColor: objectColor }}>
       <div className={clsx("border text-center border-transparent flex items-center min-h-[2rem] w-[calc(100%-1rem)]  drag-handle__custom group-hover:border-dashed group-hover:border-gray-300/50 z-2", connection.inProgress && "pointer-events-none")}>
 
         <div contentEditable={editMode} className='w-full text-xs pointer-events-auto'
