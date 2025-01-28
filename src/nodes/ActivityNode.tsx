@@ -7,6 +7,7 @@ const OBJECT_INIT = "<init>";
 export function ActivityNode({
   id,
   data,
+  selected,
 }: NodeProps<ActivityNode>) {
   const [editMode, setEditMode] = useState(false);
   const { setNodes } = useReactFlow();
@@ -35,10 +36,10 @@ export function ActivityNode({
   }
 
   return (
-    <div className={clsx("border-2 min-w-[9rem] relative min-h-[4rem] bg-white rounded group", !data.isObject && "border-gray-600", data.isObject && " border-blue-600")}>
-      <div className={clsx("border text-center border-transparent flex items-center min-h-[2.66rem] max-h-[4rem] w-[calc(100%-1rem)]  drag-handle__custom absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 hover:border-dashed hover:border-gray-300/50 z-2", connection.inProgress && "pointer-events-none")}>
+    <div className={clsx("border-2 w-[8rem] py-1 px-1 flex items-center justify-center relative min-h-[3.5rem] h-fit bg-white rounded group", !data.isObject && "border-gray-600", data.isObject && " border-blue-600", selected && "border-dashed")}>
+      <div className={clsx("border text-center border-transparent flex items-center min-h-[2rem] w-[calc(100%-1rem)]  drag-handle__custom group-hover:border-dashed group-hover:border-gray-300/50 z-2", connection.inProgress && "pointer-events-none")}>
 
-        <div contentEditable={editMode} className=' w-full text-base pointer-events-auto'
+        <div contentEditable={editMode} className='w-full text-xs pointer-events-auto'
           suppressContentEditableWarning={true}
           onKeyDownCapture={(ev) => {
             if (ev.key === "Enter") {

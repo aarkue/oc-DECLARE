@@ -1,8 +1,6 @@
 import {
   Background,
   Controls,
-  Edge,
-  MarkerType,
   Panel,
   ReactFlow,
   ReactFlowInstance,
@@ -14,10 +12,12 @@ import { useCallback, useEffect, useRef } from 'react';
 
 import '@xyflow/react/dist/style.css';
 
-import { edgeTypes, initialEdges } from './edges';
+import { toBlob, toSvg } from 'html-to-image';
+import { edgeTypes } from './edges';
+import { CustomEdge, EdgeType, getMarkersForEdge } from './edges/types';
+import { downloadBlob } from './lib/download-blob';
 import { initialNodes, nodeTypes } from './nodes';
 import { AppNode } from './nodes/types';
-import { ALL_EDGE_TYPES, CustomEdge, EdgeType, getMarkersForEdge } from './edges/types';
 function loadData() {
   try {
     return JSON.parse(localStorage.getItem("oc-DECLARE") ?? "{}")
@@ -56,17 +56,17 @@ export default function App() {
     setEdges((edges) => edges.map(e => ({ ...e, ...getMarkersForEdge(e.data!.type) })))
   }, [setEdges])
   return (
-    <><ReactFlow
+    <div className='outer-flow w-full h-full'><ReactFlow
       onInit={(i) => flowRef.current = i}
       defaultNodes={initialNodes}
       nodeTypes={nodeTypes}
       edges={edges}
       onEdgesChange={onEdgesChange}
-      onEdgeClick={(ev, edge) => {
-        ev.preventDefault();
-        const newType = ALL_EDGE_TYPES[(ALL_EDGE_TYPES.indexOf(edge.data!.type) + 1) % ALL_EDGE_TYPES.length];
-        flowRef.current?.updateEdge(edge.id, { ...edge, data: { type: newType }, ...getMarkersForEdge(newType) })
-      }}
+      // onEdgeContextMenu={(ev, edge) => {
+      //   ev.preventDefault();
+      //   const newType = ALL_EDGE_TYPES[(ALL_EDGE_TYPES.indexOf(edge.data!.type) + 1) % ALL_EDGE_TYPES.length];
+      //   flowRef.current?.updateEdge(edge.id, { ...edge, data: { type: newType }, ...getMarkersForEdge(newType) })
+      // }}
       // onNodesChange={onNodesChange}
       edgeTypes={edgeTypes}
       // onEdgesChange={onEdgesChange}
@@ -75,6 +75,7 @@ export default function App() {
       //   type: "default",
       // }}
       onConnect={onConnect}
+      onContextMenu={(ev) => ev.preventDefault()}
       // isValidConnection={(c) => {
       //   // const source = flowRef.current?.getNode(c.source);
       //   // const target = flowRef.current?.getNode(c.target);
@@ -89,10 +90,11 @@ export default function App() {
       //   return true;
       // } }
       fitView
+      proOptions={{hideAttribution: true}}
     >
-      <Background />
-      <Controls />
-      <Panel className='flex gap-x-1'>
+      <Background  className='hide-in-image'/>
+      <Controls  className='hide-in-image'/>
+      <Panel className='flex gap-x-1 hide-in-image'>
         <button className='bg-white border p-1 hover:bg-gray-100' onClick={() => {
           flowRef.current?.addNodes({
             id: Date.now() + "-node",
@@ -115,6 +117,35 @@ export default function App() {
             flowRef.current.setViewport({ x, y, zoom });
           }
         }}>Restore</button>
+        <button className='bg-white border p-1 hover:bg-gray-100 disabled:bg-gray-500 disabled:hover:bg-gray-500' onClick={(ev) => {
+           const button = ev.currentTarget;
+           button.disabled = true;
+           const scaleFactor = 2.0;
+           const viewPort = document.querySelector(
+             ".outer-flow",
+           ) as HTMLElement;
+           const useSVG = ev.shiftKey;
+           requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+
+             void (useSVG ? toSvg : toBlob)(viewPort, {
+               canvasHeight: viewPort.clientHeight * scaleFactor * 2,
+               canvasWidth: viewPort.clientWidth * scaleFactor * 2,
+               filter: (node) => {
+                 return node.classList === undefined ||
+                 !node.classList.contains("hide-in-image")
+                }
+              })
+              .then(async (dataURLOrBlob) => {
+                let blob = dataURLOrBlob;
+                if(typeof blob === 'string'){
+                  blob = await (await fetch(blob)).blob()
+                }
+                downloadBlob(blob as Blob,"oc-DECLARE.svg")
+              }).finally(() => 
+                button.disabled = false);
+              })})
+        }}>Download SVG</button>
       </Panel>
     </ReactFlow><svg width="0" height="0">
         <defs>
@@ -150,7 +181,7 @@ export default function App() {
             markerHeight="10"
             viewBox="-20 -20 40 40"
             orient="auto"
-            refX="16.8"
+            refX="16"
             refY="10"
           >
             <path d="M0,0 L20,10 L0,20 Z" fill="var(--arrow-primary,black)" />
@@ -162,7 +193,7 @@ export default function App() {
             markerHeight="10"
             viewBox="-20 -20 40 40"
             orient="auto"
-            refX="16.8"
+            refX="16"
             refY="10"
           >
             <path d="M-15,0 L-13,20 L-10,20 L-12,0 Z" fill="var(--arrow-primary,black)" />
@@ -179,7 +210,7 @@ export default function App() {
             refX="0"
           >
             <circle cx="0" cy="0" r="10" fill="var(--arrow-primary,black)" />
-            <g transform="rotate(180,0,0) translate(-27, -10)">
+            <g transform="rotate(180,0,0) translate(-26, -10)">
               <path d="M-15,0 L-13,20 L-10,20 L-12,0 Z" fill="var(--arrow-primary,black)" />
               <path d="M-10,0 L-8,20 L-5,20 L-7,0 Z" fill="var(--arrow-primary,black)" />
               <path d="M0,0 L20,10 L0,20 Z" fill="var(--arrow-primary,black)" />
@@ -195,11 +226,11 @@ export default function App() {
             refX="0"
           >
             <circle cx="0" cy="0" r="10" fill="var(--arrow-primary,black)" />
-            <g transform="rotate(180,0,0) translate(-27, -10)">
+            <g transform="rotate(180,0,0) translate(-26, -10)">
               <path d="M0,0 L20,10 L0,20 Z" fill="var(--arrow-primary,black)" />
             </g>
           </marker>
         </defs>
-      </svg></>
+      </svg></div>
   );
 }
