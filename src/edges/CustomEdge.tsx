@@ -107,7 +107,9 @@ export default function CustomEdge({ id, source, target, markerEnd, style, marke
                 }
             />
             <ContextMenu>
-                <ContextMenuTrigger className='pointer-events-auto' asChild>
+                <ContextMenuTrigger className='pointer-events-auto' asChild onContextMenu={(ev)=> {
+                    ev.stopPropagation();
+                }}>
                     {/* Right click */}
                     {interactionWidth && (
                         <path
