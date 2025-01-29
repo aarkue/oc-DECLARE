@@ -10,26 +10,22 @@ import {
 import { useCallback, useEffect, useRef } from 'react';
 
 
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger
+} from "@/components/ui/context-menu";
 import '@xyflow/react/dist/style.css';
-
 import { toBlob, toSvg } from 'html-to-image';
+import { ClipboardCopy, ClipboardPaste } from 'lucide-react';
+import toast, { Toaster } from 'react-hot-toast';
 import { edgeTypes } from './edges';
 import { CustomEdge, EdgeType, getMarkersForEdge } from './edges/types';
 import { downloadBlob } from './lib/download-blob';
 import { initialNodes, nodeTypes } from './nodes';
-import { AppNode } from './nodes/types';
-import {
-  ContextMenu,
-  ContextMenuCheckboxItem,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuPortal,
-  ContextMenuSeparator,
-  ContextMenuSub,
-  ContextMenuSubContent,
-  ContextMenuSubTrigger,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
+import { ActivityNode } from './nodes/types';
+
 function loadData() {
   try {
     return JSON.parse(localStorage.getItem("oc-DECLARE") ?? "{}")
@@ -39,7 +35,15 @@ function loadData() {
   }
 }
 export default function App() {
-  const flowRef = useRef<ReactFlowInstance<AppNode, CustomEdge>>();
+  const flowRef = useRef<ReactFlowInstance<ActivityNode, CustomEdge>>();
+  const selectedRef = useRef<{
+    nodes: ActivityNode[];
+    edges: CustomEdge[];
+  }>({ nodes: [], edges: [] });
+  const mousePos = useRef<{
+    x: number;
+    y: number;
+  }>({ x: 0, y: 0 });
 
   const [edges, setEdges, onEdgesChange] = useEdgesState<CustomEdge>([]);
   // const instance = useReactFlow();
@@ -54,22 +58,145 @@ export default function App() {
         type: "default",
         data: { type: edgeType, objectTypes: ["order"] },
         ...getMarkersForEdge(edgeType)
-        // markerStart: 'dot-marker',
-        // style: { stroke: "var(--arrow-primary)", strokeWidth: 2, strokeDasharray: isAssociationEdge ? "5 5" : undefined },
-        // markerEnd:  isAssociationEdge ? undefined :  (Math.random() > 0.5 ? "single-arrow-marker": "double-arrow-marker")
       };
       return [...edges, newEdge]
-      // return addEdge({ ...connection,id: Math.random() + connection.source+"@" +connection.sourceHandle+"-" + connection.target + "@" + connection.targetHandle, type: "default", data: { type: "test" }, markerStart: 'dot-marker', markerEnd: { type: MarkerType.ArrowClosed, width: 18, height: 18 } }, edges)
     })
 
   }, [])
 
+
+  function isEditorElementTarget(el: HTMLElement | EventTarget | null) {
+    console.log(el);
+    if (
+      el === document.body ||
+      (el !== null && "className" in el && el.className?.includes("react-flow"))
+    ) {
+      return true
+    } else if (el !== null && 'parentElement' in el) {
+      return el.parentElement?.parentElement?.className.includes("react-flow") || el.parentElement?.className.includes("react-flow");
+    }
+  }
+
+
+  useEffect(() => {
+
+    function mouseListener(ev: MouseEvent) {
+      mousePos.current = { x: ev.x, y: ev.y };
+    }
+
+
+    async function copyListener(ev: ClipboardEvent) {
+      if (!isEditorElementTarget(ev.target)) {
+        return;
+      }
+      ev.preventDefault();
+      if (ev.clipboardData !== null) {
+        const data = JSON.stringify(selectedRef.current);
+        ev.clipboardData.setData("application/json+oc-declare-flow", data);
+      }
+      toast("Copied selection!", { icon: <ClipboardCopy /> });
+    }
+
+    function addPastedData(
+      nodes: ActivityNode[],
+      edges: CustomEdge[],
+    ) {
+      const idPrefix = Date.now() + `-p-${Math.floor(Math.random() * 100)}-`;
+      const instance = flowRef.current!;
+      const nodeRect = nodes.length > 0 ? nodes[0].position : { x: 0, y: 0 };
+      const { x, y } = instance.screenToFlowPosition(mousePos.current);
+      const firstNodeSize = { width: 100, minHeight: 50 };
+      const xOffset = x - nodeRect.x - firstNodeSize.width / 2;
+      const yOffset = y - nodeRect.y - firstNodeSize.minHeight / 2;
+      // Mutate nodes to update position and IDs (+ select them)
+      const newNodes = nodes.map((n) => ({
+        id: idPrefix + n.id,
+        position: { x: n.position.x + xOffset, y: n.position.y + yOffset },
+        selected: true,
+        data: n.data,
+        type: n.type,
+      }));
+      // Update nodes
+      instance.setNodes((prevNodes) => {
+        return [
+          // Unselect all existing nodes
+          ...prevNodes.map((n) => ({ ...n, selected: false })),
+          // ...and add pasted nodes
+          ...newNodes,
+        ];
+      });
+      // Update edges
+      instance.setEdges((prevEdges) => {
+        return [
+          // Unselect all exisiting edges
+          ...prevEdges.map((e) => ({ ...e, selected: false })),
+          // ...and add new pasted edges (mutating the ID, and source/target (handle) + selecting them)
+          ...edges
+            .map((e) => ({
+              id: idPrefix + e.id,
+              type: e.type,
+              source: idPrefix + e.source,
+              target: idPrefix + e.target,
+              // sourceHandle: idPrefix + e.sourceHandle,
+              // targetHandle: idPrefix + e.targetHandle,
+              selected: true,
+              data: e.data,
+              ...getMarkersForEdge(e.data!.type)
+            }))
+            .filter(
+              (e) =>
+                newNodes.find((n) => n.id === e.source) !== undefined &&
+                newNodes.find((n) => n.id === e.target) !== undefined,
+            ),
+        ];
+      });
+    }
+
+    function pasteListener(ev: ClipboardEvent) {
+      if (!isEditorElementTarget(ev.target)) {
+        return;
+      }
+      console.log(ev);
+      if (ev.clipboardData != null) {
+        let pastedNodesAndEdges = ev.clipboardData.getData(
+          "application/json+oc-declare-flow",
+        );
+        if (pastedNodesAndEdges === "") {
+          pastedNodesAndEdges = ev.clipboardData.getData("text/plain");
+
+        }
+        try {
+          const { nodes, edges }: typeof selectedRef.current =
+            JSON.parse(pastedNodesAndEdges);
+          addPastedData(nodes, edges);
+          toast("Pasted selection!", { icon: <ClipboardPaste /> });
+        } catch (e) {
+          toast("Failed to parse pasted data. Try using Alt+C to copy nodes.");
+          console.error("Failed to parse JSON on paste: ", pastedNodesAndEdges);
+        }
+        ev.preventDefault();
+      }
+    }
+    document.addEventListener("copy", copyListener);
+    // document.addEventListener("cut", cutListener);
+    document.addEventListener("paste", pasteListener);
+    // document.addEventListener("keydown", keyPressListener);
+    document.addEventListener("mousemove", mouseListener);
+    return () => {
+      document.removeEventListener("copy", copyListener);
+      // document.removeEventListener("cut", cutListener);
+      document.removeEventListener("paste", pasteListener);
+      // document.removeEventListener("keydown", keyPressListener);
+      document.removeEventListener("mousemove", mouseListener);
+    };
+  }, [flowRef.current])
   useEffect(() => {
     setEdges((edges) => edges.map(e => ({ ...e, ...getMarkersForEdge(e.data!.type) })))
   }, [setEdges])
   const contextMenuTriggerRef = useRef<HTMLButtonElement>(null);
   return (
     <>
+      <Toaster />
       <ContextMenu>
         <ContextMenuTrigger className='pointer-events-auto hidden' asChild>
           <button ref={contextMenuTriggerRef}></button>
@@ -77,12 +204,12 @@ export default function App() {
         <ContextMenuContent>
           <ContextMenuItem onClick={(ev) => {
             ev.stopPropagation();
-            flowRef.current?.addNodes({id: Date.now() + "-" + Math.random() ,type: "activity", data: {type: "pay order"}, position: flowRef.current.screenToFlowPosition({x: ev.clientX, y: ev.clientY})})
+            flowRef.current?.addNodes({ id: Date.now() + "-" + Math.random(), type: "activity", data: { type: "pay order" }, position: flowRef.current.screenToFlowPosition({ x: ev.clientX, y: ev.clientY }) })
             console.log("Add node")
           }}>Add Node</ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
-      <div className='outer-flow w-full h-full'><ReactFlow
+      <div className='outer-flow w-full h-full'><ReactFlow className='react-flow'
         onInit={(i) => flowRef.current = i}
         defaultNodes={initialNodes}
         nodeTypes={nodeTypes}
@@ -102,7 +229,7 @@ export default function App() {
         // }}
         onConnect={onConnect}
         onContextMenu={(ev) => {
-          if (contextMenuTriggerRef.current) {
+          if (!ev.isDefaultPrevented() && contextMenuTriggerRef.current) {
             contextMenuTriggerRef.current.dispatchEvent(new MouseEvent("contextmenu", {
               bubbles: true,
               clientX: ev.clientX,
@@ -111,19 +238,9 @@ export default function App() {
           }
           ev.preventDefault()
         }}
-        // isValidConnection={(c) => {
-        //   // const source = flowRef.current?.getNode(c.source);
-        //   // const target = flowRef.current?.getNode(c.target);
-        //   // const sourceHandleIndex = parseInt(c.sourceHandle?.split("-")[1] ?? "");
-        //   // const targetHandleIndex = parseInt(c.targetHandle?.split("-")[1] ?? "");
-        //   // if (source === undefined || target === undefined || isNaN(sourceHandleIndex) || isNaN(targetHandleIndex)) {
-        //   //   return false;
-        //   // }
-        //   // const output = getOutputsForStep(source.data.stepType)[sourceHandleIndex];
-        //   // const input = getInputForStep(target.data.stepType)[targetHandleIndex];
-        //   // return input.type === output.type;
-        //   return true;
-        // } }
+        onSelectionChange={(sel) => {
+          selectedRef.current = sel as any;
+        }}
         fitView
         proOptions={{ hideAttribution: true }}
       >
@@ -204,11 +321,11 @@ export default function App() {
               markerHeight="10"
               viewBox="-20 -20 40 40"
               orient="auto"
-              refX="16.8"
+              refX="17.3"
               refY="10"
             >
               <path d="M-16,0 L4,10 L-16,20 Z" fill="var(--arrow-primary,black)" />
-              <path d="M0,0 L20,10 L0,20 Z" fill="var(--arrow-primary,black)" />
+              <path d="M0,0 L20,9.5 L20,10 L20,10.5 L0,20 Z " fill="var(--arrow-primary,black)" />
             </marker>
             <marker
               className="react-flow__arrowhead"
@@ -217,10 +334,10 @@ export default function App() {
               markerHeight="10"
               viewBox="-20 -20 40 40"
               orient="auto"
-              refX="16"
+              refX="17.3"
               refY="10"
             >
-              <path d="M0,0 L20,10 L0,20 Z" fill="var(--arrow-primary,black)" />
+              <path d="M0,0 L20,9.5 L20,10 L20,10.5 L0,20 Z " fill="var(--arrow-primary,black)" />
             </marker>
             <marker
               className="react-flow__arrowhead"
@@ -229,12 +346,12 @@ export default function App() {
               markerHeight="10"
               viewBox="-20 -20 40 40"
               orient="auto"
-              refX="16"
+              refX="17.3"
               refY="10"
             >
               <path d="M-15,0 L-13,20 L-10,20 L-12,0 Z" fill="var(--arrow-primary,black)" />
               <path d="M-10,0 L-8,20 L-5,20 L-7,0 Z" fill="var(--arrow-primary,black)" />
-              <path d="M0,0 L20,10 L0,20 Z" fill="var(--arrow-primary,black)" />
+              <path d="M0,0 L20,9.5 L20,10 L20,10.5 L0,20 Z " fill="var(--arrow-primary,black)" />
             </marker>
             <marker
               className="react-flow__arrowhead"
@@ -249,7 +366,7 @@ export default function App() {
               <g transform="rotate(180,0,0) translate(-26, -10)">
                 <path d="M-15,0 L-13,20 L-10,20 L-12,0 Z" fill="var(--arrow-primary,black)" />
                 <path d="M-10,0 L-8,20 L-5,20 L-7,0 Z" fill="var(--arrow-primary,black)" />
-                <path d="M0,0 L20,10 L0,20 Z" fill="var(--arrow-primary,black)" />
+                <path d="M0,0 L20,9.5 L20,10 L20,10.5 L0,20 Z " fill="var(--arrow-primary,black)" />
               </g>
             </marker>
             <marker
@@ -263,7 +380,7 @@ export default function App() {
             >
               <circle cx="0" cy="0" r="10" fill="var(--arrow-primary,black)" />
               <g transform="rotate(180,0,0) translate(-26, -10)">
-                <path d="M0,0 L20,10 L0,20 Z" fill="var(--arrow-primary,black)" />
+                <path d="M0,0 L20,9.5 L20,10 L20,10.5 L0,20 Z " fill="var(--arrow-primary,black)" />
               </g>
             </marker>
           </defs>

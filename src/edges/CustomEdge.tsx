@@ -23,6 +23,12 @@ import React, { useMemo } from "react";
 const DISTANCE_FACTOR = 10;
 const interactionWidth = 20;
 
+function orZero(n: number){
+    if(isNaN(n)){
+        return 0;
+    }
+        return n;
+}
 export default function CustomEdge({ id, source, target, markerEnd, style, markerStart, selected, data }: EdgeProps<CustomEdgeType>) {
     const sourceNode = useInternalNode(source);
     const targetNode = useInternalNode(target);
@@ -74,7 +80,7 @@ export default function CustomEdge({ id, source, target, markerEnd, style, marke
     // const targetTop = slopeRad > -2.75 && slopeRad <= -0.415; 
     // const targetRight = slopeRad > -0.415 && slopeRad <= 0.4;
     // const targetBottom = slopeRad > 0.4 && slopeRad < 2.75;
-    console.log(tDir)
+    // console.log(tDir)
     const invertGradient = (tDir === Position.Top || tDir === Position.Left);
     const correctedGradient = [...allInvolvedObjectTypesWithColor];
     if(invertGradient) {
@@ -87,7 +93,7 @@ export default function CustomEdge({ id, source, target, markerEnd, style, marke
                 gradientTransform={(tDir === Position.Top || tDir === Position.Bottom) ? "rotate(90)" : ""}
                 // gradientTransform={(tDir === Position.Top) ? modifiedPos.sourceX <= modifiedPos.targetX ?  'rotate(0)' : ' translate(-0.5,1)' :  (tDir === Position.Bottom ? 'rotate(90)' : (tDir === Position.Left ? 'scale(-1,1)' : 'rotate(90)'))}
                 >
-                    {correctedGradient.map((t, i) => <stop key={t.type} offset={`${Math.round(100 * (i / (correctedGradient.length - 1)))}%`} stopColor={t.color} />)}
+                    {correctedGradient.map((t, i) => <stop key={t.type} offset={`${orZero(Math.round(100 * (i / (correctedGradient.length - 1))))}%`} stopColor={t.color} />)}
                     {/* <stop offset="0%" stopColor="red"/>
                 <stop offset="100%" stopColor="purple"  /> */}
                 </linearGradient>
@@ -175,17 +181,26 @@ export default function CustomEdge({ id, source, target, markerEnd, style, marke
                     <ContextMenuItem className='text-red-600 hover:focus:text-red-500' onClick={(ev) => {
                         ev.stopPropagation();
                         flow.deleteElements({ edges: [{ id }] })
-                    }}>Remove</ContextMenuItem>
+                    }}>Delete Edge</ContextMenuItem>
                 </ContextMenuContent>
             </ContextMenu>
             <EdgeLabelRenderer>
-                <EdgeLabel transform={`translate(${labelX}px,${labelY}px)  translate(-50%, -50%)  rotate(${Math.round(slopeDegree)}deg)   translate(0,-6pt)`} label={data?.objectTypes?.map((ot) => {
-                    if (typeof ot === 'object') {
-                        return `${ot[0]}~${ot[1]}`
-                    } else {
-                        return ot;
-                    }
-                }).join(", ") ?? "-"} />
+                <EdgeLabel transform={`translate(${labelX}px,${labelY}px)  translate(-50%, -50%)  rotate(${Math.round(slopeDegree)}deg)   translate(0,-6pt)`} label={<span className="text-gray-500 font-medium">
+                    {data?.objectTypes?.map((ot,i) => <React.Fragment key={i}>
+
+{typeof ot === 'object' && <span><span style={{color: allInvolvedObjectTypesWithColor.find(x => x.type === ot[0])?.color}}>{ot[0]}</span>~<span style={{color: allInvolvedObjectTypesWithColor.find(x => x.type === ot[1])?.color}}>{ot[1]}</span></span>}
+                        {/* if (typeof ot === 'object') {
+                            return `${ot[0]}~${ot[1]}`
+                        } else {
+                            return ot;
+                        } */}
+                        {typeof ot === "string" && <span style={{color: allInvolvedObjectTypesWithColor.find(x => x.type === ot)?.color}}>{ot}</span>}
+                        {data?.objectTypes!.length > i + 1 && <span>,{" "}</span>}
+                        </React.Fragment>)
+                    // }).join(", ") ?? "-"
+                }
+                    </span>
+                } />
                 {/* <EdgeLabel transform={`translate(-50%, -50%) translate(${modifiedPos.sourceX}px,${modifiedPos.sourceY}px) ${(targetPos === Position.Top) ? "translate(8px,9px)" : targetPos === Position.Left ? "translate(12px,-11px)" : targetPos === Position.Bottom ? "translate(8px,-9px)" : "translate(-11px,-11px)"} `}
                     label={"1"} /> */}
                 <EdgeLabel transform={`translate(-50%, -50%) translate(${modifiedPos.targetX}px,${modifiedPos.targetY}px) ${(targetPos === Position.Top) ? "translate(8px,-9px)" : targetPos === Position.Left ? "translate(-12px,-11px)" : targetPos === Position.Bottom ? "translate(8px,9px)" : "translate(11px,-11px)"} `}
@@ -197,13 +212,14 @@ export default function CustomEdge({ id, source, target, markerEnd, style, marke
 
 
 // this is a little helper component to render the actual edge label
-function EdgeLabel({ transform, label }: { transform: string; label: string }) {
+function EdgeLabel({ transform, label }: { transform: string; label: string|React.ReactNode }) {
     return (
         <div
             style={{
                 transform,
             }}
-            className=" absolute nodrag nopan text-[6pt] text-black! font-normal! bg-white/40 z-9999"
+            // text-[10pt] for small demo images
+            className=" absolute nodrag nopan text-[7pt] text-black! font-normal!  z-9999"
         >
             {label}
         </div>
