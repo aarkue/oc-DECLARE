@@ -334,7 +334,7 @@ export default function App() {
               markerHeight="10"
               viewBox="-20 -20 40 40"
               orient="auto"
-              refX="17.3"
+              refX="16.9"
               refY="10"
             >
               <path d="M0,0 L20,9.5 L20,10 L20,10.5 L0,20 Z " fill="var(--arrow-primary,black)" />
@@ -346,7 +346,7 @@ export default function App() {
               markerHeight="10"
               viewBox="-20 -20 40 40"
               orient="auto"
-              refX="17.3"
+              refX="16.9"
               refY="10"
             >
               <path d="M-15,0 L-13,20 L-10,20 L-12,0 Z" fill="var(--arrow-primary,black)" />

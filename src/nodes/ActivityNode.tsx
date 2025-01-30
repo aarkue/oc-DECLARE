@@ -100,11 +100,11 @@ export function ActivityNode({
       }
     }} 
     // w-[4rem] and h-[2rem] for small demo images
-    className={clsx("border-2 w-[8rem] py-1 px-1 flex items-center justify-center relative min-h-[3.5rem] h-fit bg-white rounded group", !data.isObject && "border-[var(--arrow-primary)]", selected && "shadow-lg")}
+    className={clsx(false && "!h-[2rem] !min-h-[2rem] !w-[4rem]","border-2  w-[8rem] py-1 px-1 flex items-center justify-center relative min-h-[3.5rem] h-fit bg-white rounded group", !data.isObject && "border-[var(--arrow-primary)]", selected && "shadow-lg")}
       style={{ borderColor: objectColor }}>
         <div className={clsx("border text-center border-transparent flex items-center min-h-[2rem] w-[calc(100%-1rem)]  drag-handle__custom group-hover:border-dashed group-hover:border-gray-300/50 z-2", connection.inProgress && "pointer-events-none")}>
 
-          <div contentEditable={editMode} ref={contentEditableDiv} className='w-full text-xs pointer-events-auto'
+          <div contentEditable={editMode} ref={contentEditableDiv} className='w-full text-sm pointer-events-auto'
             suppressContentEditableWarning={true}
             tabIndex={1}
             onKeyDownCapture={(ev) => {

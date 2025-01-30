@@ -65,7 +65,7 @@
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  --arrow-primary: #292d2a;
+  --arrow-primary: #404441;
 }
 
 html,
@@ -89,12 +89,12 @@ div.customHandle {
 }
 
 .react-flow__edge {
-  z-index: 1000;
+  /* z-index: 1000; */
   position: relative;
 }
 
 .react-flow__edges {
-  z-index: 999;
+  z-index: 1;
 }
 
 @layer utilities {}

@@ -102,6 +102,7 @@ export default function CustomEdge({ id, source, target, markerEnd, style, marke
                 id={id}
                 className="react-flow__edge-path"
                 d={edgePath}
+                // stroke-linecap="round"
                 markerStart={markerStart}
                 markerEnd={markerEnd}
                 style={{
@@ -185,7 +186,7 @@ export default function CustomEdge({ id, source, target, markerEnd, style, marke
                 </ContextMenuContent>
             </ContextMenu>
             <EdgeLabelRenderer>
-                <EdgeLabel transform={`translate(${labelX}px,${labelY}px)  translate(-50%, -50%)  rotate(${Math.round(slopeDegree)}deg)   translate(0,-6pt)`} label={<span className="text-gray-500 font-medium">
+                <EdgeLabel transform={`translate(${labelX}px,${labelY}px)  translate(-50%, -50%)  rotate(${Math.round(slopeDegree)}deg)   translate(0,-7.5pt)`} label={<span className="text-gray-500 font-medium">
                     {data?.objectTypes?.map((ot,i) => <React.Fragment key={i}>
 
 {typeof ot === 'object' && <span><span style={{color: allInvolvedObjectTypesWithColor.find(x => x.type === ot[0])?.color}}>{ot[0]}</span>~<span style={{color: allInvolvedObjectTypesWithColor.find(x => x.type === ot[1])?.color}}>{ot[1]}</span></span>}
@@ -219,7 +220,7 @@ function EdgeLabel({ transform, label }: { transform: string; label: string|Reac
                 transform,
             }}
             // text-[10pt] for small demo images
-            className=" absolute nodrag nopan text-[7pt] text-black! font-normal!  z-9999"
+            className=" absolute nodrag nopan text-[9pt] text-black! font-normal!  z-9999"
         >
             {label}
         </div>
