@@ -26,6 +26,7 @@ import { downloadBlob } from './lib/download-blob';
 import { initialNodes, nodeTypes } from './nodes';
 import { ActivityNode } from './nodes/types';
 import BackendButton from './components/other/BackendButtons';
+import { Button } from './components/ui/button';
 
 function loadData() {
   try {
@@ -248,20 +249,20 @@ export default function App() {
         <Background className='hide-in-image' />
         <Controls className='hide-in-image' />
         <Panel className='flex gap-x-1 hide-in-image'>
-          <button className='bg-white border p-1 hover:bg-gray-100' onClick={() => {
+          <Button variant="outline" onClick={() => {
             flowRef.current?.addNodes({
               id: Date.now() + "-node",
               position: { x: 0, y: 0 },
               dragHandle: '.drag-handle__custom', data: Math.random() > 0.5 ? { type: "pay order", isObject: false } : { type: "order", isObject: true },
               type: 'activity',
             });
-          }}>Add Node</button>
+          }}>Add Node</Button>
 
-          <button className='bg-white border p-1 hover:bg-gray-100' onClick={() => {
+          <Button variant="outline" onClick={() => {
             localStorage.setItem("oc-DECLARE", JSON.stringify(flowRef.current!.toObject()));
-          }}>Save</button>
+          }}>Save</Button>
 
-          <button className='bg-white border p-1 hover:bg-gray-100' onClick={() => {
+          <Button variant="outline" onClick={() => {
             const flow = loadData();
             if (flow && flowRef.current) {
               const { x = 0, y = 0, zoom = 1 } = flow.viewport;
@@ -269,8 +270,8 @@ export default function App() {
               setEdges(flow.edges || []);
               flowRef.current.setViewport({ x, y, zoom });
             }
-          }}>Restore</button>
-          <button className='bg-white border p-1 hover:bg-gray-100 disabled:bg-gray-500 disabled:hover:bg-gray-500' onClick={(ev) => {
+          }}>Restore</Button>
+          <Button variant="outline" onClick={(ev) => {
             const button = ev.currentTarget;
             button.disabled = true;
             const scaleFactor = 2.0;
@@ -299,8 +300,8 @@ export default function App() {
                     button.disabled = false);
               })
             })
-          }}>Download Image</button>
-          <BackendButton/>
+          }}>Download Image</Button>
+          <BackendButton />
         </Panel>
       </ReactFlow><svg width="0" height="0">
           <defs>
