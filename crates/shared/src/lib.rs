@@ -1,50 +1,55 @@
 use std::{borrow::Cow, collections::HashSet, hash::Hash};
 
 use itertools::{Itertools, MultiProduct};
+pub use process_mining;
 use process_mining::ocel::{
     linked_ocel::{EventID, LinkedOCEL, ObjectID},
     ocel_struct::OCELEvent,
 };
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[ts(export)]
+#[serde(tag = "type")]
 enum OCDeclareNode {
-    Activity(String),
-    ObjectInit(String),
-    ObjectEnd(String),
+    Activity{ activity: String},
+    ObjectInit{ object_type: String},
+    ObjectEnd {object_type: String},
 }
 
 impl<'a> Into<Cow<'a, String>> for &'a OCDeclareNode {
     fn into(self) -> Cow<'a, String> {
         match self {
-            OCDeclareNode::Activity(a) => Cow::Borrowed(a),
-            OCDeclareNode::ObjectInit(ot) => Cow::Owned(format!("<init> {ot}")),
-            OCDeclareNode::ObjectEnd(ot) => Cow::Owned(format!("<exit> {ot}")),
+            OCDeclareNode::Activity{activity} => Cow::Borrowed(activity),
+            OCDeclareNode::ObjectInit{object_type} => Cow::Owned(format!("<init> {object_type}")),
+            OCDeclareNode::ObjectEnd{object_type} => Cow::Owned(format!("<exit> {object_type}")),
         }
     }
 }
 
 impl OCDeclareNode {
     pub fn new_act<T: Into<String>>(act: T) -> Self {
-        Self::Activity(act.into())
+        Self::Activity{activity: act.into()}
     }
 
     pub fn new_ob_init<T: Into<String>>(ob_type: T) -> Self {
-        Self::ObjectInit(ob_type.into())
+        Self::ObjectInit{ object_type: ob_type.into()}
     }
     pub fn new_ob_end<T: Into<String>>(ob_type: T) -> Self {
-        Self::ObjectEnd(ob_type.into())
+        Self::ObjectEnd{ object_type: ob_type.into()}
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-struct OCDeclareArc {
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[ts(export)]
+pub struct OCDeclareArc {
     from: OCDeclareNode,
     to: OCDeclareNode,
     arc_type: OCDeclareArcType,
     label: OCDeclareArcLabel,
 }
 use rayon::prelude::*;
+use ts_rs::TS;
 impl<'a> OCDeclareArc {
     pub fn get_for_all_evs(&self, linked_ocel: &LinkedOCEL<'_>) -> Vec<Vec<usize>> {
         linked_ocel
@@ -146,16 +151,22 @@ fn get_evs_with_objs<'a>(
     initial
 }
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[ts(export)]
+// #[serde(tag = "type")]
 enum OCDeclareArcType {
     ASS,
     EF,
     EFREV,
 }
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[ts(export)]
+#[serde(tag = "type")]
 enum ObjectTypeAssociation {
-    Simple(String),
+    Simple {
+        object_type: String,
+    },
     O2O {
         first: String,
         second: String,
@@ -165,7 +176,7 @@ enum ObjectTypeAssociation {
 
 impl ObjectTypeAssociation {
     pub fn new_simple<T: Into<String>>(ot: T) -> Self {
-        Self::Simple(ot.into())
+        Self::Simple{object_type: ot.into()}
     }
     pub fn new_o2o<T: Into<String>>(ot1: T, ot2: T) -> Self {
         Self::O2O {
@@ -188,12 +199,12 @@ impl ObjectTypeAssociation {
         linked_ocel: &'a LinkedOCEL,
     ) -> Vec<ObjectID<'a>> {
         match self {
-            ObjectTypeAssociation::Simple(ot) => linked_ocel
+            ObjectTypeAssociation::Simple{object_type} => linked_ocel
                 .get_ev_rels(ev)
                 .unwrap()
                 .iter()
                 .map(|x| x.1)
-                .filter(|o| o.object_type == *ot)
+                .filter(|o| o.object_type == *object_type)
                 .map(|o| ObjectID::from(&o.id))
                 .collect(),
             ObjectTypeAssociation::O2O {
@@ -233,7 +244,8 @@ impl ObjectTypeAssociation {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default, TS)]
+#[ts(export)]
 struct OCDeclareArcLabel {
     each: Vec<ObjectTypeAssociation>,
     any: Vec<ObjectTypeAssociation>,
@@ -241,6 +253,7 @@ struct OCDeclareArcLabel {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(tag = "type")]
 enum SetFilter<T: Eq + Hash> {
     Any(Vec<T>),
     All(Vec<T>),
@@ -298,47 +311,50 @@ mod tests {
 
     #[test]
     fn it_works() {
-        // let ocel =
-        // import_ocel_json_from_path("/home/aarkue/dow/ocel/order-management.json").unwrap();
-        let ocel = import_ocel_json_from_path(
-            "/home/aarkue/dow/ocel/bpic2017-o2o-workflow-qualifier.json",
-        )
-        .unwrap();
+        let ocel =
+            import_ocel_json_from_path("/home/aarkue/dow/ocel/order-management.json").unwrap();
+        // let ocel = import_ocel_json_from_path(
+        //     "/home/aarkue/dow/ocel/bpic2017-o2o-workflow-qualifier.json",
+        // )
+        // .unwrap();
         let linked_ocel: OwnedLinkedOcel = ocel.into();
-        // let x = OCDeclareArc {
-        //     from: OCDeclareNode::new_act("place order"),
-        //     to: OCDeclareNode::new_act("place order"),
-        //     arc_type: OCDeclareArcType::EF,
-        //     label: OCDeclareArcLabel {
-        //         each: vec![ObjectTypeAssociation::new_simple("customers")],
-        //         all: vec![ObjectTypeAssociation::new_simple("products"),ObjectTypeAssociation::new_simple("items")],
-        //         any: vec![ObjectTypeAssociation::new_o2o_rev("orders", "customers")],
-        //         ..Default::default()
-        //     },
-        // };
-
         let x = OCDeclareArc {
-            from: OCDeclareNode::new_act("A_Accepted"),
-            to: OCDeclareNode::new_act("O_Accepted"),
+            from: OCDeclareNode::new_act("item out of stock"),
+            to: OCDeclareNode::new_act("reorder item"),
             arc_type: OCDeclareArcType::EF,
             label: OCDeclareArcLabel {
-                any: vec![ObjectTypeAssociation::new_o2o("Application", "Offer")],
+                each: vec![ObjectTypeAssociation::new_simple("items")],
+                // all: vec![ObjectTypeAssociation::new_simple("orders")],
+                any: vec![ObjectTypeAssociation::new_simple("employees")],
                 ..Default::default()
             },
         };
+
+        // let x = OCDeclareArc {
+        //     from: OCDeclareNode::new_act("A_Accepted"),
+        //     to: OCDeclareNode::new_act("O_Created"),
+        //     arc_type: OCDeclareArcType::EF,
+        //     label: OCDeclareArcLabel {
+        //         any: vec![ObjectTypeAssociation::new_o2o("Application", "Offer"),ObjectTypeAssociation::new_simple("Case_R")],
+        //         ..Default::default()
+        //     },
+        // };
         let now = Instant::now();
         let all_res = x.get_for_all_evs(&linked_ocel.linked_ocel);
         println!("Took {:?}", now.elapsed());
         println!("{:?}", all_res.iter().take(10).collect_vec());
-        
+
         let count: usize = all_res.iter().flatten().sum();
-        
-        
+
         let at_least_one: usize = all_res.iter().flatten().filter(|r| **r >= 1).count();
-        
-        println!("Len: {}",all_res.len());
+
+        println!("Len: {}", all_res.len());
         println!("Count: {count}");
-        println!("At least one: {}",at_least_one);
+        println!("At least one: {}", at_least_one);
+        println!(
+            "Violation percentage: {:.2}%",
+            100.0 * (1.0 - (at_least_one as f32 / all_res.len() as f32))
+        )
         // println!("{}", serde_json::to_string_pretty(&x).unwrap());
 
         // println!("{:?}", x);

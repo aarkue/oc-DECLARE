@@ -220,7 +220,7 @@ function EdgeLabel({ transform, label }: { transform: string; label: string|Reac
                 transform,
             }}
             // text-[10pt] for small demo images
-            className=" absolute nodrag nopan text-[9pt] text-black! font-normal!  z-9999"
+            className=" absolute nodrag nopan text-[8pt] text-black! font-normal!  z-9999"
         >
             {label}
         </div>

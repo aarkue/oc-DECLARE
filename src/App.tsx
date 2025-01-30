@@ -25,6 +25,7 @@ import { CustomEdge, EdgeType, getMarkersForEdge } from './edges/types';
 import { downloadBlob } from './lib/download-blob';
 import { initialNodes, nodeTypes } from './nodes';
 import { ActivityNode } from './nodes/types';
+import BackendButton from './components/other/BackendButtons';
 
 function loadData() {
   try {
@@ -299,6 +300,7 @@ export default function App() {
               })
             })
           }}>Download Image</button>
+          <BackendButton/>
         </Panel>
       </ReactFlow><svg width="0" height="0">
           <defs>
