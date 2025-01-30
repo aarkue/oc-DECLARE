@@ -243,7 +243,7 @@ export default function App() {
         onSelectionChange={(sel) => {
           selectedRef.current = sel as any;
         }}
-        fitView
+        // fitView
         proOptions={{ hideAttribution: true }}
       >
         <Background className='hide-in-image' />

@@ -24,6 +24,7 @@ export default function BackendButton() {
         }}>Load</Button>}
         {status === "ocel-loaded" && <Button variant="destructive" onClick={() => {
             unload_ocel();
+            setStatus("initial");
         }} >
             Unload</Button>}
         {status === "ocel-loaded" &&
