@@ -2,7 +2,7 @@ import { CustomEdge } from "@/edges/types";
 import { ActivityNode } from "@/nodes/types";
 import { useEdges, useReactFlow } from "@xyflow/react";
 import { useRef, useState } from "react";
-import init, { get_edge_violation_percentage, load_ocel, unload_ocel } from "../../../crates/backend-wasm/pkg/backend_wasm";
+import init, { get_edge_violation_percentage, initThreadPool, load_ocel_json, load_ocel_xml, unload_ocel } from "../../../crates/backend-wasm/pkg/backend_wasm";
 import type { OCDeclareArc } from "../../../crates/shared/bindings/OCDeclareArc";
 import type { ViolationInfo } from "../../../crates/shared/bindings/ViolationInfo";
 
@@ -20,8 +20,18 @@ export default function BackendButton() {
         {status === "initial" && <Button onClick={async () => {
             if (inputRef.current?.files?.length) {
                 await init();
-                const ocelJSON = await inputRef.current?.files[0].text()
-                load_ocel(ocelJSON);
+                try{
+
+                    await await initThreadPool(navigator.hardwareConcurrency);
+                }catch(e){
+                    console.log("Thread pool error: ",e);
+                }
+                const file =  inputRef.current?.files[0];
+                // const y = await file.bytes()
+                const ocelFileData = await file.bytes()
+                const x = new Uint8Array(ocelFileData);
+                console.log(x.length)
+                file.name.endsWith(".json") ? load_ocel_json(x) : load_ocel_xml(x)
                 // console.log("Got ocel pointer: " + ocelRef.current);
                 setStatus("ocel-loaded");
             }
@@ -36,23 +46,26 @@ export default function BackendButton() {
         }} >
             Unload</Button>}
         {status === "ocel-loaded" &&
-            <Button disabled={selectedEdges.length !== 1} onClick={async () => {
-                const e = selectedEdges[0];
-                const [arc_type, counts] = translateArcInfo(e.data!);
-
-                const x: OCDeclareArc = {
-                    from: { type: "Activity", activity: flow.getNode(e.source)!.data.type },
-                    to: { type: "Activity", activity: flow.getNode(e.target)!.data.type },
-                    arc_type,
-                    counts,
-                    label: e.data!.objectTypes
-                };
-                const before = Date.now()
-                const violations: [number, number, [number, ViolationInfo[]][]] = JSON.parse(get_edge_violation_percentage(JSON.stringify(x)));
-                console.log("Evaluation took " + ((Date.now() - before)/1000) + "s")
-                console.log({ violationPercentage: 100 * violations[1] / violations[0] });
+            <Button onClick={async () => {
+                (selectedEdges.length > 0 ? selectedEdges : flow.getEdges()).forEach(e => {
+                    const [arc_type, counts] = translateArcInfo(e.data!);
+                    
+                    const x: OCDeclareArc = {
+                        from: { type: "Activity", activity: flow.getNode(e.source)!.data.type },
+                        to: { type: "Activity", activity: flow.getNode(e.target)!.data.type },
+                        arc_type,
+                        counts,
+                        label: e.data!.objectTypes
+                    };
+                    const before = Date.now()
+                    const violations: [number, number, [number, ViolationInfo[]][]] = JSON.parse(get_edge_violation_percentage(JSON.stringify(x)));
+                    console.log("Evaluation took " + ((Date.now() - before)/1000) + "s")
+                    const violationPercentage = 100 * violations[1] / violations[0] 
+                    // console.log(violations);
+                    flow.updateEdgeData(e.id,{violationInfo: {violationPercentage}});
+                })
             }}>
-                Evaluate
+                Evaluate {selectedEdges.length === 0 ? "All" : ""}
             </Button>
         }
     </>

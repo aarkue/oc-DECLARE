@@ -1,11 +1,12 @@
 mod utils;
+pub use wasm_bindgen_rayon::init_thread_pool;
 
 use std::sync::RwLock;
 
+
 use shared::{
     process_mining::{
-        import_ocel_json_from_slice,
-        ocel::linked_ocel::OwnedLinkedOcel,
+        import_ocel_json_from_slice, import_ocel_xml_slice, ocel::linked_ocel::OwnedLinkedOcel
     },
     OCDeclareArc,
 };
@@ -24,13 +25,25 @@ pub fn greet() {
 }
 
 #[wasm_bindgen]
-pub fn load_ocel(ocel_json: String) {
-    let ocel = import_ocel_json_from_slice(ocel_json.as_bytes()).unwrap();
+pub fn load_ocel_json(ocel_json: &[u8]) {
+    let ocel = import_ocel_json_from_slice(ocel_json).unwrap();
     let locel: OwnedLinkedOcel = ocel.into();
     // unsafe {
         *WASM_MEMORY_THINGY.write().unwrap() = Some(locel);
     // }
 }
+
+
+
+#[wasm_bindgen]
+pub fn load_ocel_xml(ocel_xml: &[u8]) {
+    let ocel = import_ocel_xml_slice(ocel_xml);
+    let locel: OwnedLinkedOcel = ocel.into();
+    // unsafe {
+        *WASM_MEMORY_THINGY.write().unwrap() = Some(locel);
+    }
+
+
 
 #[wasm_bindgen]
 pub fn unload_ocel() {

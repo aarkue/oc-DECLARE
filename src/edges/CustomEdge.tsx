@@ -93,11 +93,8 @@ export default function CustomEdge({ id, source, target, markerEnd, style, marke
             <defs>
                 <linearGradient id={gradientID}
                     gradientTransform={(tDir === Position.Top || tDir === Position.Bottom) ? "rotate(90)" : ""}
-                // gradientTransform={(tDir === Position.Top) ? modifiedPos.sourceX <= modifiedPos.targetX ?  'rotate(0)' : ' translate(-0.5,1)' :  (tDir === Position.Bottom ? 'rotate(90)' : (tDir === Position.Left ? 'scale(-1,1)' : 'rotate(90)'))}
                 >
                     {correctedGradient.map((t, i) => <stop key={t.type} offset={`${orZero(Math.round(100 * (i / (correctedGradient.length - 1))))}%`} stopColor={t.color} />)}
-                    {/* <stop offset="0%" stopColor="red"/>
-                <stop offset="100%" stopColor="purple"  /> */}
                 </linearGradient>
             </defs>
             <path
@@ -109,8 +106,6 @@ export default function CustomEdge({ id, source, target, markerEnd, style, marke
                 markerEnd={markerEnd}
                 style={{
                     ...style,
-                    // "--arrow-primary": getRandomStringColor(data?.objectTypes ? (typeof data?.objectTypes[0] === "object" ? data.objectTypes[0][1] : data.objectTypes[0] as string) : ""),
-                    // "--arrow-primary": 'linear-gradient(to right, red, purple)',
                     stroke: `url(#${gradientID})`
                 } as React.CSSProperties
                 }
@@ -161,19 +156,6 @@ export default function CustomEdge({ id, source, target, markerEnd, style, marke
                     <ContextMenuItem onClick={(ev) => {
                         ev.stopPropagation();
                         setShowDialog("ot-label");
-                        // const newObjectType = prompt("Please enter the object types.") ?? "";
-                        // if (newObjectType === "") {
-                        //     return;
-                        // }
-                        // const res = newObjectType.split(", ").flatMap(s => s.split(",")).map(s => {
-                        //     const splitO2O = s.split("~");
-                        //     if (splitO2O.length == 1) {
-                        //         return splitO2O[0]
-                        //     } else {
-                        //         return [splitO2O[0], splitO2O[1]] as const satisfies [string, string];
-                        //     }
-                        // })
-                        // flow.updateEdgeData(id, { objectTypes: res })
                     }}><LucideShapes className='size-4 mr-1' />Edit Object Types</ContextMenuItem>
                     <ContextMenuItem onClick={(ev) => {
                         ev.stopPropagation();
@@ -197,32 +179,15 @@ export default function CustomEdge({ id, source, target, markerEnd, style, marke
             </ContextMenu>
             <EdgeLabelRenderer>
                 <EdgeLabel transform={`translate(${labelX}px,${labelY}px)  translate(-50%, -50%)  rotate(${Math.round(slopeDegree)}deg)   translate(0,-7.5pt)`} label={<span className="text-gray-500 font-medium">
-                    {/* {[...data.objectTypes.each.map(ot => ({ ot, type: "each" as const })),
-                    ...data.objectTypes.all.map(ot => ({ ot, type: "all" as const })),
-                    ...data.objectTypes.any.map(ot => ({ ot, type: "any" as const })),
-                    ].map((e, i) => <React.Fragment key={i}>
-                        {e.ot.type === 'O2O' && <span><span style={{ color: allInvolvedObjectTypesWithColor.find(x => x.type === (e.ot.type === "O2O" ? e.ot.first : ""))?.color }}>{e.ot.first}</span>~<span style={{ color: allInvolvedObjectTypesWithColor.find(x => x.type === (e.ot.type === "O2O" ? e.ot.first : ""))?.color }}>{e.ot.second}</span></span>}
-                        {e.ot.type === "Simple" && <span style={{ color: allInvolvedObjectTypesWithColor.find(x => x.type === (e.ot.type === "Simple" ? e.ot.object_type : ""))?.color }}>{e.ot.object_type}</span>}
-                        {(data?.objectTypes.all.length + data.objectTypes.any.length + data.objectTypes.each.length) > i + 1 && <span>,{" "}</span>}
-                    </React.Fragment>)
-                        // }).join(", ") ?? "-"
-                    } */}
                     <div className="gap-x-2 flex">
                         <ShowAllObjectTypeAssociationsOfType type="each" associations={data.objectTypes.each} colors={allInvolvedObjectTypesWithColor} />
                         <ShowAllObjectTypeAssociationsOfType type="all" associations={data.objectTypes.all} colors={allInvolvedObjectTypesWithColor} />
                         <ShowAllObjectTypeAssociationsOfType type="any" associations={data.objectTypes.any} colors={allInvolvedObjectTypesWithColor} />
                     </div>
-                    {/* {
-                        
-                        [...data.objectTypes.each.map(ot => ({ ot, type: "each" as const })),
-                        ...data.objectTypes.all.map(ot => ({ ot, type: "all" as const })),
-                        ...data.objectTypes.any.map(ot => ({ ot, type: "any" as const }))].map((e, i) =>
-                            <ShowObjectTypeAssociation key={i} t={e.ot} colors={allInvolvedObjectTypesWithColor} />
-                        )
-
-                    } */}
                 </span>
                 } />
+                {data.violationInfo !== undefined && <EdgeLabel transform={`translate(${labelX}px,${labelY}px)  translate(-50%, -50%)  rotate(${Math.round(slopeDegree)}deg)   translate(0,5pt)`} label={<span style={{color: getColorForViolationPercentage(data.violationInfo.violationPercentage)}} className="text-gray-500 font-medium text-[7pt] opacity-75">{Math.round(100 * (100 - data.violationInfo.violationPercentage)) / 100}%</span>} />
+                }
                 {/* <EdgeLabel transform={`translate(-50%, -50%) translate(${modifiedPos.sourceX}px,${modifiedPos.sourceY}px) ${(targetPos === Position.Top) ? "translate(8px,9px)" : targetPos === Position.Left ? "translate(12px,-11px)" : targetPos === Position.Bottom ? "translate(8px,-9px)" : "translate(-11px,-11px)"} `}
                     label={"1"} /> */}
                 <EdgeLabel transform={`translate(-50%, -50%) translate(${modifiedPos.targetX}px,${modifiedPos.targetY}px) ${(targetPos === Position.Top) ? "translate(8px,-9px)" : targetPos === Position.Left ? "translate(-12px,-11px)" : targetPos === Position.Bottom ? "translate(8px,9px)" : "translate(11px,-11px)"} `}
@@ -373,7 +338,7 @@ function ShowAllObjectTypeAssociationsOfType({ type, associations, colors }: { t
         }
         {associations.map((t, i) => <Fragment key={i}>
             <ShowObjectTypeAssociation t={t} colors={colors} />
-            {i < associations.length - 1 && ","}
+            {i < associations.length - 1 && ", "}
         </Fragment>)}
 
         {type !== "each" &&
@@ -397,4 +362,29 @@ function ShowObjectTypeAssociation({ t, colors }: { t: ObjectTypeAssociation, co
             {t.second}
         </span>
     </span>
+}
+
+function getColorForViolationPercentage(percentage: number){
+    if(percentage >= 80){
+        return "#f73d3d"
+    }
+    if(percentage >= 70){
+        return "#e83612"
+    }
+    if(percentage >= 60){
+        return "#e84f12"
+    }
+    if(percentage >= 50){
+        return "#e87212"
+    }
+    if(percentage >= 40){
+        return "#e89612"
+    }
+    if(percentage >= 30){
+        return "#e8cb12";
+    }
+    if(percentage >= 20){
+        return "#b9e812"
+    }
+    return "#18e039"
 }

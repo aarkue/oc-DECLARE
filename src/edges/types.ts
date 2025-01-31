@@ -5,7 +5,7 @@ export const ALL_EDGE_TYPES = [
     // "ass",
     "ef", "ef-rev", "nef", "nef-rev", "ass"] as const;
 export type EdgeType = typeof ALL_EDGE_TYPES[number];
-export type CustomEdge = Edge<{ type: EdgeType, objectTypes: OCDeclareArcLabel  , cardinality?: [number | null, number | null] }>;
+export type CustomEdge = Edge<{ type: EdgeType, objectTypes: OCDeclareArcLabel  , cardinality?: [number | null, number | null], violationInfo?: {violationPercentage: number} }>;
 export type AppNode = CustomEdge;
 
 
