@@ -12,31 +12,39 @@ use serde::{Deserialize, Serialize};
 #[ts(export)]
 #[serde(tag = "type")]
 enum OCDeclareNode {
-    Activity{ activity: String},
-    ObjectInit{ object_type: String},
-    ObjectEnd {object_type: String},
+    Activity { activity: String },
+    ObjectInit { object_type: String },
+    ObjectEnd { object_type: String },
 }
 
 impl<'a> Into<Cow<'a, String>> for &'a OCDeclareNode {
     fn into(self) -> Cow<'a, String> {
         match self {
-            OCDeclareNode::Activity{activity} => Cow::Borrowed(activity),
-            OCDeclareNode::ObjectInit{object_type} => Cow::Owned(format!("<init> {object_type}")),
-            OCDeclareNode::ObjectEnd{object_type} => Cow::Owned(format!("<exit> {object_type}")),
+            OCDeclareNode::Activity { activity } => Cow::Borrowed(activity),
+            OCDeclareNode::ObjectInit { object_type } => {
+                Cow::Owned(format!("<init> {object_type}"))
+            }
+            OCDeclareNode::ObjectEnd { object_type } => Cow::Owned(format!("<exit> {object_type}")),
         }
     }
 }
 
 impl OCDeclareNode {
     pub fn new_act<T: Into<String>>(act: T) -> Self {
-        Self::Activity{activity: act.into()}
+        Self::Activity {
+            activity: act.into(),
+        }
     }
 
     pub fn new_ob_init<T: Into<String>>(ob_type: T) -> Self {
-        Self::ObjectInit{ object_type: ob_type.into()}
+        Self::ObjectInit {
+            object_type: ob_type.into(),
+        }
     }
     pub fn new_ob_end<T: Into<String>>(ob_type: T) -> Self {
-        Self::ObjectEnd{ object_type: ob_type.into()}
+        Self::ObjectEnd {
+            object_type: ob_type.into(),
+        }
     }
 }
 
@@ -47,42 +55,123 @@ pub struct OCDeclareArc {
     to: OCDeclareNode,
     arc_type: OCDeclareArcType,
     label: OCDeclareArcLabel,
+    /// First tuple element: min count (optional), Second: max count (optional)
+    counts: (Option<usize>, Option<usize>),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[ts(export)]
+#[serde(tag = "type")]
+pub enum ViolationInfo {
+    TooMany {
+        source_ev: String,
+        matching_evs: Vec<String>,
+        all_obs: Vec<String>,
+        count: usize,
+    },
+    TooFew {
+        source_ev: String,
+        matching_evs: Vec<String>,
+        all_obs: Vec<String>,
+        count: usize,
+    },
 }
 use rayon::prelude::*;
 use ts_rs::TS;
 impl<'a> OCDeclareArc {
-    pub fn get_for_all_evs(&self, linked_ocel: &LinkedOCEL<'_>) -> Vec<Vec<usize>> {
-        linked_ocel
+    pub fn get_for_all_evs(&self, linked_ocel: &LinkedOCEL<'_>) -> (usize,usize,Vec<(usize, Vec<ViolationInfo>)>) {
+        let inner_res: Vec<_> = linked_ocel
             .events_per_type
             .get(Into::<Cow<_>>::into(&self.from).as_str())
             .unwrap()
             .par_iter()
             // iter()
             .map(|ev| self.get_for_ev(ev, linked_ocel))
-            .collect()
+            .collect();
+        let total_situations = inner_res.iter().map(|e| e.0).sum();
+        let total_violations = inner_res.iter().map(|e| e.1.len()).sum();
+        (total_situations,total_violations,inner_res)
     }
-    pub fn get_for_ev(&self, ev: &'a OCELEvent, linked_ocel: &LinkedOCEL<'_>) -> Vec<usize> {
-        self.label
+    pub fn get_for_ev(
+        &self,
+        ev: &'a OCELEvent,
+        linked_ocel: &LinkedOCEL<'_>,
+    ) -> (usize,Vec<ViolationInfo>) {
+        let res = self.label
             .get_bindings(ev, linked_ocel)
             .map(|binding| {
                 let binding = binding.collect_vec();
-                // println!("{:?}",binding);
-                // Now get the number of events fulfilling this binding criteria
-                // linked_ocel.events_per_type.get(Into::<&str>::into(&self.to)).unwrap().iter().filter(|e| {
-                //     let obs: HashSet<ObjectID> = linked_ocel.get_ev_rels(&e.id).unwrap().iter().map(|x| (&x.1.id).into()).collect();
-                //     // println!("{:?}",obs);
-                //     binding.iter().all(|b| b.check(&obs))
-                // false
-                // }).count()
-                get_evs_with_objs(
+                let to = Into::<Cow<_>>::into(&self.to);
+                let evs = get_evs_with_objs(
                     &binding,
                     linked_ocel,
-                    Into::<Cow<_>>::into(&self.to).as_str(),
-                )
-                .len()
+                    to.as_str(),
+                ).into_iter().filter(|ev2| {
+                    match self.arc_type {
+                        OCDeclareArcType::ASS => true,
+                        OCDeclareArcType::EF => ev.time < linked_ocel.events.get(ev2).unwrap().time,
+                        OCDeclareArcType::EFREV => ev.time > linked_ocel.events.get(ev2).unwrap().time,
+                    }
+                }).collect_vec();
+                let count = evs.len();
+
+                if self.counts.0.is_some_and(|n_min| count < n_min) {
+                    return Some(ViolationInfo::TooFew {
+                        source_ev: ev.id.clone(),
+                        matching_evs: evs
+                            .into_iter()
+                            .map(|e| linked_ocel.events.get(&e).unwrap().id.clone())
+                            .collect(),
+                        all_obs: binding
+                            .iter()
+                            .flat_map(|b| match b {
+                                // SetFilter::Any(items) => todo!(),
+                                SetFilter::All(items) => Some(
+                                    items
+                                        .iter()
+                                        .map(|o| linked_ocel.objects.get(o).unwrap().id.clone()),
+                                ),
+                                _ => None,
+                            })
+                            .flatten()
+                            .collect(),
+                        count,
+                    });
+                }
+                if self.counts.1.is_some_and(|n_max| count > n_max) {
+                    return Some(ViolationInfo::TooMany {
+                        source_ev: ev.id.clone(),
+                        matching_evs: evs
+                            .into_iter()
+                            .map(|e| linked_ocel.events.get(&e).unwrap().id.clone())
+                            .collect(),
+                        all_obs: binding
+                            .iter()
+                            .flat_map(|b| match b {
+                                // SetFilter::Any(items) => todo!(),
+                                SetFilter::All(items) => Some(
+                                    items
+                                        .iter()
+                                        .map(|o| linked_ocel.objects.get(o).unwrap().id.clone()),
+                                ),
+                                _ => None,
+                            })
+                            .flatten()
+                            .collect(),
+                        count,
+                    });
+                }
+                return None;
+
+
+                // (binding,count)
+
                 // binding.len()
             })
-            .collect_vec()
+            .collect_vec();
+        // let num_viol_bindings = res.iter().filter(|o| o.is_some()).count();
+        // let num_sat_bindings = res.len() - num_viol_bindings; 
+        return (res.len(),res.into_iter().flatten().collect())
     }
 }
 
@@ -176,7 +265,9 @@ enum ObjectTypeAssociation {
 
 impl ObjectTypeAssociation {
     pub fn new_simple<T: Into<String>>(ot: T) -> Self {
-        Self::Simple{object_type: ot.into()}
+        Self::Simple {
+            object_type: ot.into(),
+        }
     }
     pub fn new_o2o<T: Into<String>>(ot1: T, ot2: T) -> Self {
         Self::O2O {
@@ -199,7 +290,7 @@ impl ObjectTypeAssociation {
         linked_ocel: &'a LinkedOCEL,
     ) -> Vec<ObjectID<'a>> {
         match self {
-            ObjectTypeAssociation::Simple{object_type} => linked_ocel
+            ObjectTypeAssociation::Simple { object_type } => linked_ocel
                 .get_ev_rels(ev)
                 .unwrap()
                 .iter()
@@ -328,6 +419,7 @@ mod tests {
                 any: vec![ObjectTypeAssociation::new_simple("employees")],
                 ..Default::default()
             },
+            counts: (Some(1), None),
         };
 
         // let x = OCDeclareArc {
@@ -342,19 +434,19 @@ mod tests {
         let now = Instant::now();
         let all_res = x.get_for_all_evs(&linked_ocel.linked_ocel);
         println!("Took {:?}", now.elapsed());
-        println!("{:?}", all_res.iter().take(10).collect_vec());
+        // println!("{:?}", all_res.iter().take(10).collect_vec());
 
-        let count: usize = all_res.iter().flatten().sum();
+        // let count: usize = all_res.iter().flatten().sum();
 
-        let at_least_one: usize = all_res.iter().flatten().filter(|r| **r >= 1).count();
+        // let at_least_one: usize = all_res.iter().flatten().filter(|r| **r >= 1).count();
 
-        println!("Len: {}", all_res.len());
-        println!("Count: {count}");
-        println!("At least one: {}", at_least_one);
-        println!(
-            "Violation percentage: {:.2}%",
-            100.0 * (1.0 - (at_least_one as f32 / all_res.len() as f32))
-        )
+        // println!("Len: {}", all_res.len());
+        // println!("Count: {count}");
+        // println!("At least one: {}", at_least_one);
+        // println!(
+        //     "Violation percentage: {:.2}%",
+        //     100.0 * (1.0 - (at_least_one as f32 / all_res.len() as f32))
+        // )
         // println!("{}", serde_json::to_string_pretty(&x).unwrap());
 
         // println!("{:?}", x);

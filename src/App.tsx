@@ -58,7 +58,7 @@ export default function App() {
         ...connection,
         id: Math.random() + connection.source + "@" + connection.sourceHandle + "-" + connection.target + "@" + connection.targetHandle,
         type: "default",
-        data: { type: edgeType, objectTypes: ["order"] },
+        data: { type: edgeType, objectTypes: {"each": [{type: "Simple", object_type: "orders"}], any: [], all: [] }},
         ...getMarkersForEdge(edgeType)
       };
       return [...edges, newEdge]
@@ -253,7 +253,7 @@ export default function App() {
             flowRef.current?.addNodes({
               id: Date.now() + "-node",
               position: { x: 0, y: 0 },
-              dragHandle: '.drag-handle__custom', data: Math.random() > 0.5 ? { type: "pay order", isObject: false } : { type: "order", isObject: true },
+              dragHandle: '.drag-handle__custom', data: Math.random() > 0.5 ? { type: "pay order", isObject: false } : { type: "orders", isObject: true },
               type: 'activity',
             });
           }}>Add Node</Button>

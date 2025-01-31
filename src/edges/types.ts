@@ -1,10 +1,11 @@
 import type { Edge } from '@xyflow/react';
+import { OCDeclareArcLabel } from 'crates/shared/bindings/OCDeclareArcLabel';
 
 export const ALL_EDGE_TYPES = [
     // "ass",
     "ef", "ef-rev", "nef", "nef-rev", "ass"] as const;
 export type EdgeType = typeof ALL_EDGE_TYPES[number];
-export type CustomEdge = Edge<{ type: EdgeType, objectTypes?: (string | [string, string])[], cardinality?: [number | null, number | null] }>;
+export type CustomEdge = Edge<{ type: EdgeType, objectTypes: OCDeclareArcLabel  , cardinality?: [number | null, number | null] }>;
 export type AppNode = CustomEdge;
 
 

@@ -3,4 +3,4 @@ import type { OCDeclareArcLabel } from "./OCDeclareArcLabel";
 import type { OCDeclareArcType } from "./OCDeclareArcType";
 import type { OCDeclareNode } from "./OCDeclareNode";
 
-export type OCDeclareArc = { from: OCDeclareNode, to: OCDeclareNode, arc_type: OCDeclareArcType, label: OCDeclareArcLabel, };
+export type OCDeclareArc = { from: OCDeclareNode, to: OCDeclareNode, arc_type: OCDeclareArcType, label: OCDeclareArcLabel, counts: [number | null, number | null], };

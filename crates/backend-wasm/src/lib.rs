@@ -40,7 +40,7 @@ pub fn unload_ocel() {
 }
 
 #[wasm_bindgen]
-pub fn get_edge_violation_percentage(edge_json: String) -> f64 {
+pub fn get_edge_violation_percentage(edge_json: String) -> String {
     // let locel: OwnedLinkedOcel =  unsafe {
     //     *Box::from_raw(ocel_pointer as *mut OwnedLinkedOcel)
     // };
@@ -52,11 +52,11 @@ pub fn get_edge_violation_percentage(edge_json: String) -> f64 {
     if let Some(locel) = locel_guard.as_ref() {
         let edge: OCDeclareArc = serde_json::from_str(&edge_json).unwrap();
         let all_res = edge.get_for_all_evs(&locel.linked_ocel);
-        let all_res_flat: Vec<_> = all_res.into_iter().flatten().collect();
+        // let all_res_flat: Vec<_> = all_res.into_iter().flatten().collect();
 
         // let count: usize = all_res.iter().flatten().sum();
 
-        let at_least_one: usize = all_res_flat.iter().filter(|r| **r >= 1).count();
+        // let at_least_one: usize = all_res_flat.iter().filter(|r| **r >= 1).count();
 
         // println!("Len: {}", all_res.len());
         // println!("Count: {count}");
@@ -67,8 +67,9 @@ pub fn get_edge_violation_percentage(edge_json: String) -> f64 {
         // return ocel.objects.len()
         // alert(&format!("{}",at_least_one));
         // alert(&format!("{}",all_res_flat.len()));
-        100.0 * (1.0 - (at_least_one as f64 / all_res_flat.len() as f64))
+        return serde_json::to_string(&all_res).unwrap();
+        // 100.0 * (1.0 - (at_least_one as f64 / all_res_flat.len() as f64))
     } else {
-        -1.0
+        String::from("Failed")
     }
 }
