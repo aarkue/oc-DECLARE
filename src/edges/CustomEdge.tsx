@@ -20,7 +20,7 @@ import { ContextMenuArrow } from '@radix-ui/react-context-menu';
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, LucideArrowLeftRight, LucideHash, LucideShapes, LucideXCircle, TrendingUp } from 'lucide-react';
 import React, { Fragment, useEffect, useMemo, useState } from "react";
 import { ALL_EDGE_TYPES, CustomEdge as CustomEdgeType, getMarkersForEdge } from './types';
-const DISTANCE_FACTOR = 10;
+const DISTANCE_FACTOR = 13;
 const interactionWidth = 20;
 
 function orZero(n: number) {
@@ -178,7 +178,7 @@ export default function CustomEdge({ id, source, target, markerEnd, style, marke
                 </ContextMenuContent>
             </ContextMenu>
             <EdgeLabelRenderer>
-                <EdgeLabel transform={`translate(${labelX}px,${labelY}px)  translate(-50%, -50%)  rotate(${Math.round(slopeDegree)}deg)   translate(0,-7.5pt)`} label={<span className="text-gray-500 font-medium">
+                <EdgeLabel transform={`translate(${labelX}px,${labelY}px)  translate(-50%, -50%)  rotate(${Math.round(slopeDegree)}deg)   translate(0,-6pt)`} label={<span className="text-gray-500 font-medium">
                     <div className="gap-x-2 flex">
                         <ShowAllObjectTypeAssociationsOfType type="each" associations={data.objectTypes.each} colors={allInvolvedObjectTypesWithColor} />
                         <ShowAllObjectTypeAssociationsOfType type="all" associations={data.objectTypes.all} colors={allInvolvedObjectTypesWithColor} />
@@ -186,7 +186,12 @@ export default function CustomEdge({ id, source, target, markerEnd, style, marke
                     </div>
                 </span>
                 } />
-                {data.violationInfo !== undefined && <EdgeLabel transform={`translate(${labelX}px,${labelY}px)  translate(-50%, -50%)  rotate(${Math.round(slopeDegree)}deg)   translate(0,5pt)`} label={<span style={{color: getColorForViolationPercentage(data.violationInfo.violationPercentage)}} className="text-gray-500 font-medium text-[7pt] opacity-75">{Math.round(100 * (100 - data.violationInfo.violationPercentage)) / 100}%</span>} />
+                {data.violationInfo !== undefined &&
+                    <EdgeLabel transform={`translate(${labelX}px,${labelY}px)  translate(-50%, -50%)  rotate(${Math.round(slopeDegree)}deg)   translate(0,7pt)`}
+                        label={<div className="flex flex-col items-center min-w-[1.5rem]" style={{"--violation-color": getColorForViolationPercentage(data.violationInfo.violationPercentage)} as React.CSSProperties}>
+                            <Progress className="w-[1.5rem] !h-0.5 [&>*]:bg-[var(--violation-color)]" value={100-data.violationInfo.violationPercentage} />
+                            <span style={{ color: "var(--violation-color)" }} className="text-gray-500 block -mt-[1px] font-medium text-[6pt]">{Math.round(100 * (100 - data.violationInfo.violationPercentage)) / 100}%</span>
+                        </div>} />
                 }
                 {/* <EdgeLabel transform={`translate(-50%, -50%) translate(${modifiedPos.sourceX}px,${modifiedPos.sourceY}px) ${(targetPos === Position.Top) ? "translate(8px,9px)" : targetPos === Position.Left ? "translate(12px,-11px)" : targetPos === Position.Bottom ? "translate(8px,-9px)" : "translate(-11px,-11px)"} `}
                     label={"1"} /> */}
@@ -228,6 +233,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ObjectTypeAssociation } from "crates/shared/bindings/ObjectTypeAssociation";
 import { OCDeclareArcLabel } from "crates/shared/bindings/OCDeclareArcLabel";
+import { Progress } from "@/components/ui/progress";
 
 function EditEdgeLabelsDialog({ open, initialValue, onClose, colors }: { open: boolean, initialValue: OCDeclareArcLabel, onClose: (newValue?: OCDeclareArcLabel) => unknown, colors?: { type: string, color: string }[] },) {
     const [value, setValue] = useState(initialValue);
@@ -364,26 +370,26 @@ function ShowObjectTypeAssociation({ t, colors }: { t: ObjectTypeAssociation, co
     </span>
 }
 
-function getColorForViolationPercentage(percentage: number){
-    if(percentage >= 80){
+function getColorForViolationPercentage(percentage: number) {
+    if (percentage >= 80) {
         return "#f73d3d"
     }
-    if(percentage >= 70){
+    if (percentage >= 70) {
         return "#e83612"
     }
-    if(percentage >= 60){
+    if (percentage >= 60) {
         return "#e84f12"
     }
-    if(percentage >= 50){
+    if (percentage >= 50) {
         return "#e87212"
     }
-    if(percentage >= 40){
+    if (percentage >= 40) {
         return "#e89612"
     }
-    if(percentage >= 30){
+    if (percentage >= 30) {
         return "#e8cb12";
     }
-    if(percentage >= 20){
+    if (percentage >= 20) {
         return "#b9e812"
     }
     return "#18e039"
