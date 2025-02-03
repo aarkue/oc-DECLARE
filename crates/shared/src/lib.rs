@@ -1,12 +1,49 @@
-use std::{borrow::Cow, collections::HashSet, hash::Hash};
+#![feature(precise_capturing)]
+
+use std::{borrow::Cow, collections::HashSet, hash::Hash, time::UNIX_EPOCH};
 
 use itertools::{Itertools, MultiProduct};
 pub use process_mining;
-use process_mining::ocel::{
-    linked_ocel::{EventID, LinkedOCEL, ObjectID},
-    ocel_struct::OCELEvent,
+use process_mining::{
+    export_ocel_json_path, export_ocel_xml_path, ocel::{
+        linked_ocel::{index_linked_ocel::{EventIndex, ObjectIndex}, IndexLinkedOCEL, LinkedOCELAccess},
+        ocel_struct::{OCELEvent, OCELRelationship, OCELType},
+    }, OCEL
 };
+
 use serde::{Deserialize, Serialize};
+const INIT_EVENT_PREFIX: &str = "<init>";
+pub fn preprocess_ocel(mut ocel: OCEL) -> IndexLinkedOCEL {
+    ocel.event_types
+        .extend(ocel.object_types.iter().map(|ot| OCELType {
+            name: format!("{} {}", INIT_EVENT_PREFIX, ot.name),
+            attributes: Vec::default(),
+        }));
+    ocel.events.extend(
+        ocel.objects
+            .iter()
+            .map(|ob| {
+                // let first_ev = ocel
+                //     .events
+                //     .iter()
+                //     .filter(|ev| ev.relationships.iter().any(|r| r.object_id == ob.id))
+                //     .sorted_by_key(|ev| ev.time)
+                //     .next();
+                // let first_ev_time = first_ev.map(|ev| ev.time).unwrap_or_default();
+                OCELEvent {
+                    id: format!("{}_{}_{}", INIT_EVENT_PREFIX, ob.object_type,ob.id),
+                    event_type: format!("{} {}", INIT_EVENT_PREFIX, ob.object_type),
+                    time: Default::default(),
+                    attributes: Vec::default(),
+                    relationships: vec![OCELRelationship {
+                        object_id: ob.id.clone(),
+                        qualifier: String::from("init"),
+                    }],
+                }
+            }).into_iter(),
+    );
+    ocel.into()
+}
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
@@ -78,41 +115,46 @@ pub enum ViolationInfo {
 }
 use rayon::prelude::*;
 use ts_rs::TS;
-impl<'a> OCDeclareArc {
-    pub fn get_for_all_evs(&self, linked_ocel: &LinkedOCEL<'_>) -> (usize,usize,Vec<(usize, Vec<ViolationInfo>)>) {
+impl OCDeclareArc {
+    pub fn get_for_all_evs(
+        &self,
+        linked_ocel: &IndexLinkedOCEL,
+    ) -> (usize, usize, Vec<(usize, Vec<ViolationInfo>)>) {
         let inner_res: Vec<_> = linked_ocel
-            .events_per_type
-            .get(Into::<Cow<_>>::into(&self.from).as_str())
-            .unwrap()
-            .par_iter()
+            .get_evs_of_type(Into::<Cow<_>>::into(&self.from).as_str())
+            // .get(Into::<Cow<_>>::into(&self.from).as_str())
+            // .unwrap()
+            .par_bridge()
             // iter()
             .map(|ev| self.get_for_ev(ev, linked_ocel))
             .collect();
         let total_situations = inner_res.iter().map(|e| e.0).sum();
         let total_violations = inner_res.iter().map(|e| e.1.len()).sum();
-        (total_situations,total_violations,inner_res)
+        (total_situations, total_violations, inner_res)
     }
-    pub fn get_for_ev(
+    pub fn get_for_ev<'a>(
         &self,
-        ev: &'a OCELEvent,
-        linked_ocel: &LinkedOCEL<'_>,
-    ) -> (usize,Vec<ViolationInfo>) {
-        let res = self.label
-            .get_bindings(ev, linked_ocel)
+        ev_index: &EventIndex,
+        linked_ocel: &IndexLinkedOCEL,
+    ) -> (usize, Vec<ViolationInfo>) {
+        let ev = linked_ocel.get_ev(ev_index);
+        let res = self
+            .label
+            .get_bindings(ev_index, linked_ocel)
             .map(|binding| {
-                let binding = binding.collect_vec();
+                let binding = binding; //.collect_vec();
                 let to = Into::<Cow<_>>::into(&self.to);
-                let evs = get_evs_with_objs(
-                    &binding,
-                    linked_ocel,
-                    to.as_str(),
-                ).into_iter().filter(|ev2| {
-                    match self.arc_type {
-                        OCDeclareArcType::ASS => true,
-                        OCDeclareArcType::EF => ev.time < linked_ocel.events.get(ev2).unwrap().time,
-                        OCDeclareArcType::EFREV => ev.time > linked_ocel.events.get(ev2).unwrap().time,
-                    }
-                }).collect_vec();
+                let evs = get_evs_with_objs(&binding, linked_ocel, to.as_str())
+                    .into_iter()
+                    .filter(|ev2| {
+                        let ev2 = linked_ocel.get_ev(ev2);
+                        match self.arc_type {
+                            OCDeclareArcType::ASS => true,
+                            OCDeclareArcType::EF => ev.time < ev2.time,
+                            OCDeclareArcType::EFREV => ev.time > ev2.time,
+                        }
+                    })
+                    .collect_vec();
                 let count = evs.len();
 
                 if self.counts.0.is_some_and(|n_min| count < n_min) {
@@ -120,17 +162,15 @@ impl<'a> OCDeclareArc {
                         source_ev: ev.id.clone(),
                         matching_evs: evs
                             .into_iter()
-                            .map(|e| linked_ocel.events.get(&e).unwrap().id.clone())
+                            .map(|e| linked_ocel.get_ev(&e).id.clone())
                             .collect(),
                         all_obs: binding
                             .iter()
                             .flat_map(|b| match b {
                                 // SetFilter::Any(items) => todo!(),
-                                SetFilter::All(items) => Some(
-                                    items
-                                        .iter()
-                                        .map(|o| linked_ocel.objects.get(o).unwrap().id.clone()),
-                                ),
+                                SetFilter::All(items) => {
+                                    Some(items.iter().map(|o| linked_ocel.get_ob(o).id.clone()))
+                                }
                                 _ => None,
                             })
                             .flatten()
@@ -143,17 +183,15 @@ impl<'a> OCDeclareArc {
                         source_ev: ev.id.clone(),
                         matching_evs: evs
                             .into_iter()
-                            .map(|e| linked_ocel.events.get(&e).unwrap().id.clone())
+                            .map(|e| linked_ocel.get_ev(&e).id.clone())
                             .collect(),
                         all_obs: binding
                             .iter()
                             .flat_map(|b| match b {
                                 // SetFilter::Any(items) => todo!(),
-                                SetFilter::All(items) => Some(
-                                    items
-                                        .iter()
-                                        .map(|o| linked_ocel.objects.get(o).unwrap().id.clone()),
-                                ),
+                                SetFilter::All(items) => {
+                                    Some(items.iter().map(|o| linked_ocel.get_ob(o).id.clone()))
+                                }
                                 _ => None,
                             })
                             .flatten()
@@ -163,24 +201,23 @@ impl<'a> OCDeclareArc {
                 }
                 return None;
 
-
                 // (binding,count)
 
                 // binding.len()
             })
             .collect_vec();
         // let num_viol_bindings = res.iter().filter(|o| o.is_some()).count();
-        // let num_sat_bindings = res.len() - num_viol_bindings; 
-        return (res.len(),res.into_iter().flatten().collect())
+        // let num_sat_bindings = res.len() - num_viol_bindings;
+        return (res.len(), res.into_iter().flatten().collect());
     }
 }
 
 fn get_evs_with_objs<'a>(
-    objs: &Vec<SetFilter<ObjectID<'_>>>,
-    linked_ocel: &'a LinkedOCEL<'_>,
+    objs: &Vec<SetFilter<ObjectIndex>>,
+    linked_ocel: &'a IndexLinkedOCEL,
     etype: &'a str,
-) -> Vec<EventID<'a>> {
-    let mut initial: Vec<EventID> = match &objs[0] {
+) -> Vec<EventIndex> {
+    let mut initial: Vec<EventIndex> = match &objs[0] {
         SetFilter::Any(items) =>
         //  linked_ocel
         //     .events_per_type
@@ -192,14 +229,21 @@ fn get_evs_with_objs<'a>(
                 .iter()
                 .flat_map(|o| {
                     linked_ocel
-                        .e2o_rel_rev
-                        .get(o)
-                        .unwrap()
-                        .iter()
+                        .get_e2o_rev(o)
+                        // .get(o)
+                        // .unwrap()
+                        // .iter()
                         .map(|e| e.1)
-                        .filter(|e| e.event_type == *etype)
+                        .filter_map(|e| {
+                            let ev = linked_ocel.get_ev(&e);
+                            if ev.event_type == *etype {
+                                Some(*e)
+                            } else {
+                                None
+                            }
+                        })
                 })
-                .map(|e| (&e.id).into())
+                // .map(|e| (&e.id).into())
                 .collect()
         }
         SetFilter::All(items) => {
@@ -208,19 +252,26 @@ fn get_evs_with_objs<'a>(
             }
             // items.iter().flat_map(|o| linked_ocel.e2o_rel_rev.get(o).unwrap().iter().map(|e| e.1).filter(|e| e.event_type == *etype))
             linked_ocel
-                .e2o_rel_rev
-                .get(&items[0])
-                .unwrap()
-                .into_iter()
-                .filter(|(_, e)| {
-                    e.event_type == etype
+                .get_e2o_rev(&items[0])
+                // .get(&items[0])
+                // .unwrap()
+                // .into_iter()
+                .filter_map(|(_, e)| {
+                    let ev = linked_ocel.get_ev(e);
+                    if ev.event_type == etype
                         && items.iter().skip(1).all(|o| {
-                            e.relationships
-                                .iter()
-                                .any(|r| Into::<ObjectID>::into(&r.object_id) == *o)
+                            linked_ocel
+                                .get_e2o(e)
+                                // .iter()
+                                .any(|(q, o_index)| o_index == o)
                         })
+                    {
+                        Some(*e)
+                    } else {
+                        None
+                    }
                 })
-                .map(|x| (&x.1.id).into())
+                // .map(|x| (&x.1.id).into())
                 .collect_vec()
         }
     };
@@ -228,11 +279,11 @@ fn get_evs_with_objs<'a>(
     for o in objs.iter() {
         initial.retain(|e| {
             let obs = linked_ocel
-                .e2o_rel
-                .get(e)
-                .unwrap()
-                .iter()
-                .map(|o| ObjectID::from(&o.1.id))
+                .get_e2o(e)
+                // .get(e)
+                // .unwrap()
+                // .iter()
+                .map(|o| *o.1)
                 .collect();
             o.check(&obs)
         });
@@ -284,52 +335,56 @@ impl ObjectTypeAssociation {
         }
     }
 
-    pub fn get_for_ev<'a, T: Into<EventID<'a>>>(
+    pub fn get_for_ev<'a>(
         &self,
-        ev: T,
-        linked_ocel: &'a LinkedOCEL,
-    ) -> Vec<ObjectID<'a>> {
+        ev: &EventIndex,
+        linked_ocel: &'a IndexLinkedOCEL,
+    ) -> Vec<ObjectIndex> {
         match self {
             ObjectTypeAssociation::Simple { object_type } => linked_ocel
-                .get_ev_rels(ev)
-                .unwrap()
-                .iter()
+                .get_e2o(ev)
                 .map(|x| x.1)
-                .filter(|o| o.object_type == *object_type)
-                .map(|o| ObjectID::from(&o.id))
+                .filter_map(|o| {
+                    let ob = linked_ocel.get_ob(&o);
+                    if ob.object_type == *object_type {
+                        Some(*o)
+                    } else {
+                        None
+                    }
+                })
                 .collect(),
             ObjectTypeAssociation::O2O {
                 first,
                 second,
                 reversed,
             } => linked_ocel
-                .get_ev_rels(ev)
-                .unwrap()
-                .iter()
+                .get_e2o(ev)
+                // .unwrap()
+                // .iter()
                 .map(|x| x.1)
-                .filter(|o| o.object_type == *first)
+                .filter(|o| linked_ocel.get_ob(&o).object_type == *first)
                 .flat_map(|o| {
                     if !reversed {
                         linked_ocel
-                            .o2o_rel
-                            .get(&Into::<ObjectID>::into(&o.id))
-                            .unwrap()
-                            .iter()
+                            .get_o2o(&o)
+                            // .get(&Into::<ObjectID>::into(&o.id))
+                            // .unwrap()
+                            // .iter()
                             .map(|rel| rel.1)
-                            .filter(|o2| o2.object_type == *second)
+                            .filter(|o2| linked_ocel.get_ob(o2).object_type == *second)
                             .collect_vec()
                     } else {
                         linked_ocel
-                            .o2o_rel_rev
-                            .get(&Into::<ObjectID>::into(&o.id))
-                            .unwrap()
-                            .iter()
+                            .get_o2o_rev(&o)
+                            // .get(&Into::<ObjectID>::into(&o.id))
+                            // .unwrap()
+                            // .iter()
                             .map(|rel| rel.1)
-                            .filter(|o2| o2.object_type == *second)
+                            .filter(|o2| linked_ocel.get_ob(o2).object_type == *second)
                             .collect_vec()
                     }
                 })
-                .map(|o| ObjectID::from(&o.id))
+                .map(|o| *o)
                 .collect(),
         }
     }
@@ -359,20 +414,22 @@ impl<T: Eq + Hash> SetFilter<T> {
     }
 }
 
-impl<'a> OCDeclareArcLabel {
+impl<'a, 'b> OCDeclareArcLabel {
     pub fn get_bindings(
         &'a self,
-        ev: &'a OCELEvent,
-        linked_ocel: &'a LinkedOCEL,
-    ) -> impl Iterator<Item = impl Iterator<Item = SetFilter<ObjectID<'a>>>> {
+        ev: &'a EventIndex,
+        linked_ocel: &'a IndexLinkedOCEL,
+    ) -> impl Iterator<Item = Vec<SetFilter<ObjectIndex>>> + use<'a, 'b>
+//  impl Iterator<Item = impl Iterator<Item = SetFilter<ObjectIndex>>>
+    {
         self.each
             .iter()
-            .map(|otass| otass.get_for_ev(&ev.id, linked_ocel))
+            .map(|otass| otass.get_for_ev(ev, linked_ocel))
             .multi_cartesian_product()
             .map(|product| {
                 self.all
                     .iter()
-                    .map(|otass| SetFilter::All(otass.get_for_ev(&ev.id, linked_ocel)))
+                    .map(|otass| SetFilter::All(otass.get_for_ev(ev, linked_ocel)))
                     .chain(
                         if product.is_empty() {
                             Vec::default()
@@ -384,9 +441,9 @@ impl<'a> OCDeclareArcLabel {
                     .chain(
                         self.any
                             .iter()
-                            .map(|otass| SetFilter::Any(otass.get_for_ev(&ev.id, linked_ocel))),
+                            .map(|otass| SetFilter::Any(otass.get_for_ev(ev, linked_ocel))),
                     )
-                // .collect_vec()
+                    .collect_vec()
             })
         // .collect_vec()
     }
@@ -396,7 +453,7 @@ impl<'a> OCDeclareArcLabel {
 mod tests {
     use std::time::Instant;
 
-    use process_mining::{import_ocel_json_from_path, ocel::linked_ocel::OwnedLinkedOcel};
+    use process_mining::import_ocel_json_from_path;
 
     use super::*;
 
@@ -408,7 +465,7 @@ mod tests {
         //     "/home/aarkue/dow/ocel/bpic2017-o2o-workflow-qualifier.json",
         // )
         // .unwrap();
-        let linked_ocel: OwnedLinkedOcel = ocel.into();
+        let linked_ocel: IndexLinkedOCEL = preprocess_ocel(ocel);
         let x = OCDeclareArc {
             from: OCDeclareNode::new_act("item out of stock"),
             to: OCDeclareNode::new_act("reorder item"),
@@ -422,6 +479,8 @@ mod tests {
             counts: (Some(1), None),
         };
 
+        let x: OCDeclareArc = serde_json::from_str(r#"{"from":{"type":"Activity","activity":"payment reminder"},"to":{"type":"Activity","activity":"item out of stock"},"arc_type":"EFREV","counts":[0,0],"label":{"each":[{"type":"O2O","first":"orders","second":"items","reversed":false}],"any":[],"all":[]}}"#).unwrap();
+
         // let x = OCDeclareArc {
         //     from: OCDeclareNode::new_act("A_Accepted"),
         //     to: OCDeclareNode::new_act("O_Created"),
@@ -432,8 +491,12 @@ mod tests {
         //     },
         // };
         let now = Instant::now();
-        let all_res = x.get_for_all_evs(&linked_ocel.linked_ocel);
+        let (total, violated, all_res) = x.get_for_all_evs(&linked_ocel);
         println!("Took {:?}", now.elapsed());
+        println!(
+            "{violated} / {total}:  {:.?}",
+            violated as f64 / total as f64
+        );
         // println!("{:?}", all_res.iter().take(10).collect_vec());
 
         // let count: usize = all_res.iter().flatten().sum();

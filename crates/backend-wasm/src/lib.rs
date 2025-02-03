@@ -4,14 +4,13 @@ pub use wasm_bindgen_rayon::init_thread_pool;
 use std::sync::RwLock;
 
 use shared::{
-    process_mining::{
-        import_ocel_json_from_slice, import_ocel_xml_slice, ocel::linked_ocel::OwnedLinkedOcel,
-    },
-    OCDeclareArc,
+    preprocess_ocel, process_mining::{
+        import_ocel_json_from_slice, import_ocel_xml_slice, ocel::linked_ocel::IndexLinkedOCEL,
+    }, OCDeclareArc
 };
 use wasm_bindgen::prelude::*;
 
-static WASM_MEMORY_THINGY: RwLock<Option<OwnedLinkedOcel>> = RwLock::new(Option::None);
+static WASM_MEMORY_THINGY: RwLock<Option<IndexLinkedOCEL>> = RwLock::new(Option::None);
 
 #[wasm_bindgen]
 extern "C" {
@@ -26,7 +25,7 @@ pub fn greet() {
 #[wasm_bindgen]
 pub fn load_ocel_json(ocel_json: &[u8]) {
     let ocel = import_ocel_json_from_slice(ocel_json).unwrap();
-    let locel: OwnedLinkedOcel = ocel.into();
+    let locel: IndexLinkedOCEL = preprocess_ocel(ocel);
     // unsafe {
     *WASM_MEMORY_THINGY.write().unwrap() = Some(locel);
     // }
@@ -35,8 +34,8 @@ pub fn load_ocel_json(ocel_json: &[u8]) {
 #[wasm_bindgen]
 pub fn load_ocel_xml(ocel_xml: &[u8]) -> usize {
     let ocel = import_ocel_xml_slice(ocel_xml);
-    let locel: OwnedLinkedOcel = ocel.into();
-    let num_objs = locel.linked_ocel.objects.len();
+    let num_objs: usize = ocel.objects.len();
+    let locel: IndexLinkedOCEL = preprocess_ocel(ocel);
     // unsafe {
     *WASM_MEMORY_THINGY.write().unwrap() = Some(locel);
     num_objs
@@ -61,7 +60,7 @@ pub fn get_edge_violation_percentage(edge_json: String) -> String {
     //  };
     if let Some(locel) = locel_guard.as_ref() {
         let edge: OCDeclareArc = serde_json::from_str(&edge_json).unwrap();
-        let all_res = edge.get_for_all_evs(&locel.linked_ocel);
+        let all_res = edge.get_for_all_evs(&locel);
         // let all_res_flat: Vec<_> = all_res.into_iter().flatten().collect();
 
         // let count: usize = all_res.iter().flatten().sum();

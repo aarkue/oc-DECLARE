@@ -51,12 +51,13 @@ export default function BackendButton() {
                     const [arc_type, counts] = translateArcInfo(e.data!);
 
                     const x: OCDeclareArc = {
-                        from: { type: "Activity", activity: flow.getNode(e.source)!.data.type },
-                        to: { type: "Activity", activity: flow.getNode(e.target)!.data.type },
+                        from: flow.getNode(e.source)!.data.isObject ?  { type:  "ObjectInit", object_type: flow.getNode(e.source)!.data.type } :{ type:  "Activity", activity: flow.getNode(e.source)!.data.type } ,
+                        to:  flow.getNode(e.target)!.data.isObject ?  { type:  "ObjectInit", object_type: flow.getNode(e.target)!.data.type } :{ type:  "Activity", activity: flow.getNode(e.target)!.data.type } ,
                         arc_type,
                         counts,
                         label: e.data!.objectTypes
                     };
+                    // console.log(JSON.stringify(x));
                     const before = Date.now();
                     const xJson = JSON.stringify(x);
                     const res = get_edge_violation_percentage(xJson);

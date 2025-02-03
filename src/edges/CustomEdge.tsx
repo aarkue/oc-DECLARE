@@ -18,7 +18,7 @@ import { getRandomStringColor } from "@/lib/random-colors";
 import { ActivityNode } from '@/nodes/types';
 import { ContextMenuArrow } from '@radix-ui/react-context-menu';
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, LucideArrowLeftRight, LucideHash, LucideShapes, LucideXCircle, TrendingUp } from 'lucide-react';
-import React, { Fragment, useEffect, useMemo, useState } from "react";
+import React, { Fragment, ReactNode, useEffect, useMemo, useState } from "react";
 import { ALL_EDGE_TYPES, CustomEdge as CustomEdgeType, getMarkersForEdge } from './types';
 const DISTANCE_FACTOR = 13;
 const interactionWidth = 20;
@@ -53,6 +53,7 @@ export default function CustomEdge({ id, source, target, markerEnd, style, marke
 
     const slopeRad = Math.atan2((modifiedPos.targetY - modifiedPos.sourceY), (modifiedPos.targetX - modifiedPos.sourceX));
     let slopeDegree = slopeRad * 180 / Math.PI;
+    let slopeDegreeReal = slopeDegree;
     if (Math.abs(slopeDegree) > 90) {
         slopeDegree = slopeDegree - 180;
     }
@@ -159,13 +160,15 @@ export default function CustomEdge({ id, source, target, markerEnd, style, marke
                     }}><LucideShapes className='size-4 mr-1' />Edit Object Types</ContextMenuItem>
                     <ContextMenuItem onClick={(ev) => {
                         ev.stopPropagation();
-                        const n = parseInt(prompt("Enter a new cardinality.") ?? "");
-                        if (!isNaN(n)) {
-                            flow.updateEdgeData(id, { cardinality: [n, n] })
-                        } else {
-                            flow.updateEdgeData(id, { cardinality: undefined })
-                        }
+                        const nMin = parseInt(prompt("Enter a new min cardinality.", String(data.cardinality !== undefined ? data.cardinality[0] : undefined)) ?? "");
+                        const nMax = parseInt(prompt("Enter a new max cardinality.", String(data.cardinality !== undefined ? data.cardinality[1] : undefined)) ?? "");
+                        // if (!isNaN(n)) {
+                        flow.updateEdgeData(id, { cardinality: [isNaN(nMin) ? null : nMin, isNaN(nMax) ? null : nMax] })
+                        // } else {
+                        //     flow.updateEdgeData(id, { cardinality: undefined })
+                        // }
                     }}><LucideHash className='size-4 mr-1' /> Edit Cardinality</ContextMenuItem>
+
                     <ContextMenuItem onClick={(ev) => {
                         ev.stopPropagation();
                         flow.updateEdge(id, { source: target, target: source })
@@ -179,7 +182,7 @@ export default function CustomEdge({ id, source, target, markerEnd, style, marke
             </ContextMenu>
             <EdgeLabelRenderer>
                 <EdgeLabel transform={`translate(${labelX}px,${labelY}px)  translate(-50%, -50%)  rotate(${Math.round(slopeDegree)}deg)   translate(0,-6pt)`} label={<span className="text-gray-500 font-medium">
-                    <div className="gap-x-2 flex">
+                    <div className="gap-x-2 flex text-[7pt]">
                         <ShowAllObjectTypeAssociationsOfType type="each" associations={data.objectTypes.each} colors={allInvolvedObjectTypesWithColor} />
                         <ShowAllObjectTypeAssociationsOfType type="all" associations={data.objectTypes.all} colors={allInvolvedObjectTypesWithColor} />
                         <ShowAllObjectTypeAssociationsOfType type="any" associations={data.objectTypes.any} colors={allInvolvedObjectTypesWithColor} />
@@ -187,16 +190,26 @@ export default function CustomEdge({ id, source, target, markerEnd, style, marke
                 </span>
                 } />
                 {data.violationInfo !== undefined &&
-                    <EdgeLabel transform={`translate(${labelX}px,${labelY}px)  translate(-50%, -50%)  rotate(${Math.round(slopeDegree)}deg)   translate(0,7pt)`}
-                        label={<div className="flex flex-col items-center min-w-[1.5rem]" style={{"--violation-color": getColorForViolationPercentage(data.violationInfo.violationPercentage)} as React.CSSProperties}>
-                            <Progress className="w-[1.5rem] !h-0.5 [&>*]:bg-[var(--violation-color)]" value={100-data.violationInfo.violationPercentage} />
-                            <span style={{ color: "var(--violation-color)" }} className="text-gray-500 block -mt-[1px] font-medium text-[6pt]">{Math.round(100 * (100 - data.violationInfo.violationPercentage)) / 100}%</span>
+                    <EdgeLabel transform={`translate(${labelX}px,${labelY}px)  translate(-50%, -50%)  rotate(${Math.round(slopeDegree)}deg)   translate(0,6.5pt)`}
+                        label={<div className="bg-white flex flex-col items-center min-w-[1.5rem]" style={{ "--violation-color": getColorForViolationPercentage(data.violationInfo.violationPercentage) } as React.CSSProperties}>
+                            <Progress className="w-[1.5rem] !h-0.5 [&>*]:bg-[var(--violation-color)]" value={100 - data.violationInfo.violationPercentage} />
+                            <span style={{ color: "var(--violation-color)" }} className="text-gray-500 block -mt-[1px] font-medium text-[5pt] ">{Math.round(100 * (100 - data.violationInfo.violationPercentage)) / 100}%</span>
                         </div>} />
                 }
                 {/* <EdgeLabel transform={`translate(-50%, -50%) translate(${modifiedPos.sourceX}px,${modifiedPos.sourceY}px) ${(targetPos === Position.Top) ? "translate(8px,9px)" : targetPos === Position.Left ? "translate(12px,-11px)" : targetPos === Position.Bottom ? "translate(8px,-9px)" : "translate(-11px,-11px)"} `}
                     label={"1"} /> */}
-                <EdgeLabel transform={`translate(-50%, -50%) translate(${modifiedPos.targetX}px,${modifiedPos.targetY}px) ${(targetPos === Position.Top) ? "translate(8px,-9px)" : targetPos === Position.Left ? "translate(-12px,-11px)" : targetPos === Position.Bottom ? "translate(8px,9px)" : "translate(11px,-11px)"} `}
-                    label={data?.cardinality ? data?.cardinality[0]?.toString() ?? "" : ""} />
+                <EdgeLabel
+                    transform={`translate(${modifiedPos.targetX}px,${modifiedPos.targetY}px)  translate(-50%, -50%)  rotate(${Math.round(slopeDegreeReal)}deg) translate(-100%,0pt) translate(${data.type === "nef" ? "-16px" : (data.type === "ef" ? "-8px" : "0")},7px)  rotate(${Math.round(slopeDegree - slopeDegreeReal)}deg)`}
+                    //  transform={`translate(-50%, -50%) translate(${modifiedPos.targetX}px,${modifiedPos.targetY}px)  ${(targetPos === Position.Top) ? "translate(14px,-16px)" : targetPos === Position.Left ? "translate(-12px,-11px)" : targetPos === Position.Bottom ? "translate(8px,9px)" : "translate(11px,-11px)"}`}
+                    label={
+                        <>
+                            {data.cardinality && <div className=" p-0.25 text-[6pt] font-medium leading-1.5 rounded-xs">
+                                <MinMaxDisplayWithSugar min={data.cardinality[0]} max={data.cardinality[1]} rangeMode />
+                            </div>
+                            }
+                        </>
+                        // data?.cardinality ? `${data?.cardinality[0]?.toString()} - ${data.cardinality[1]?.toString()}` : ""
+                    } />
             </EdgeLabelRenderer>
         </>
     );
@@ -340,7 +353,7 @@ function ShowAllObjectTypeAssociationsOfType({ type, associations, colors }: { t
     }
     return <span>
         {type !== "each" &&
-            <>{type.toUpperCase()}(</>
+            <><span className="font-light">{type.toUpperCase()}(</span></>
         }
         {associations.map((t, i) => <Fragment key={i}>
             <ShowObjectTypeAssociation t={t} colors={colors} />
@@ -348,7 +361,7 @@ function ShowAllObjectTypeAssociationsOfType({ type, associations, colors }: { t
         </Fragment>)}
 
         {type !== "each" &&
-            <>)</>
+            <span className="font-extralight">)</span>
         }
     </span>
 }
@@ -361,9 +374,9 @@ function ShowObjectTypeAssociation({ t, colors }: { t: ObjectTypeAssociation, co
 
     </span>
         {/* ~ */}
-        {t.reversed && <ChevronLeft className="inline-block size-3 -mx-0.75" />}
+        {t.reversed && <ChevronLeft className="inline-block size-[7pt] -mb-[1px] -mx-0.5" />}
 
-        {!t.reversed && <ChevronRight className="inline-block size-3 -mx-0.75" />}
+        {!t.reversed && <ChevronRight className="inline-block size-[7pt] -mb-[1px] -mx-0.5" />}
         <span style={{ color: colors?.find(x => x.type === t.second)?.color }}>
             {t.second}
         </span>
@@ -393,4 +406,59 @@ function getColorForViolationPercentage(percentage: number) {
         return "#b9e812"
     }
     return "#18e039"
+}
+
+
+function MinMaxDisplayWithSugar({
+    min,
+    max,
+    children,
+    rangeMode,
+}: {
+    min: number | null;
+    max: number | null;
+    children?: ReactNode;
+    rangeMode?: boolean;
+}) {
+    const value = { min: min === 0 ? null : min, max: max };
+    if (max === 0) {
+        value.min = 0;
+    }
+    return (
+        <>
+            {value.max === value.min && value.min !== null && (
+                <>
+                    {children} = {value.min}
+                </>
+            )}
+            {value.max === null && value.min !== null && (
+                <>
+                    {children} ≥ {value.min}
+                </>
+            )}
+            {value.min === null && value.max !== null && (
+                <>
+                    {children} ≤ {value.max}
+                </>
+            )}
+            {((value.min === null && value.max === null) ||
+                (value.min !== value.max &&
+                    value.min !== null &&
+                    value.max !== null)) && (
+                    <>
+                        {rangeMode === true && (
+                            <>
+                                {value.min ?? 0} - {value.max ?? "∞"}
+                            </>
+                        )}
+                        {rangeMode !== true && (
+                            <>
+                                {value.min ?? 0} ≤ {children} ≤ {value.max ?? "∞"}
+                            </>
+                        )}
+                    </>
+                )}
+            { }
+        </>
+    );
 }
