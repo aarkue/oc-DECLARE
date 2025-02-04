@@ -7,7 +7,7 @@ import {
   useEdgesState,
   type OnConnect
 } from '@xyflow/react';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 
 import {
@@ -27,6 +27,7 @@ import { initialNodes, nodeTypes } from './nodes';
 import { ActivityNode } from './nodes/types';
 import BackendButton from './components/other/BackendButtons';
 import { Button } from './components/ui/button';
+import { OCELInfo, OCELInfoContext } from './lib/ocel-info';
 
 function loadData() {
   try {
@@ -48,18 +49,20 @@ export default function App() {
   }>({ x: 0, y: 0 });
 
   const [edges, setEdges, onEdgesChange] = useEdgesState<CustomEdge>([]);
+  const [ocelInfo, setOcelInfo] = useState<OCELInfo>({})
   // const instance = useReactFlow();
   console.log("Re-render of App")
   const onConnect = useCallback<OnConnect>((connection) => {
     console.log(connection);
     return flowRef.current?.setEdges((edges) => {
       const edgeType: EdgeType = "ef";
+      const id =  Math.random() + connection.source + "@" + connection.sourceHandle + "-" + connection.target + "@" + connection.targetHandle;
       const newEdge: CustomEdge = {
         ...connection,
-        id: Math.random() + connection.source + "@" + connection.sourceHandle + "-" + connection.target + "@" + connection.targetHandle,
         type: "default",
+        id,
         data: { type: edgeType, objectTypes: {"each": [{type: "Simple", object_type: "orders"}], any: [], all: [] }},
-        ...getMarkersForEdge(edgeType)
+        ...getMarkersForEdge(edgeType,id)
       };
       return [...edges, newEdge]
     })
@@ -143,7 +146,7 @@ export default function App() {
               // targetHandle: idPrefix + e.targetHandle,
               selected: true,
               data: e.data,
-              ...getMarkersForEdge(e.data!.type)
+              ...getMarkersForEdge(e.data!.type,e.id)
             }))
             .filter(
               (e) =>
@@ -193,11 +196,14 @@ export default function App() {
     };
   }, [flowRef.current])
   useEffect(() => {
-    setEdges((edges) => edges.map(e => ({ ...e, ...getMarkersForEdge(e.data!.type) })))
+    setEdges((edges) => edges.map(e => ({ ...e, ...getMarkersForEdge(e.data!.type,e.id) })))
   }, [setEdges])
   const contextMenuTriggerRef = useRef<HTMLButtonElement>(null);
   return (
     <>
+    <OCELInfoContext.Provider value={{ocelInfo: ocelInfo, setOcelInfo: (oi) => {
+       setOcelInfo(oi);
+    }}}>
       <Toaster />
       <ContextMenu>
         <ContextMenuTrigger className='pointer-events-auto hidden' asChild>
@@ -387,7 +393,7 @@ export default function App() {
               </g>
             </marker>
           </defs>
-        </svg></div>
+        </svg></div></OCELInfoContext.Provider>
     </>
   );
 }

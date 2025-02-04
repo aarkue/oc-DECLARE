@@ -1,6 +1,6 @@
 #![feature(precise_capturing)]
 
-use std::{borrow::Cow, collections::HashSet, hash::Hash, time::UNIX_EPOCH};
+use std::{borrow::Cow, collections::{HashMap, HashSet}, default, hash::Hash, time::UNIX_EPOCH, usize};
 
 use itertools::{Itertools, MultiProduct};
 pub use process_mining;
@@ -104,12 +104,14 @@ pub enum ViolationInfo {
         source_ev: String,
         matching_evs: Vec<String>,
         all_obs: Vec<String>,
+        any_obs: Vec<Vec<String>>,
         count: usize,
     },
     TooFew {
         source_ev: String,
         matching_evs: Vec<String>,
         all_obs: Vec<String>,
+        any_obs: Vec<Vec<String>>,
         count: usize,
     },
 }
@@ -175,6 +177,16 @@ impl OCDeclareArc {
                             })
                             .flatten()
                             .collect(),
+                            any_obs: binding
+                            .iter()
+                            .filter_map(|b| match b {
+                                // SetFilter::Any(items) => todo!(),
+                                SetFilter::Any(items) => {
+                                    Some(items.iter().map(|o| linked_ocel.get_ob(o).id.clone()).collect_vec())
+                                }
+                                _ => None,
+                            })
+                            .collect_vec(),
                         count,
                     });
                 }
@@ -195,6 +207,17 @@ impl OCDeclareArc {
                                 _ => None,
                             })
                             .flatten()
+                            .collect(),
+                            any_obs: binding
+                            .iter()
+                            .filter_map(|b| match b {
+                                // SetFilter::Any(items) => todo!(),
+                                SetFilter::Any(items) => {
+                                    Some(items.iter().map(|o| linked_ocel.get_ob(o).id.clone()).collect())
+                                }
+                                _ => None,
+                            })
+                            
                             .collect(),
                         count,
                     });
@@ -447,6 +470,47 @@ impl<'a, 'b> OCDeclareArcLabel {
             })
         // .collect_vec()
     }
+}
+
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct ObjectInvolvementCounts {
+    min: usize,
+    max: usize,
+    // mean: usize,
+}
+impl Default for ObjectInvolvementCounts {
+    fn default() -> Self {
+        Self { min: usize::MAX, max: Default::default() }
+    }
+}
+
+pub fn get_activity_object_involvements(locel: &IndexLinkedOCEL) -> HashMap<String,HashMap<String,ObjectInvolvementCounts>>{
+    locel.get_ev_types().map(|et| {
+        let mut nums_of_objects_per_type: HashMap<String,ObjectInvolvementCounts> = locel.get_ob_types().map(|ot| (ot.to_string(),ObjectInvolvementCounts::default())).collect();
+        for ev in locel.get_evs_of_type(et) {
+            let mut num_of_objects_for_ev: HashMap<&str,usize> = HashMap::new();
+            for (_q,oi) in locel.get_e2o(ev) {
+                let o = locel.get_ob(oi);
+                *num_of_objects_for_ev.entry(&o.object_type).or_default() += 1;
+                
+            }
+            for (ot,count) in num_of_objects_for_ev {
+                let num_ob_per_type = nums_of_objects_per_type.get_mut(ot).unwrap();
+                    
+                if count < num_ob_per_type.min {
+                    num_ob_per_type.min = count
+                }
+                if count > num_ob_per_type.max {
+                    num_ob_per_type.max = count;
+                }
+
+            }
+        }
+        (et.to_string(),nums_of_objects_per_type.into_iter().filter(|(_x,y)| y.max > 0).collect())
+        // (nums_of_objects_per_type
+    }).collect()
+
 }
 
 #[cfg(test)]

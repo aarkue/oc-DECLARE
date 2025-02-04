@@ -1,10 +1,12 @@
 import { Handle, Position, useConnection, useReactFlow, type NodeProps } from '@xyflow/react';
 
 import clsx from 'clsx';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { type ActivityNode } from './types';
 import { getRandomStringColor } from '@/lib/random-colors';
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '@/components/ui/context-menu';
+import { OCELInfoContext } from '@/lib/ocel-info';
+import { MinMaxDisplayWithSugar } from '@/components/other/MinMaxSugar';
 const OBJECT_INIT = "<init>";
 export function ActivityNode({
   id,
@@ -40,7 +42,7 @@ export function ActivityNode({
   }
 
   useEffect(() => {
-    if(editMode && contentEditableDiv.current){
+    if (editMode && contentEditableDiv.current) {
       contentEditableDiv.current.focus();
       const range = document.createRange();
       const sel = window.getSelection();
@@ -52,9 +54,9 @@ export function ActivityNode({
       }
       setTimeout(() => {
         contentEditableDiv.current!.focus();
-      },200)
+      }, 200)
     }
-  },[editMode])
+  }, [editMode])
 
   const objectColor = useMemo(() => {
     return data.isObject ? getRandomStringColor(data.type) : undefined;
@@ -98,9 +100,9 @@ export function ActivityNode({
           clientY: ev.clientY,
         }),);
       }
-    }} 
-    // w-[4rem] and h-[2rem] for small demo images
-    className={clsx(false && "!h-[2rem] !min-h-[2rem] !w-[4rem]","border-2  w-[8rem] py-1 px-1 flex items-center justify-center relative min-h-[3.5rem] h-fit bg-white rounded group", !data.isObject && "border-[var(--arrow-primary)]", selected && "shadow-lg")}
+    }}
+      // w-[4rem] and h-[2rem] for small demo images
+      className={clsx(false && "!h-[2rem] !min-h-[2rem] !w-[4rem]", "group border-2  w-[7rem] py-1 px-1 flex items-center justify-center relative min-h-[3.66rem] h-fit bg-white rounded group", !data.isObject && "border-[var(--arrow-primary)]", selected && "shadow-lg")}
       style={{ borderColor: objectColor }}>
         <div className={clsx("border text-center border-transparent flex items-center min-h-[2rem] w-[calc(100%-1rem)]  drag-handle__custom group-hover:border-dashed group-hover:border-gray-300/50 z-2", connection.inProgress && "pointer-events-none")}>
 
@@ -129,13 +131,13 @@ export function ActivityNode({
               }
             }}
             onBlur={(ev) => {
-              if(ev.relatedTarget?.role === "menuitem"){
+              if (ev.relatedTarget?.role === "menuitem") {
                 ev.preventDefault();
                 ev.stopPropagation();
                 contentEditableDiv.current!.focus();
                 return;
               }
-                applyNameEdit(ev);
+              applyNameEdit(ev);
             }}
             spellCheck="false"
             style={{
@@ -165,6 +167,24 @@ export function ActivityNode({
         {(!connection.inProgress || isTarget) && (
           <Handle className="customHandle z-10" position={Position.Left} type="target" isConnectableStart={false} />
         )}
+        {selected &&
+          <ObjectInvolvementHelper activity={data.isObject ? "<init> " + data.type : data.type} />
+        }
       </div></>
   );
+}
+
+function ObjectInvolvementHelper({ activity }: { activity: string }) {
+  const { ocelInfo } = useContext(OCELInfoContext);
+  const actInfo = ocelInfo[activity];
+  if (actInfo == undefined) {
+    return null;
+  }
+  return <div className='absolute -right-0.5 translate-x-full text-[5pt] bg-white z-[99] px-1 rounded-sm border'>
+    <ul className='list-disc pl-1'>
+      {Object.entries(actInfo).map(([key, value]) => <li key={key} style={{ color: getRandomStringColor(key) }}>
+        <span className={clsx(value.max > 1 && "font-bold")}>{key}</span>: <MinMaxDisplayWithSugar {...value} rangeMode />
+      </li>)}
+    </ul>
+  </div>
 }

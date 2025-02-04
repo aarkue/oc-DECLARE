@@ -11,17 +11,17 @@ export type AppNode = CustomEdge;
 
 const STROKE_WIDTH = 2.5;
 
-export function getMarkersForEdge(edgeType: EdgeType): { markerStart: string, markerEnd: string | undefined, style: React.CSSProperties } {
+export function getMarkersForEdge(edgeType: EdgeType, id?: string): { markerStart: string, markerEnd: string | undefined, style: React.CSSProperties } {
     if (edgeType === "ef") {
         return {
-            markerStart: "dot-marker",
+            markerStart: `start-${id}`,
             markerEnd: "single-arrow-marker",
             style: { stroke: "var(--arrow-primary)", strokeWidth: STROKE_WIDTH }
         }
     }
     if (edgeType === "ass") {
         return {
-            markerStart: "dot-marker",
+            markerStart: `start-${id}`,
             markerEnd: undefined,
             style: {
                 stroke: "var(--arrow-primary)", strokeWidth: STROKE_WIDTH,
@@ -31,7 +31,7 @@ export function getMarkersForEdge(edgeType: EdgeType): { markerStart: string, ma
     }
     if (edgeType === "nef") {
         return {
-            markerStart: "dot-marker",
+            markerStart: `start-${id}`,
             markerEnd: "single-not-arrow-marker",
             style: { stroke: "var(--arrow-primary)", strokeWidth: STROKE_WIDTH }
 
@@ -39,7 +39,9 @@ export function getMarkersForEdge(edgeType: EdgeType): { markerStart: string, ma
     }
     if (edgeType === "nef-rev") {
         return {
-            markerStart: "single-not-arrow-marker-rev",
+
+            markerStart: `start-${id}`,
+            // markerStart: "single-not-arrow-marker-rev",
             markerEnd: undefined,
             style: { stroke: "var(--arrow-primary)", strokeWidth: STROKE_WIDTH }
 
@@ -47,14 +49,16 @@ export function getMarkersForEdge(edgeType: EdgeType): { markerStart: string, ma
     }
     if (edgeType === "ef-rev") {
         return {
-            markerStart: "single-arrow-marker-rev",
+
+            markerStart: `start-${id}`,
+            // markerStart: "single-arrow-marker-rev",
             markerEnd: undefined,
             style: { stroke: "var(--arrow-primary)", strokeWidth: STROKE_WIDTH }
 
         }
     }
     return {
-        markerStart: "dot-marker",
+        markerStart: `start-${id}`,
         markerEnd: undefined,
         style: { stroke: "purple", strokeWidth: 2, strokeDasharray: "5 5" }
     }
