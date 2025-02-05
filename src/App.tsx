@@ -28,6 +28,7 @@ import { ActivityNode } from './nodes/types';
 import BackendButton from './components/other/BackendButtons';
 import { Button } from './components/ui/button';
 import { OCELInfo, OCELInfoContext } from './lib/ocel-info';
+import { OCDeclareArcLabel } from 'crates/shared/bindings/OCDeclareArcLabel';
 
 function loadData() {
   try {
@@ -53,15 +54,24 @@ export default function App() {
   // const instance = useReactFlow();
   console.log("Re-render of App")
   const onConnect = useCallback<OnConnect>((connection) => {
-    console.log(connection);
+    const source = flowRef.current!.getNode(connection.source)!;
+    const target = flowRef.current!.getNode(connection.target)!;
+    let objectTypes: OCDeclareArcLabel = {"each": [{type: "Simple", object_type: "orders"}], any: [], all: [] };
+    if(source.data.isObject && !target.data.isObject) {
+      objectTypes =  {"each": [], any: [{type: "Simple", object_type: source.data.type}], all: [] };
+    }else if(target.data.isObject && !source.data.isObject) {
+      objectTypes =  {"each": [], any: [{type: "Simple", object_type: target.data.type}], all: [] };
+    }else if(target.data.isObject && source.data.isObject) {
+      objectTypes =  {"each": [], any: [{type: "O2O", first: source.data.type, second: target.data.type, reversed: false}], all: [] };
+    }
     return flowRef.current?.setEdges((edges) => {
-      const edgeType: EdgeType = "ef";
+      const edgeType: EdgeType =  source.data.isObject || target.data.isObject ? "ass" : "ef";
       const id =  Math.random() + connection.source + "@" + connection.sourceHandle + "-" + connection.target + "@" + connection.targetHandle;
       const newEdge: CustomEdge = {
         ...connection,
         type: "default",
         id,
-        data: { type: edgeType, objectTypes: {"each": [{type: "Simple", object_type: "orders"}], any: [], all: [] }},
+        data: { type: edgeType, objectTypes},
         ...getMarkersForEdge(edgeType,id)
       };
       return [...edges, newEdge]
@@ -97,6 +107,7 @@ export default function App() {
       ev.preventDefault();
       if (ev.clipboardData !== null) {
         const data = JSON.stringify(selectedRef.current);
+        console.log({...selectedRef.current})
         ev.clipboardData.setData("application/json+oc-declare-flow", data);
       }
       toast("Copied selection!", { icon: <ClipboardCopy /> });
@@ -114,6 +125,7 @@ export default function App() {
       const xOffset = x - nodeRect.x - firstNodeSize.width / 2;
       const yOffset = y - nodeRect.y - firstNodeSize.minHeight / 2;
       // Mutate nodes to update position and IDs (+ select them)
+      console.log({nodes,edges})
       const newNodes = nodes.map((n) => ({
         id: idPrefix + n.id,
         position: { x: n.position.x + xOffset, y: n.position.y + yOffset },
@@ -142,8 +154,8 @@ export default function App() {
               type: e.type,
               source: idPrefix + e.source,
               target: idPrefix + e.target,
-              // sourceHandle: idPrefix + e.sourceHandle,
-              // targetHandle: idPrefix + e.targetHandle,
+              sourceHandle: e.sourceHandle,
+              targetHandle: e.targetHandle,
               selected: true,
               data: e.data,
               ...getMarkersForEdge(e.data!.type,e.id)
@@ -231,7 +243,7 @@ export default function App() {
         // onNodesChange={onNodesChange}
         edgeTypes={edgeTypes}
         // onEdgesChange={onEdgesChange}
-        maxZoom={8}
+        maxZoom={12}
         // defaultEdgeOptions={{
         //   type: "default",
         // }}
@@ -247,6 +259,16 @@ export default function App() {
           ev.preventDefault()
         }}
         onSelectionChange={(sel) => {
+          // console.log(sel);
+          const addedEdges: Set<string> = new Set();
+          for(const n of sel.nodes){
+            for(const n2 of sel.nodes){
+              flowRef.current?.getEdges().filter(e => e.source === n.id && e.target === n2.id && sel.edges.find(e2 => e2.id === e.id) == null).map(e => e.id).forEach(e => addedEdges.add(e))
+            }
+          }
+          if(addedEdges.size > 0) {
+            flowRef.current?.setEdges(edges => [...edges].map(e => ({...e, selected: e.selected || addedEdges.has(e.id)})))
+          }
           selectedRef.current = sel as any;
         }}
         // fitView
