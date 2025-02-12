@@ -97,6 +97,7 @@ export default function CustomEdge({ id, source, target, markerEnd, style, marke
                 <linearGradient id={gradientID}
                     gradientTransform={(tDir === Position.Top || tDir === Position.Bottom) ? "rotate(90)" : ""}
                 >
+                    {correctedGradient.length === 0 && <stop stopColor="var(--arrow-primary,black)"/>}
                     {correctedGradient.map((t, i) => <stop key={t.type} offset={`${orZero(Math.round(100 * (i / (correctedGradient.length - 1))))}%`} stopColor={t.color} />)}
                 </linearGradient>
             </defs>
@@ -254,6 +255,8 @@ export default function CustomEdge({ id, source, target, markerEnd, style, marke
                 //   style={{"--arrow-primary": data.objectTypes.each[0] && data.objectTypes.each[0].type === "Simple" ? getRandomStringColor(data.objectTypes.each[0].object_type) :"black"} as CSSProperties}
                 >
                     {data.type === "ef-rev" && <g transform="rotate(180,0,0) translate(-26, -10)">
+                        {/* DIRECTLY: */}
+                        {/* <path d="M16,0 L16,20 L13,20 L13,0 Z " fill="var(--arrow-primary,black)" /> */}
                         <path d="M0,0 L20,9.5 L20,10 L20,10.5 L0,20 Z " fill="var(--arrow-primary,black)" />
                     </g>}
                     {data.type === "nef-rev" &&               <g transform="rotate(180,0,0) translate(-26, -10)">
