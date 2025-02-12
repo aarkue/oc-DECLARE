@@ -4,7 +4,7 @@ pub use wasm_bindgen_rayon::init_thread_pool;
 use std::sync::RwLock;
 
 use shared::{
-    get_activity_object_involvements, preprocess_ocel, process_mining::{
+    discovery::discover, get_activity_object_involvements, preprocess_ocel, process_mining::{
         import_ocel_json_from_slice, import_ocel_xml_slice, ocel::linked_ocel::IndexLinkedOCEL,
     }, OCDeclareArc
 };
@@ -94,6 +94,20 @@ pub fn get_ot_act_involvements() -> String {
         return serde_json::to_string(&ot_act_involvement).unwrap();
     } else {
         String::from("Failed")
+    }
+}
+
+
+
+#[wasm_bindgen]
+pub fn discover_oc_declare_constraints() -> Result<String,String> {
+    let locel_guard =
+         WASM_MEMORY_THINGY.read().unwrap();
+    if let Some(locel) = locel_guard.as_ref() {
+       let discovered_arcs = discover(locel,0.2);
+        return Ok(serde_json::to_string(&discovered_arcs).unwrap());
+    } else {
+        Err(String::from("Failed"))
     }
 }
 

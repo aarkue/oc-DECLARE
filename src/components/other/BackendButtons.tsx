@@ -1,8 +1,8 @@
-import { CustomEdge } from "@/edges/types";
+import { CustomEdge, EdgeType, getMarkersForEdge } from "@/edges/types";
 import { ActivityNode } from "@/nodes/types";
-import { useEdges, useReactFlow } from "@xyflow/react";
+import { ReactFlowInstance, useEdges, useReactFlow } from "@xyflow/react";
 import { useContext, useRef, useState } from "react";
-import init, { get_edge_violation_percentage, get_ot_act_involvements, initThreadPool, load_ocel_json, load_ocel_xml, unload_ocel } from "../../../crates/backend-wasm/pkg/backend_wasm";
+import init, { discover_oc_declare_constraints, get_edge_violation_percentage, get_ot_act_involvements, initThreadPool, load_ocel_json, load_ocel_xml, unload_ocel } from "../../../crates/backend-wasm/pkg/backend_wasm";
 import type { OCDeclareArc } from "../../../crates/shared/bindings/OCDeclareArc";
 import type { ViolationInfo } from "../../../crates/shared/bindings/ViolationInfo";
 
@@ -10,12 +10,14 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { OCDeclareArcType } from "crates/shared/bindings/OCDeclareArcType";
 import { OCELInfoContext } from "@/lib/ocel-info";
+import { OCDeclareNode } from "crates/shared/bindings/OCDeclareNode";
+import { getEdgeParams } from "@/edges/edge-helpers";
 export default function BackendButton() {
     const inputRef = useRef<HTMLInputElement>(null);
     const flow = useReactFlow<ActivityNode, CustomEdge>();
     const selectedEdges = useEdges<CustomEdge>().filter(e => e.selected)
     const [status, setStatus] = useState<"initial" | "ocel-loaded">("initial")
-    const {setOcelInfo} = useContext(OCELInfoContext);
+    const { setOcelInfo } = useContext(OCELInfoContext);
     return <>
         {status === "initial" && <Input type="file" ref={inputRef} />}
         {status === "initial" && <Button onClick={async () => {
@@ -56,8 +58,8 @@ export default function BackendButton() {
                     const [arc_type, counts] = translateArcInfo(e.data!);
 
                     const x: OCDeclareArc = {
-                        from: flow.getNode(e.source)!.data.isObject ?  { type:  "ObjectInit", object_type: flow.getNode(e.source)!.data.type } :{ type:  "Activity", activity: flow.getNode(e.source)!.data.type } ,
-                        to:  flow.getNode(e.target)!.data.isObject ?  { type:  "ObjectInit", object_type: flow.getNode(e.target)!.data.type } :{ type:  "Activity", activity: flow.getNode(e.target)!.data.type } ,
+                        from: flow.getNode(e.source)!.data.isObject ? { type: "ObjectInit", object_type: flow.getNode(e.source)!.data.type } : { type: "Activity", activity: flow.getNode(e.source)!.data.type },
+                        to: flow.getNode(e.target)!.data.isObject ? { type: "ObjectInit", object_type: flow.getNode(e.target)!.data.type } : { type: "Activity", activity: flow.getNode(e.target)!.data.type },
                         arc_type,
                         counts,
                         label: e.data!.objectTypes
@@ -83,6 +85,24 @@ export default function BackendButton() {
         <Button variant="ghost" onClick={() => {
             flow.setEdges(eds => [...eds].map(e => ({ ...e, data: { ...e.data!, violationInfo: undefined } })))
         }}>Reset</Button>
+
+        {status === "ocel-loaded" &&
+            <Button onClick={() => {
+                try {
+                    const discoverdArcs: OCDeclareArc[] = JSON.parse(discover_oc_declare_constraints());
+                    const nodeNameToIDs: Record<string, string> = {};
+                    for (const arc of discoverdArcs) {
+                        const sourceID = lookupIDOrCreateNode(arc.from, nodeNameToIDs, flow);
+                        const targetID = lookupIDOrCreateNode(arc.to, nodeNameToIDs, flow);
+                        const edgeType = translateArcTypeFromRsToTs(arc.arc_type);
+                        const edgeID = String(Date.now() + Math.random() * 100);
+                        flow.addEdges({ id: edgeID, source: sourceID, target: targetID, data: { type: edgeType, objectTypes: arc.label, cardinality: arc.counts }, ...getMarkersForEdge(edgeType,edgeID) })
+                    }
+                    console.log(discoverdArcs);
+                } catch (e) {
+                    console.error(e);
+                }
+            }}>Discover</Button>}
     </>
     function translateArcInfo(data: CustomEdge['data']): [OCDeclareArcType, [number | null, number | null]] {
         switch (data!.type) {
@@ -99,4 +119,29 @@ export default function BackendButton() {
         };
 
     }
+}
+
+function lookupIDOrCreateNode(node: OCDeclareNode, nodeIDMap: Record<string, string>, flow: ReactFlowInstance<ActivityNode, CustomEdge>): string {
+    const nodeName = node.type === "Activity" ? node.activity : (node.type === "ObjectInit" ? "<init> " + node.object_type : "<exit> " + node.object_type);
+    if (nodeIDMap[nodeName] == undefined) {
+        const id = Date.now() + nodeName
+        flow.addNodes({ id: id, type: "activity", position: { x: 0, y: 0 }, data: { isObject: node.type !== "Activity", type: node.type === "Activity" ? node.activity : node.object_type } })
+        nodeIDMap[nodeName] = id;
+        return id;
+    } else {
+        return nodeIDMap[nodeName];
+    }
+}
+
+function translateArcTypeFromRsToTs(arcType: OCDeclareArcType): EdgeType {
+    switch (arcType) {
+        case "ASS":
+            return "ass"
+        case "EF":
+            return "ef"
+        case "EFREV":
+            return "ef-rev"
+    }
+    return "ass"
+
 }

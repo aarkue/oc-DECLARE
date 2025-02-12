@@ -1,5 +1,7 @@
 #![feature(precise_capturing)]
 
+pub mod discovery;
+
 use std::{borrow::Cow, collections::{HashMap, HashSet}, default, hash::Hash, time::UNIX_EPOCH, usize};
 
 use itertools::{Itertools, MultiProduct};
@@ -10,6 +12,7 @@ use process_mining::{
         ocel_struct::{OCELEvent, OCELRelationship, OCELType},
     }, OCEL
 };
+
 
 use serde::{Deserialize, Serialize};
 const INIT_EVENT_PREFIX: &str = "<init>";
@@ -53,6 +56,7 @@ enum OCDeclareNode {
     ObjectInit { object_type: String },
     ObjectEnd { object_type: String },
 }
+
 
 impl<'a> Into<Cow<'a, String>> for &'a OCDeclareNode {
     fn into(self) -> Cow<'a, String> {
@@ -463,7 +467,10 @@ impl<'a, 'b> OCDeclareArcLabel {
                     )
                     .chain(
                         self.any
-                            .iter()
+                            .iter().sorted_by_cached_key(|ot| match ot {
+                                ObjectTypeAssociation::Simple { object_type } => - (linked_ocel.get_obs_of_type(&object_type).count() as i32),
+                                ObjectTypeAssociation::O2O { first, second, reversed } => -(linked_ocel.get_obs_of_type(&second).count() as i32),
+                            })
                             .map(|otass| SetFilter::Any(otass.get_for_ev(ev, linked_ocel))),
                     )
                     .collect_vec()
