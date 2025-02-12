@@ -56,23 +56,23 @@ export default function App() {
   const onConnect = useCallback<OnConnect>((connection) => {
     const source = flowRef.current!.getNode(connection.source)!;
     const target = flowRef.current!.getNode(connection.target)!;
-    let objectTypes: OCDeclareArcLabel = {"each": [{type: "Simple", object_type: "orders"}], any: [], all: [] };
-    if(source.data.isObject && !target.data.isObject) {
-      objectTypes =  {"each": [], any: [{type: "Simple", object_type: source.data.type}], all: [] };
-    }else if(target.data.isObject && !source.data.isObject) {
-      objectTypes =  {"each": [], any: [{type: "Simple", object_type: target.data.type}], all: [] };
-    }else if(target.data.isObject && source.data.isObject) {
-      objectTypes =  {"each": [], any: [{type: "O2O", first: source.data.type, second: target.data.type, reversed: false}], all: [] };
+    let objectTypes: OCDeclareArcLabel = { "each": [{ type: "Simple", object_type: "orders" }], any: [], all: [] };
+    if (source.data.isObject && !target.data.isObject) {
+      objectTypes = { "each": [], any: [{ type: "Simple", object_type: source.data.type }], all: [] };
+    } else if (target.data.isObject && !source.data.isObject) {
+      objectTypes = { "each": [], any: [{ type: "Simple", object_type: target.data.type }], all: [] };
+    } else if (target.data.isObject && source.data.isObject) {
+      objectTypes = { "each": [], any: [{ type: "O2O", first: source.data.type, second: target.data.type, reversed: false }], all: [] };
     }
     return flowRef.current?.setEdges((edges) => {
-      const edgeType: EdgeType =  source.data.isObject || target.data.isObject ? "ass" : "ef";
-      const id =  Math.random() + connection.source + "@" + connection.sourceHandle + "-" + connection.target + "@" + connection.targetHandle;
+      const edgeType: EdgeType = source.data.isObject || target.data.isObject ? "ass" : "ef";
+      const id = Math.random() + connection.source + "@" + connection.sourceHandle + "-" + connection.target + "@" + connection.targetHandle;
       const newEdge: CustomEdge = {
         ...connection,
         type: "default",
         id,
-        data: { type: edgeType, objectTypes},
-        ...getMarkersForEdge(edgeType,id)
+        data: { type: edgeType, objectTypes },
+        ...getMarkersForEdge(edgeType, id)
       };
       return [...edges, newEdge]
     })
@@ -107,7 +107,7 @@ export default function App() {
       ev.preventDefault();
       if (ev.clipboardData !== null) {
         const data = JSON.stringify(selectedRef.current);
-        console.log({...selectedRef.current})
+        console.log({ ...selectedRef.current })
         ev.clipboardData.setData("application/json+oc-declare-flow", data);
       }
       toast("Copied selection!", { icon: <ClipboardCopy /> });
@@ -125,7 +125,7 @@ export default function App() {
       const xOffset = x - nodeRect.x - firstNodeSize.width / 2;
       const yOffset = y - nodeRect.y - firstNodeSize.minHeight / 2;
       // Mutate nodes to update position and IDs (+ select them)
-      console.log({nodes,edges})
+      console.log({ nodes, edges })
       const newNodes = nodes.map((n) => ({
         id: idPrefix + n.id,
         position: { x: n.position.x + xOffset, y: n.position.y + yOffset },
@@ -158,7 +158,7 @@ export default function App() {
               targetHandle: e.targetHandle,
               selected: true,
               data: e.data,
-              ...getMarkersForEdge(e.data!.type,e.id)
+              ...getMarkersForEdge(e.data!.type, e.id)
             }))
             .filter(
               (e) =>
@@ -208,214 +208,219 @@ export default function App() {
     };
   }, [flowRef.current])
   useEffect(() => {
-    setEdges((edges) => edges.map(e => ({ ...e, ...getMarkersForEdge(e.data!.type,e.id) })))
+    setEdges((edges) => edges.map(e => ({ ...e, ...getMarkersForEdge(e.data!.type, e.id) })))
   }, [setEdges])
   const contextMenuTriggerRef = useRef<HTMLButtonElement>(null);
   return (
     <>
-    <OCELInfoContext.Provider value={{ocelInfo: ocelInfo, setOcelInfo: (oi) => {
-       setOcelInfo(oi);
-    }}}>
-      <Toaster />
-      <ContextMenu>
-        <ContextMenuTrigger className='pointer-events-auto hidden' asChild>
-          <button ref={contextMenuTriggerRef}></button>
-        </ContextMenuTrigger>
-        <ContextMenuContent>
-          <ContextMenuItem onClick={(ev) => {
-            ev.stopPropagation();
-            flowRef.current?.addNodes({ id: Date.now() + "-" + Math.random(), type: "activity", data: { type: "pay order" }, position: flowRef.current.screenToFlowPosition({ x: ev.clientX, y: ev.clientY }) })
-            console.log("Add node")
-          }}>Add Node</ContextMenuItem>
-        </ContextMenuContent>
-      </ContextMenu>
-      <div className='outer-flow w-full h-full'><ReactFlow className='react-flow'
-        onInit={(i) => flowRef.current = i}
-        defaultNodes={initialNodes}
-        nodeTypes={nodeTypes}
-        edges={edges}
-        onEdgesChange={onEdgesChange}
-        // onEdgeContextMenu={(ev, edge) => {
-        //   ev.preventDefault();
-        //   const newType = ALL_EDGE_TYPES[(ALL_EDGE_TYPES.indexOf(edge.data!.type) + 1) % ALL_EDGE_TYPES.length];
-        //   flowRef.current?.updateEdge(edge.id, { ...edge, data: { type: newType }, ...getMarkersForEdge(newType) })
-        // }}
-        // onNodesChange={onNodesChange}
-        edgeTypes={edgeTypes}
-        // onEdgesChange={onEdgesChange}
-        maxZoom={12}
-        // defaultEdgeOptions={{
-        //   type: "default",
-        // }}
-        onConnect={onConnect}
-        onContextMenu={(ev) => {
-          if (!ev.isDefaultPrevented() && contextMenuTriggerRef.current) {
-            contextMenuTriggerRef.current.dispatchEvent(new MouseEvent("contextmenu", {
-              bubbles: true,
-              clientX: ev.clientX,
-              clientY: ev.clientY,
-            }),);
-          }
-          ev.preventDefault()
-        }}
-        onSelectionChange={(sel) => {
-          // console.log(sel);
-          const addedEdges: Set<string> = new Set();
-          for(const n of sel.nodes){
-            for(const n2 of sel.nodes){
-              flowRef.current?.getEdges().filter(e => e.source === n.id && e.target === n2.id && sel.edges.find(e2 => e2.id === e.id) == null).map(e => e.id).forEach(e => addedEdges.add(e))
+      <OCELInfoContext.Provider value={{
+        ocelInfo: ocelInfo, setOcelInfo: (oi) => {
+          setOcelInfo(oi);
+        }
+      }}>
+        <Toaster />
+        <ContextMenu>
+          <ContextMenuTrigger className='pointer-events-auto hidden' asChild>
+            <button ref={contextMenuTriggerRef}></button>
+          </ContextMenuTrigger>
+          <ContextMenuContent>
+            <ContextMenuItem onClick={(ev) => {
+              ev.stopPropagation();
+              flowRef.current?.addNodes({ id: Date.now() + "-" + Math.random(), type: "activity", data: { type: "pay order" }, position: flowRef.current.screenToFlowPosition({ x: ev.clientX, y: ev.clientY }) })
+              console.log("Add node")
+            }}>Add Node</ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenu>
+        <div className='outer-flow w-full h-full'><ReactFlow className='react-flow'
+          onInit={(i) => flowRef.current = i}
+          defaultNodes={initialNodes}
+          nodeTypes={nodeTypes}
+          edges={edges}
+          onEdgesChange={onEdgesChange}
+          // onEdgeContextMenu={(ev, edge) => {
+          //   ev.preventDefault();
+          //   const newType = ALL_EDGE_TYPES[(ALL_EDGE_TYPES.indexOf(edge.data!.type) + 1) % ALL_EDGE_TYPES.length];
+          //   flowRef.current?.updateEdge(edge.id, { ...edge, data: { type: newType }, ...getMarkersForEdge(newType) })
+          // }}
+          // onNodesChange={onNodesChange}
+          edgeTypes={edgeTypes}
+          // onEdgesChange={onEdgesChange}
+          maxZoom={12}
+          // defaultEdgeOptions={{
+          //   type: "default",
+          // }}
+          onConnect={onConnect}
+          onContextMenu={(ev) => {
+            if (!ev.isDefaultPrevented() && contextMenuTriggerRef.current) {
+              contextMenuTriggerRef.current.dispatchEvent(new MouseEvent("contextmenu", {
+                bubbles: true,
+                clientX: ev.clientX,
+                clientY: ev.clientY,
+              }),);
             }
-          }
-          if(addedEdges.size > 0) {
-            flowRef.current?.setEdges(edges => [...edges].map(e => ({...e, selected: e.selected || addedEdges.has(e.id)})))
-          }
-          selectedRef.current = sel as any;
-        }}
-        // fitView
-        proOptions={{ hideAttribution: true }}
-      >
-        <Background className='hide-in-image' />
-        <Controls className='hide-in-image' />
-        <Panel className='flex gap-x-1 hide-in-image'>
-          <Button variant="outline" onClick={() => {
-            flowRef.current?.addNodes({
-              id: Date.now() + "-node",
-              position: { x: 0, y: 0 },
-              dragHandle: '.drag-handle__custom', data: Math.random() > 0.5 ? { type: "pay order", isObject: false } : { type: "orders", isObject: true },
-              type: 'activity',
-            });
-          }}>Add Node</Button>
-
-          <Button variant="outline" onClick={() => {
-            localStorage.setItem("oc-DECLARE", JSON.stringify(flowRef.current!.toObject()));
-          }}>Save</Button>
-
-          <Button variant="outline" onClick={() => {
-            const flow = loadData();
-            if (flow && flowRef.current) {
-              const { x = 0, y = 0, zoom = 1 } = flow.viewport;
-              flowRef.current.setNodes(flow.nodes || []);
-              setEdges(flow.edges || []);
-              flowRef.current.setViewport({ x, y, zoom });
+            ev.preventDefault()
+          }}
+          onSelectionChange={(sel) => {
+            // console.log(sel);
+            const addedEdges: Set<string> = new Set();
+            for (const n of sel.nodes) {
+              for (const n2 of sel.nodes) {
+                flowRef.current?.getEdges().filter(e => e.source === n.id && e.target === n2.id && sel.edges.find(e2 => e2.id === e.id) == null).map(e => e.id).forEach(e => addedEdges.add(e))
+              }
             }
-          }}>Restore</Button>
-          <Button variant="outline" onClick={(ev) => {
-            const button = ev.currentTarget;
-            button.disabled = true;
-            const scaleFactor = 2.0;
-            const viewPort = document.querySelector(
-              ".outer-flow",
-            ) as HTMLElement;
-            const useSVG = ev.shiftKey;
-            requestAnimationFrame(() => {
+            if (addedEdges.size > 0) {
+              flowRef.current?.setEdges(edges => [...edges].map(e => ({ ...e, selected: e.selected || addedEdges.has(e.id) })))
+            }
+            selectedRef.current = sel as any;
+          }}
+          // fitView
+          proOptions={{ hideAttribution: true }}
+        >
+          <Background className='hide-in-image' />
+          <Controls className='hide-in-image' />
+          <Panel className='flex gap-x-1 hide-in-image'>
+            <Button variant="outline" onClick={() => {
+              flowRef.current?.addNodes({
+                id: Date.now() + "-node",
+                position: { x: 0, y: 0 },
+                dragHandle: '.drag-handle__custom', data: Math.random() > 0.5 ? { type: "pay order", isObject: false } : { type: "orders", isObject: true },
+                type: 'activity',
+              });
+            }}>Add Node</Button>
+
+            <Button variant="outline" onClick={() => {
+              localStorage.setItem("oc-DECLARE", JSON.stringify(flowRef.current!.toObject()));
+            }}>Save</Button>
+
+            <Button variant="outline" onClick={() => {
+              const flow = loadData();
+              if (flow && flowRef.current) {
+                const { x = 0, y = 0, zoom = 1 } = flow.viewport;
+                flowRef.current.setNodes(flow.nodes || []);
+                setEdges(flow.edges || []);
+                flowRef.current.setViewport({ x, y, zoom });
+              }
+            }}>Restore</Button>
+            <Button variant="outline" onClick={(ev) => {
+              const button = ev.currentTarget;
+              button.disabled = true;
+              const scaleFactor = 2.0;
+              const viewPort = document.querySelector(
+                ".outer-flow",
+              ) as HTMLElement;
+              const useSVG = ev.shiftKey;
               requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
 
-                void (useSVG ? toSvg : toBlob)(viewPort, {
-                  canvasHeight: viewPort.clientHeight * scaleFactor * 2,
-                  canvasWidth: viewPort.clientWidth * scaleFactor * 2,
-                  filter: (node) => {
-                    return node.classList === undefined ||
-                      !node.classList.contains("hide-in-image")
-                  }
-                })
-                  .then(async (dataURLOrBlob) => {
-                    let blob = dataURLOrBlob;
-                    if (typeof blob === 'string') {
-                      blob = await (await fetch(blob)).blob()
+                  void (useSVG ? toSvg : toBlob)(viewPort, {
+                    canvasHeight: viewPort.clientHeight * scaleFactor * 2,
+                    canvasWidth: viewPort.clientWidth * scaleFactor * 2,
+                    filter: (node) => {
+                      return node.classList === undefined ||
+                        !node.classList.contains("hide-in-image")
                     }
-                    downloadBlob(blob as Blob, "oc-DECLARE" + (useSVG ? ".svg" : ".png"))
-                  }).finally(() =>
-                    button.disabled = false);
+                  })
+                    .then(async (dataURLOrBlob) => {
+                      let blob = dataURLOrBlob;
+                      if (typeof blob === 'string') {
+                        blob = await (await fetch(blob)).blob()
+                      }
+                      downloadBlob(blob as Blob, "oc-DECLARE" + (useSVG ? ".svg" : ".png"))
+                    }).finally(() =>
+                      button.disabled = false);
+                })
               })
-            })
-          }}>Download Image</Button>
-          <BackendButton />
-        </Panel>
-      </ReactFlow><svg width="0" height="0">
-          <defs>
-            <marker
-              className="react-flow__arrowhead"
-              id="dot-marker"
-              markerWidth="10"
-              markerHeight="10"
-              viewBox="-20 -20 40 40"
-              orient="auto"
-              refX="0"
-              refY="0"
-            >
-              <circle cx="0" cy="0" r="10" fill="var(--arrow-primary,black)" />
-            </marker>
-            <marker
-              className="react-flow__arrowhead"
-              id="double-arrow-marker"
-              markerWidth="10"
-              markerHeight="10"
-              viewBox="-20 -20 40 40"
-              orient="auto"
-              refX="17.3"
-              refY="10"
-            >
-              <path d="M-16,0 L4,10 L-16,20 Z" fill="var(--arrow-primary,black)" />
-              <path d="M0,0 L20,9.5 L20,10 L20,10.5 L0,20 Z " fill="var(--arrow-primary,black)" />
-            </marker>
-            <marker
-              className="react-flow__arrowhead"
-              id="single-arrow-marker"
-              markerWidth="10"
-              markerHeight="10"
-              viewBox="-20 -20 40 40"
-              orient="auto"
-              refX="16.9"
-              refY="10"
-            >
-              <path d="M0,0 L20,9.5 L20,10 L20,10.5 L0,20 Z " fill="var(--arrow-primary,black)" />
-            </marker>
-            <marker
-              className="react-flow__arrowhead"
-              id="single-not-arrow-marker"
-              markerWidth="10"
-              markerHeight="10"
-              viewBox="-20 -20 40 40"
-              orient="auto"
-              refX="16.9"
-              refY="10"
-            >
-              <path d="M-15,0 L-13,20 L-10,20 L-12,0 Z" fill="var(--arrow-primary,black)" />
-              <path d="M-10,0 L-8,20 L-5,20 L-7,0 Z" fill="var(--arrow-primary,black)" />
-              <path d="M0,0 L20,9.5 L20,10 L20,10.5 L0,20 Z " fill="var(--arrow-primary,black)" />
-            </marker>
-            <marker
-              className="react-flow__arrowhead"
-              id="single-not-arrow-marker-rev"
-              markerWidth="40"
-              markerHeight="40"
-              viewBox="-80 -80 160 160"
-              orient="auto"
-              refX="0"
-            >
-              <circle cx="0" cy="0" r="10" fill="var(--arrow-primary,black)" />
-              <g transform="rotate(180,0,0) translate(-26, -10)">
+            }}>Download Image</Button>
+            <BackendButton />
+          </Panel>
+        </ReactFlow><svg width="0" height="0">
+            <defs>
+              <marker
+                className="react-flow__arrowhead"
+                id="dot-marker"
+                markerWidth="10"
+                markerHeight="10"
+                viewBox="-20 -20 40 40"
+                orient="auto"
+                refX="0"
+                refY="0"
+              >
+                <circle cx="0" cy="0" r="10" fill="var(--arrow-primary,black)" />
+              </marker>
+              <marker
+                className="react-flow__arrowhead"
+                id="double-arrow-marker"
+                markerWidth="10"
+                markerHeight="10"
+                viewBox="-20 -20 40 40"
+                orient="auto"
+                refX="17.3"
+                refY="10"
+              >
+                <path d="M-16,0 L4,10 L-16,20 Z" fill="var(--arrow-primary,black)" />
+                <path d="M0,0 L20,9.5 L20,10 L20,10.5 L0,20 Z " fill="var(--arrow-primary,black)" />
+              </marker>
+              <marker
+                className="react-flow__arrowhead"
+                id="single-arrow-marker"
+                markerWidth="10"
+                markerHeight="10"
+                viewBox="-20 -20 40 40"
+                orient="auto"
+                refX="16.9"
+                refY="10"
+              >
+
+                {/* Directly: */}
+                {/* <path d="M13.5,0 L13.5,20 L16.5,20 L16.5,0 Z " fill="var(--arrow-primary,black)" /> */}
+                <path d="M0,0 L20,9.5 L20,10 L20,10.5 L0,20 Z " fill="var(--arrow-primary,black)" />
+              </marker>
+              <marker
+                className="react-flow__arrowhead"
+                id="single-not-arrow-marker"
+                markerWidth="10"
+                markerHeight="10"
+                viewBox="-20 -20 40 40"
+                orient="auto"
+                refX="16.9"
+                refY="10"
+              >
                 <path d="M-15,0 L-13,20 L-10,20 L-12,0 Z" fill="var(--arrow-primary,black)" />
                 <path d="M-10,0 L-8,20 L-5,20 L-7,0 Z" fill="var(--arrow-primary,black)" />
                 <path d="M0,0 L20,9.5 L20,10 L20,10.5 L0,20 Z " fill="var(--arrow-primary,black)" />
-              </g>
-            </marker>
-            <marker
-              className="react-flow__arrowhead"
-              id="single-arrow-marker-rev"
-              markerWidth="40"
-              markerHeight="40"
-              viewBox="-80 -80 160 160"
-              orient="auto"
-              refX="0"
-            >
-              <circle cx="0" cy="0" r="10" fill="var(--arrow-primary,black)" />
-              <g transform="rotate(180,0,0) translate(-26, -10)">
-                <path d="M0,0 L20,9.5 L20,10 L20,10.5 L0,20 Z " fill="var(--arrow-primary,black)" />
-              </g>
-            </marker>
-          </defs>
-        </svg></div></OCELInfoContext.Provider>
+              </marker>
+              <marker
+                className="react-flow__arrowhead"
+                id="single-not-arrow-marker-rev"
+                markerWidth="40"
+                markerHeight="40"
+                viewBox="-80 -80 160 160"
+                orient="auto"
+                refX="0"
+              >
+                <circle cx="0" cy="0" r="10" fill="var(--arrow-primary,black)" />
+                <g transform="rotate(180,0,0) translate(-26, -10)">
+                  <path d="M-15,0 L-13,20 L-10,20 L-12,0 Z" fill="var(--arrow-primary,black)" />
+                  <path d="M-10,0 L-8,20 L-5,20 L-7,0 Z" fill="var(--arrow-primary,black)" />
+                  <path d="M0,0 L20,9.5 L20,10 L20,10.5 L0,20 Z " fill="var(--arrow-primary,black)" />
+                </g>
+              </marker>
+              <marker
+                className="react-flow__arrowhead"
+                id="single-arrow-marker-rev"
+                markerWidth="40"
+                markerHeight="40"
+                viewBox="-80 -80 160 160"
+                orient="auto"
+                refX="0"
+              >
+                <circle cx="0" cy="0" r="10" fill="var(--arrow-primary,black)" />
+                <g transform="rotate(180,0,0) translate(-26, -10)">
+                  <path d="M0,0 L20,9.5 L20,10 L20,10.5 L0,20 Z " fill="var(--arrow-primary,black)" />
+                </g>
+              </marker>
+            </defs>
+          </svg></div></OCELInfoContext.Provider>
     </>
   );
 }
