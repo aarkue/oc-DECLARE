@@ -29,6 +29,7 @@ import BackendButton from './components/other/BackendButtons';
 import { Button } from './components/ui/button';
 import { OCELInfo, OCELInfoContext } from './lib/ocel-info';
 import { OCDeclareArcLabel } from 'crates/shared/bindings/OCDeclareArcLabel';
+import { applyLayoutToNodes } from './lib/automatic-layout';
 
 function loadData() {
   try {
@@ -92,6 +93,39 @@ export default function App() {
     }
   }
 
+  const autoLayout = useCallback(async () => {
+    const origEdges = [...flowRef.current!.getEdges()];
+    const origNodes = [...flowRef.current!.getNodes()];
+    const isSelectionEmpty =
+      selectedRef.current.nodes.length <= 1 &&
+      selectedRef.current.edges.length <= 1;
+    const nodes = isSelectionEmpty
+      ? origNodes
+      : origNodes.filter((n) => n.selected);
+    const edges = (isSelectionEmpty ? origEdges : origEdges).filter(
+      (e) =>
+        nodes.find((n) => n.id === e.source) !== undefined &&
+        nodes.find((n) => n.id === e.target) !== undefined,
+    );
+    const { x: beforeX, y: beforeY } =
+      nodes.length > 0 ? nodes[0].position : { x: 0, y: 0 };
+    await applyLayoutToNodes(nodes, edges);
+    if (!isSelectionEmpty) {
+      const { x: afterX, y: afterY } =
+        nodes.length > 0 ? nodes[0].position : { x: 0, y: 0 };
+      const diffX = beforeX - afterX;
+      const diffY = beforeY - afterY;
+      nodes.forEach((n) => {
+        n.position.x += diffX;
+        n.position.y += diffY;
+      });
+    }
+    flowRef.current!.setNodes(origNodes);
+    console.log(isSelectionEmpty);
+    if (isSelectionEmpty) {
+      flowRef.current!?.fitView({ duration: 200, padding: 0.2 });
+    }
+  }, []);
 
   useEffect(() => {
 
@@ -332,6 +366,7 @@ export default function App() {
               })
             }}>Download Image</Button>
             <BackendButton />
+            <Button onClick={() => autoLayout()}>Layout</Button>
           </Panel>
         </ReactFlow><svg width="0" height="0">
             <defs>
