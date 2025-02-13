@@ -55,9 +55,9 @@ pub fn get_edge_violation_percentage(edge_json: String) -> String {
          WASM_MEMORY_THINGY.read().unwrap();
     if let Some(locel) = locel_guard.as_ref() {
         let edge: OCDeclareArc = serde_json::from_str(&edge_json).unwrap();
-        let all_res = edge.get_for_all_evs(&locel);
+        let all_res = edge.get_for_all_evs(locel);
 
-        return serde_json::to_string(&all_res).unwrap();
+        serde_json::to_string(&all_res).unwrap()
     } else {
         String::from("Failed")
     }
@@ -69,9 +69,9 @@ pub fn get_edge_violation_percentage_perf(edge_json: String) -> Result<f64,Strin
          WASM_MEMORY_THINGY.read().unwrap();
     if let Some(locel) = locel_guard.as_ref() {
         let edge: OCDeclareArc = serde_json::from_str(&edge_json).unwrap();
-        let viol_frac = edge.get_for_all_evs_perf(&locel);
+        let viol_frac = edge.get_for_all_evs_perf(locel);
 
-        return Ok(viol_frac)
+        Ok(viol_frac)
     } else {
         Err(String::from("Failed"))
     }
@@ -86,8 +86,8 @@ pub fn get_all_edge_violation_percentage(edge_json: String) -> Result<Vec<String
         let edge_json : Vec<OCDeclareArc> = serde_json::from_str(&edge_json).unwrap();
         let res = edge_json.iter().map(|edge| {
         //    let edge: OCDeclareArc = serde_json::from_str(json).unwrap();
-           let all_res = edge.get_for_all_evs(&locel);
-           return serde_json::to_string(&all_res).unwrap()
+           let all_res = edge.get_for_all_evs(locel);
+           serde_json::to_string(&all_res).unwrap()
         }).collect();
         Ok(res)
         // let edge: OCDeclareArc = serde_json::from_str(&edge_json).unwrap();
@@ -106,7 +106,7 @@ pub fn get_ot_act_involvements() -> String {
          WASM_MEMORY_THINGY.read().unwrap();
     if let Some(locel) = locel_guard.as_ref() {
        let ot_act_involvement = get_activity_object_involvements(locel);
-        return serde_json::to_string(&ot_act_involvement).unwrap();
+        serde_json::to_string(&ot_act_involvement).unwrap()
     } else {
         String::from("Failed")
     }
@@ -120,7 +120,7 @@ pub fn discover_oc_declare_constraints(noise_thresh: f64) -> Result<String,Strin
          WASM_MEMORY_THINGY.read().unwrap();
     if let Some(locel) = locel_guard.as_ref() {
        let discovered_arcs = discover(locel,noise_thresh);
-        return Ok(serde_json::to_string(&discovered_arcs).unwrap());
+        Ok(serde_json::to_string(&discovered_arcs).unwrap())
     } else {
         Err(String::from("Failed"))
     }

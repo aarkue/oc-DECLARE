@@ -3,17 +3,13 @@ pub mod discovery;
 use std::{
     borrow::Cow,
     collections::{HashMap, HashSet},
-    default,
     hash::Hash,
-    time::UNIX_EPOCH,
     usize,
 };
 
-use itertools::{Itertools, MultiProduct};
+use itertools::Itertools;
 pub use process_mining;
 use process_mining::{
-    event_log::Event,
-    export_ocel_json_path, export_ocel_xml_path,
     ocel::{
         linked_ocel::{
             index_linked_ocel::{EventIndex, ObjectIndex},
@@ -53,8 +49,7 @@ pub fn preprocess_ocel(mut ocel: OCEL) -> IndexLinkedOCEL {
                         qualifier: String::from("init"),
                     }],
                 }
-            })
-            .into_iter(),
+            }),
     );
     ocel.into()
 }
@@ -68,9 +63,9 @@ enum OCDeclareNode {
     ObjectEnd { object_type: String },
 }
 
-impl<'a> Into<Cow<'a, String>> for &'a OCDeclareNode {
-    fn into(self) -> Cow<'a, String> {
-        match self {
+impl<'a> From<&'a OCDeclareNode> for Cow<'a, String> {
+    fn from(val: &'a OCDeclareNode) -> Self {
+        match val {
             OCDeclareNode::Activity { activity } => Cow::Borrowed(activity),
             OCDeclareNode::ObjectInit { object_type } => {
                 Cow::Owned(format!("<init> {object_type}"))
@@ -140,7 +135,7 @@ impl OCDeclareArc {
             .get_evs_of_type(Into::<Cow<_>>::into(&self.from).as_str())
             // .get(Into::<Cow<_>>::into(&self.from).as_str())
             // .unwrap()
-            .par_bridge()
+            // .par_bridge()
             // iter()
             .map(|ev| self.get_for_ev(ev, linked_ocel))
             .collect();
@@ -150,14 +145,21 @@ impl OCDeclareArc {
     }
 
     pub fn get_for_all_evs_perf(&self, linked_ocel: &IndexLinkedOCEL) -> f64 {
-        let ev_count = linked_ocel
-            .get_evs_of_type(Into::<Cow<_>>::into(&self.from).as_str())
-            .count();
-        let violated_evs_count = linked_ocel
-            .get_evs_of_type(Into::<Cow<_>>::into(&self.from).as_str())
+        let evs = linked_ocel
+        .events_per_type.get(Into::<Cow<_>>::into(&self.from).as_str()).unwrap();
+        let ev_count = evs.len();
+        //  linked_ocel
+            // .get_evs_of_type(Into::<Cow<_>>::into(&self.from).as_str())
+            //.take(200)
+            // .count();
+        let violated_evs_count = 
+        // linked_ocel
+            // .events_per_type.get(Into::<Cow<_>>::into(&self.from).as_str()).unwrap()
+            evs.into_par_iter()
+            // .take(200)
             // .get(Into::<Cow<_>>::into(&self.from).as_str())
             // .unwrap()
-            .par_bridge()
+            // .par_bridge()
             // iter()
             .filter(|ev| self.get_for_ev_perf(ev, linked_ocel))
             .count();
@@ -196,13 +198,11 @@ impl OCDeclareArc {
                         // Violated!
                         return true;
                     }
-                } else {
-                    if let Some(c) = self.counts.1 {
-                        let count = target_ev_iterator.take(c + 1).count();
-                        if c < count || count < self.counts.0.unwrap_or_default() {
-                            // Violated
-                            return true;
-                        }
+                } else if let Some(c) = self.counts.1 {
+                    let count = target_ev_iterator.take(c + 1).count();
+                    if c < count || count < self.counts.0.unwrap_or_default() {
+                        // Violated
+                        return true;
                     }
                 }
                 false
@@ -302,7 +302,7 @@ impl OCDeclareArc {
                         count,
                     });
                 }
-                return None;
+                None
 
                 // (binding,count)
 
@@ -311,7 +311,7 @@ impl OCDeclareArc {
             .collect_vec();
         // let num_viol_bindings = res.iter().filter(|o| o.is_some()).count();
         // let num_sat_bindings = res.len() - num_viol_bindings;
-        return (res.len(), res.into_iter().flatten().collect());
+        (res.len(), res.into_iter().flatten().collect())
     }
 }
 
@@ -332,7 +332,7 @@ fn get_evs_with_objs<'a>(
                         // .iter()
                         .map(|e| e.1)
                         .filter_map(|e| {
-                            let ev = linked_ocel.get_ev(&e);
+                            let ev = linked_ocel.get_ev(e);
                             if ev.event_type == *etype {
                                 Some(*e)
                             } else {
@@ -344,7 +344,7 @@ fn get_evs_with_objs<'a>(
                 .collect()
         }
         SetFilter::All(items) => {
-            if items.len() == 0 {
+            if items.is_empty() {
                 return Vec::new();
             }
             linked_ocel
@@ -368,7 +368,7 @@ fn get_evs_with_objs<'a>(
     for o in objs.iter() {
         initial.retain(|e| {
             let obs = linked_ocel.get_e2o_set(e);
-            o.check(&obs)
+            o.check(obs)
         });
     }
     initial
@@ -392,7 +392,7 @@ fn get_evs_with_objs_perf<'a>(
                             // .iter()
                             .map(|e| e.1)
                             .filter_map(|e| {
-                                let ev = linked_ocel.get_ev(&e);
+                                let ev = linked_ocel.get_ev(e);
                                 if ev.event_type == *etype {
                                     Some(*e)
                                 } else {
@@ -405,7 +405,7 @@ fn get_evs_with_objs_perf<'a>(
             )
         }
         SetFilter::All(items) => {
-            if items.len() == 0 {
+            if items.is_empty() {
                 Box::new(Vec::new().into_iter())
             } else {
                 Box::new(
@@ -433,7 +433,7 @@ fn get_evs_with_objs_perf<'a>(
     initial.filter(|e| {
         for o in objs.iter() {
             let obs = linked_ocel.get_e2o_set(e);
-            if !o.check(&obs) {
+            if !o.check(obs) {
                 return false;
             }
         }
@@ -495,10 +495,10 @@ impl ObjectTypeAssociation {
         }
     }
 
-    pub fn get_for_ev<'a>(
+    pub fn get_for_ev(
         &self,
         ev: &EventIndex,
-        linked_ocel: &'a IndexLinkedOCEL,
+        linked_ocel: &IndexLinkedOCEL,
     ) -> Vec<ObjectIndex> {
         match self {
             ObjectTypeAssociation::Simple { object_type } => linked_ocel
@@ -506,7 +506,7 @@ impl ObjectTypeAssociation {
                 // .map(|x| x.1)
                 .iter()
                 .filter_map(|o| {
-                    let ob = linked_ocel.get_ob(&o);
+                    let ob = linked_ocel.get_ob(o);
                     if ob.object_type == *object_type {
                         Some(*o)
                     } else {
@@ -523,11 +523,11 @@ impl ObjectTypeAssociation {
                 // .unwrap()
                 .iter()
                 // .map(|x| x.1)
-                .filter(|o| linked_ocel.get_ob(&o).object_type == *first)
+                .filter(|o| linked_ocel.get_ob(o).object_type == *first)
                 .flat_map(|o| {
                     if !reversed {
                         linked_ocel
-                            .get_o2o(&o)
+                            .get_o2o(o)
                             // .get(&Into::<ObjectID>::into(&o.id))
                             // .unwrap()
                             // .iter()
@@ -536,7 +536,7 @@ impl ObjectTypeAssociation {
                             .collect_vec()
                     } else {
                         linked_ocel
-                            .get_o2o_rev(&o)
+                            .get_o2o_rev(o)
                             // .get(&Into::<ObjectID>::into(&o.id))
                             // .unwrap()
                             // .iter()
@@ -544,8 +544,7 @@ impl ObjectTypeAssociation {
                             .filter(|o2| linked_ocel.get_ob(o2).object_type == *second)
                             .collect_vec()
                     }
-                })
-                .map(|o| *o)
+                }).copied()
                 .collect(),
         }
     }
@@ -599,7 +598,7 @@ impl OCDeclareArcLabel {
             return false
         }
         let all_any = self.any.iter().all(|a| other.any.contains(a) || other.each.contains(a) || other.all.contains(a));
-        return all_any
+        all_any
     }
 }
 
@@ -619,12 +618,12 @@ impl<T: Eq + Hash> SetFilter<T> {
     }
 }
 
-impl<'a, 'b> OCDeclareArcLabel {
+impl<'a> OCDeclareArcLabel {
     pub fn get_bindings(
         &'a self,
         ev: &'a EventIndex,
         linked_ocel: &'a IndexLinkedOCEL,
-    ) -> impl Iterator<Item = Vec<SetFilter<ObjectIndex>>> + use<'a, 'b>
+    ) -> impl Iterator<Item = Vec<SetFilter<ObjectIndex>>> + use<'a, '_>
 //  impl Iterator<Item = impl Iterator<Item = SetFilter<ObjectIndex>>>
     {
         self.each
@@ -640,21 +639,20 @@ impl<'a, 'b> OCDeclareArcLabel {
                             Vec::default()
                         } else {
                             vec![SetFilter::All(product)]
-                        }
-                        .into_iter(),
+                        },
                     )
                     .chain(
                         self.any
                             .iter()
                             .sorted_by_cached_key(|ot| match ot {
                                 ObjectTypeAssociation::Simple { object_type } => {
-                                    -(linked_ocel.get_obs_of_type(&object_type).count() as i32)
+                                    -(linked_ocel.get_obs_of_type(object_type).count() as i32)
                                 }
                                 ObjectTypeAssociation::O2O {
                                     first,
                                     second,
                                     reversed,
-                                } => -(linked_ocel.get_obs_of_type(&second).count() as i32),
+                                } => -(linked_ocel.get_obs_of_type(second).count() as i32),
                             })
                             .map(|otass| SetFilter::Any(otass.get_for_ev(ev, linked_ocel))),
                     )
@@ -850,5 +848,39 @@ mod tests {
         // println!("{}", serde_json::to_string_pretty(&x).unwrap());
 
         // println!("{:?}", x);
+    }
+
+
+
+    #[test]
+    fn hpc_discovery() {
+        let ocel =
+            import_ocel_json_from_path("/home/aarkue/dow/ocel/hpc-ocel-complete-acc-extraction2.json").unwrap();
+
+        let linked_ocel: IndexLinkedOCEL = preprocess_ocel(ocel);
+
+        let now = Instant::now();
+        let res = discover(&linked_ocel, 0.2);
+        println!("Took {:?}", now.elapsed());
+        println!("Got {} results", res.len());
+
+        serde_json::to_writer_pretty(File::create("discovered-hpc.json").unwrap(), &res).unwrap();
+
+    }
+
+    #[test]
+    fn bpic2017_discovery() {
+        let ocel =
+            import_ocel_json_from_path("/home/aarkue/dow/ocel/bpic2017-o2o-workflow-qualifier-index-no-ev-attrs.json").unwrap();
+
+        let linked_ocel: IndexLinkedOCEL = preprocess_ocel(ocel);
+
+        let now = Instant::now();
+        let res = discover(&linked_ocel, 0.2);
+        println!("Took {:?}", now.elapsed());
+        println!("Got {} results", res.len());
+
+        serde_json::to_writer_pretty(File::create("discovered-bpic2017.json").unwrap(), &res).unwrap();
+
     }
 }
