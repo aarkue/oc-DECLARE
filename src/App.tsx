@@ -124,7 +124,9 @@ export default function App() {
     flowRef.current!.setNodes(origNodes);
     console.log(isSelectionEmpty);
     if (isSelectionEmpty) {
-      flowRef.current!?.fitView({ duration: 200, padding: 0.2 });
+      setTimeout(() => {
+      flowRef.current?.fitView({ duration: 200, padding: 0.2 });
+      });
     }
   }, []);
 

@@ -2,17 +2,15 @@ import { CustomEdge, EdgeType, getMarkersForEdge } from "@/edges/types";
 import { ActivityNode } from "@/nodes/types";
 import { ReactFlowInstance, useEdges, useReactFlow } from "@xyflow/react";
 import { useContext, useRef, useState } from "react";
-import init, { discover_oc_declare_constraints, get_edge_violation_percentage, get_ot_act_involvements, initThreadPool, load_ocel_json, load_ocel_xml, unload_ocel } from "../../../crates/backend-wasm/pkg/backend_wasm";
-import type { OCDeclareArc } from "../../../crates/shared/bindings/OCDeclareArc";
-import type { ViolationInfo } from "../../../crates/shared/bindings/ViolationInfo";
 import { v4 as uuidv4 } from 'uuid';
+import init, { discover_oc_declare_constraints, get_edge_violation_percentage_perf, get_ot_act_involvements, initThreadPool, load_ocel_json, load_ocel_xml, unload_ocel } from "../../../crates/backend-wasm/pkg/backend_wasm";
+import type { OCDeclareArc } from "../../../crates/shared/bindings/OCDeclareArc";
 
+import { OCELInfoContext } from "@/lib/ocel-info";
+import { OCDeclareArcType } from "crates/shared/bindings/OCDeclareArcType";
+import { OCDeclareNode } from "crates/shared/bindings/OCDeclareNode";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { OCDeclareArcType } from "crates/shared/bindings/OCDeclareArcType";
-import { OCELInfoContext } from "@/lib/ocel-info";
-import { OCDeclareNode } from "crates/shared/bindings/OCDeclareNode";
-import { getEdgeParams } from "@/edges/edge-helpers";
 export default function BackendButton() {
     const inputRef = useRef<HTMLInputElement>(null);
     const flow = useReactFlow<ActivityNode, CustomEdge>();
@@ -20,7 +18,7 @@ export default function BackendButton() {
     const [status, setStatus] = useState<"initial" | "ocel-loaded">("initial")
     const { setOcelInfo } = useContext(OCELInfoContext);
     return <>
-        {status === "initial" && <Input type="file" ref={inputRef} />}
+        {status === "initial" && <Input type="file" ref={inputRef} className="max-w-[7rem]" />}
         {status === "initial" && <Button onClick={async () => {
             if (inputRef.current?.files?.length) {
                 await init();
@@ -67,15 +65,16 @@ export default function BackendButton() {
                     };
                     // console.log(x);
                     // console.log(JSON.stringify(x));
-                    const before = Date.now();
+                    // const before = Date.now();
                     const xJson = JSON.stringify(x);
-                    const res = get_edge_violation_percentage(xJson);
-                    console.log("Evaluation took " + ((Date.now() - before) / 1000) + "s");
+                    // const res = get_edge_violation_percentage(xJson);
+                    // console.log("Evaluation took " + ((Date.now() - before) / 1000) + "s");
                     // console.log({ res });
-                    const violations: [number, number, [number, ViolationInfo[]][]] = JSON.parse(res);
-                    const violationPercentage = 100 * violations[1] / violations[0];
-                    console.log(violations[2]);
-                    flow.updateEdgeData(e.id, { violationInfo: { violationPercentage } });
+                    // const violations: [number, number, [number, ViolationInfo[]][]] = JSON.parse(res);
+                    // const violationPercentage = 100 * violations[1] / violations[0];
+                    // console.log(violations[2]);
+                    const violFrac = get_edge_violation_percentage_perf(xJson);
+                    flow.updateEdgeData(e.id, { violationInfo: { violationPercentage: 100 * violFrac } });
                 });
                 console.log("TOTAL Evaluation took " + ((Date.now() - beginning) / 1000) + "s");
             }}>
@@ -90,7 +89,10 @@ export default function BackendButton() {
         {status === "ocel-loaded" &&
             <Button onClick={() => {
                 try {
-                    const discoverdArcs: OCDeclareArc[] = JSON.parse(discover_oc_declare_constraints());
+                    let now = Date.now();
+                    const res = discover_oc_declare_constraints(0.2);
+                    console.log("Discovery took " + ((Date.now() - now) / 1000) + "s");
+                    const discoverdArcs: OCDeclareArc[] = JSON.parse(res);
                     const nodeNameToIDs: Record<string, string> = {};
                     for (const arc of discoverdArcs) {
                         const sourceID = lookupIDOrCreateNode(arc.from, nodeNameToIDs, flow);
