@@ -64,6 +64,21 @@ pub fn get_edge_violation_percentage(edge_json: String) -> String {
 }
 
 #[wasm_bindgen]
+pub fn get_edge_violation_percentage_perf(edge_json: String) -> Result<f64,String> {
+    let locel_guard =
+         WASM_MEMORY_THINGY.read().unwrap();
+    if let Some(locel) = locel_guard.as_ref() {
+        let edge: OCDeclareArc = serde_json::from_str(&edge_json).unwrap();
+        let viol_frac = edge.get_for_all_evs_perf(&locel);
+
+        return Ok(viol_frac)
+    } else {
+        Err(String::from("Failed"))
+    }
+}
+
+
+#[wasm_bindgen]
 pub fn get_all_edge_violation_percentage(edge_json: String) -> Result<Vec<String>,String> {
     let locel_guard =
          WASM_MEMORY_THINGY.read().unwrap();
@@ -100,11 +115,11 @@ pub fn get_ot_act_involvements() -> String {
 
 
 #[wasm_bindgen]
-pub fn discover_oc_declare_constraints() -> Result<String,String> {
+pub fn discover_oc_declare_constraints(noise_thresh: f64) -> Result<String,String> {
     let locel_guard =
          WASM_MEMORY_THINGY.read().unwrap();
     if let Some(locel) = locel_guard.as_ref() {
-       let discovered_arcs = discover(locel,0.2);
+       let discovered_arcs = discover(locel,noise_thresh);
         return Ok(serde_json::to_string(&discovered_arcs).unwrap());
     } else {
         Err(String::from("Failed"))
