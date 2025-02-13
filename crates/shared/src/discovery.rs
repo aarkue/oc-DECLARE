@@ -15,6 +15,7 @@ use crate::{
     OCDeclareNode, ObjectTypeAssociation, INIT_EVENT_PREFIX,
 };
 
+const MAX_COUNT_OPT: Option<usize> = Some(20);
 pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc> {
     let mut ret = Vec::new();
     // First type of discovery: How many events of a specific type per object of specified type?
@@ -183,34 +184,34 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                     while changed {
                         let mut to_remove = HashSet::new();
                         let mut to_add = HashSet::new();
-                        
+
                         for arc1_i in 0..act_arcs.len() {
-                            for arc2_i in (arc1_i+1)..act_arcs.len() {
+                            for arc2_i in (arc1_i + 1)..act_arcs.len() {
                                 let arc1 = &act_arcs[arc1_i];
                                 let arc2 = &act_arcs[arc2_i];
                                 // if arc1.is_dominated_by(arc2) || arc2.is_dominated_by(arc1){
                                 //     continue;
                                 // }
-                                    let new_arc_label = arc1.combine(&arc2);
-                                    // if !act_arcs.contains(&new_arc_label) {
-                                        let new_arc = OCDeclareArc {
-                                            from: OCDeclareNode::new_act(act1),
-                                            to: OCDeclareNode::new_act(act2),
-                                            arc_type: OCDeclareArcType::EF,
-                                            label: new_arc_label,
-                                            counts: (Some(1), None),
-                                        };
-                                        let violation_frac = new_arc.get_for_all_evs_perf(locel);
-                                        if violation_frac <= noise_thresh {
-                                            // println!("Combined into {:?}", new_arc);
-                                            // It IS a viable candidate!
-                                            to_add.insert(new_arc.label);
-                                            to_remove.insert(arc1);
-                                            to_remove.insert(arc2);
-                                        }
-                                    // }
+                                let new_arc_label = arc1.combine(&arc2);
+                                // if !act_arcs.contains(&new_arc_label) {
+                                let new_arc = OCDeclareArc {
+                                    from: OCDeclareNode::new_act(act1),
+                                    to: OCDeclareNode::new_act(act2),
+                                    arc_type: OCDeclareArcType::EF,
+                                    label: new_arc_label,
+                                    counts: (Some(1), MAX_COUNT_OPT),
+                                };
+                                let violation_frac = new_arc.get_for_all_evs_perf(locel);
+                                if violation_frac <= noise_thresh {
+                                    // println!("Combined into {:?}", new_arc);
+                                    // It IS a viable candidate!
+                                    to_add.insert(new_arc.label);
+                                    to_remove.insert(arc1);
+                                    to_remove.insert(arc2);
                                 }
+                                // }
                             }
+                        }
                         changed = !to_add.is_empty();
                         act_arcs = act_arcs
                             .iter()
@@ -219,18 +220,32 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                             .chain(to_add)
                             .collect();
                     }
-                 
-                    arcs.extend(act_arcs.iter().filter(|arc1| {
-                        !act_arcs.iter().any(|arc2| {
-                            *arc1 != arc2 && arc1.is_dominated_by(arc2) // && !arc2.is_dominated_by(&arc1)
-                        })
-                    }).into_iter().map(|label| OCDeclareArc {
-                        from: OCDeclareNode::new_act(act1),
-                        to: OCDeclareNode::new_act(act2),
-                        arc_type: OCDeclareArcType::EF,
-                        label: label.clone(),
-                        counts: (Some(1), None),
-                    }));
+
+                    arcs.extend(
+                        act_arcs
+                            .iter()
+                            .filter(|arc1| {
+                                !act_arcs.iter().any(|arc2| {
+                                    *arc1 != arc2 && arc1.is_dominated_by(arc2) // && !arc2.is_dominated_by(&arc1)
+                                })
+                            })
+                            .into_iter()
+                            .filter_map(|label| {
+                                let mut arc = OCDeclareArc {
+                                    from: OCDeclareNode::new_act(act1),
+                                    to: OCDeclareNode::new_act(act2),
+                                    arc_type: OCDeclareArcType::EF,
+                                    label: label.clone(),
+                                    counts: (Some(1), MAX_COUNT_OPT),
+                                };
+                                if arc.get_for_all_evs_perf(locel) <= noise_thresh {
+                                    arc.counts.1 = None;
+                                    Some(arc)
+                                } else {
+                                    None
+                                }
+                            }),
+                    );
                 }
                 arcs
             })
