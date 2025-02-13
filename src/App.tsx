@@ -30,6 +30,7 @@ import { Button } from './components/ui/button';
 import { OCELInfo, OCELInfoContext } from './lib/ocel-info';
 import { OCDeclareArcLabel } from 'crates/shared/bindings/OCDeclareArcLabel';
 import { applyLayoutToNodes } from './lib/automatic-layout';
+import { v4 as uuidv4 } from 'uuid';
 
 function loadData() {
   try {
@@ -151,7 +152,7 @@ export default function App() {
       nodes: ActivityNode[],
       edges: CustomEdge[],
     ) {
-      const idPrefix = Date.now() + `-p-${Math.floor(Math.random() * 100)}-`;
+      const idPrefix = uuidv4();
       const instance = flowRef.current!;
       const nodeRect = nodes.length > 0 ? nodes[0].position : { x: 0, y: 0 };
       const { x, y } = instance.screenToFlowPosition(mousePos.current);
@@ -260,7 +261,7 @@ export default function App() {
           <ContextMenuContent>
             <ContextMenuItem onClick={(ev) => {
               ev.stopPropagation();
-              flowRef.current?.addNodes({ id: Date.now() + "-" + Math.random(), type: "activity", data: { type: "pay order" }, position: flowRef.current.screenToFlowPosition({ x: ev.clientX, y: ev.clientY }) })
+              flowRef.current?.addNodes({ id: uuidv4(), type: "activity", data: { type: "pay order" }, position: flowRef.current.screenToFlowPosition({ x: ev.clientX, y: ev.clientY }) })
               console.log("Add node")
             }}>Add Node</ContextMenuItem>
           </ContextMenuContent>
@@ -316,7 +317,7 @@ export default function App() {
           <Panel className='flex gap-x-1 hide-in-image'>
             <Button variant="outline" onClick={() => {
               flowRef.current?.addNodes({
-                id: Date.now() + "-node",
+                id: uuidv4(),
                 position: { x: 0, y: 0 },
                 dragHandle: '.drag-handle__custom', data: Math.random() > 0.5 ? { type: "pay order", isObject: false } : { type: "orders", isObject: true },
                 type: 'activity',

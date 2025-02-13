@@ -5,6 +5,7 @@ import { useContext, useRef, useState } from "react";
 import init, { discover_oc_declare_constraints, get_edge_violation_percentage, get_ot_act_involvements, initThreadPool, load_ocel_json, load_ocel_xml, unload_ocel } from "../../../crates/backend-wasm/pkg/backend_wasm";
 import type { OCDeclareArc } from "../../../crates/shared/bindings/OCDeclareArc";
 import type { ViolationInfo } from "../../../crates/shared/bindings/ViolationInfo";
+import { v4 as uuidv4 } from 'uuid';
 
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -95,7 +96,7 @@ export default function BackendButton() {
                         const sourceID = lookupIDOrCreateNode(arc.from, nodeNameToIDs, flow);
                         const targetID = lookupIDOrCreateNode(arc.to, nodeNameToIDs, flow);
                         const edgeType = translateArcTypeFromRsToTs(arc.arc_type);
-                        const edgeID = String(Date.now() + Math.random() * 100);
+                        const edgeID = uuidv4();
                         flow.addEdges({ id: edgeID, source: sourceID, target: targetID, data: { type: edgeType, objectTypes: arc.label, cardinality: arc.counts }, ...getMarkersForEdge(edgeType, edgeID) })
                     }
                     console.log(discoverdArcs);
@@ -123,10 +124,10 @@ export default function BackendButton() {
 
 function lookupIDOrCreateNode(node: OCDeclareNode, nodeIDMap: Record<string, string>, flow: ReactFlowInstance<ActivityNode, CustomEdge>): string {
     let nodeName = node.type === "Activity" ? node.activity : (node.type === "ObjectInit" ? "<init> " + node.object_type : "<exit> " + node.object_type);
-    nodeName = nodeName.replace("<init> ", "").replace("<exit> ", "");
-    if (true || nodeIDMap[nodeName] == undefined) {
-        const id = Date.now() + nodeName + (100 * Math.random())
-        flow.addNodes({ id: id, type: "activity", position: { x: 0, y: 0 }, data: { isObject: node.type !== "Activity" || node.activity.includes("<init> ") || node.activity.includes("<exit> "), type: node.type === "Activity" ? node.activity.replace("<init> ", "").replace("<exit> ", "") : node.object_type } })
+    const isObject = node.type !== "Activity" || node.activity.includes("<init> ") || node.activity.includes("<exit> ");
+    if (true || isObject || nodeIDMap[nodeName] == undefined) {
+        const id = uuidv4();
+        flow.addNodes({ id: id, type: "activity", position: { x: 0, y: 0 }, data: { isObject, type: node.type === "Activity" ? node.activity.replace("<init> ", "").replace("<exit> ", "") : node.object_type } })
         nodeIDMap[nodeName] = id;
         return id;
     } else {
