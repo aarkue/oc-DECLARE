@@ -17,10 +17,10 @@ const elk = new ELK();
 const defaultOptions = {
     // "elk.layered.spacing.nodeNodeBetweenLayers": "100",
     // "elk.stress.desiredEdgeLength": "200.0",
-    // "elk.direction": "RIGHT",
-    "elk.algorithm": "stress",
-    // "elk.algorithm": "sporeOverlap"
-    // "elk.spacing.nodeNode": "100",
+    "elk.direction": "RIGHT",
+    // "elk.algorithm": "stress",
+    "elk.algorithm": "mrtree",
+    "elk.spacing.nodeNode": "100",
 };
 
 export function useLayoutedElements<N extends Record<string, unknown>>() {

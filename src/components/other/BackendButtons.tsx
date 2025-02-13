@@ -123,8 +123,8 @@ export default function BackendButton() {
 
 function lookupIDOrCreateNode(node: OCDeclareNode, nodeIDMap: Record<string, string>, flow: ReactFlowInstance<ActivityNode, CustomEdge>): string {
     const nodeName = node.type === "Activity" ? node.activity : (node.type === "ObjectInit" ? "<init> " + node.object_type : "<exit> " + node.object_type);
-    if (nodeIDMap[nodeName] == undefined) {
-        const id = Date.now() + nodeName
+    if (true || nodeIDMap[nodeName] == undefined) {
+        const id = Date.now() + nodeName + (100 *Math.random())
         flow.addNodes({ id: id, type: "activity", position: { x: 0, y: 0 }, data: { isObject: node.type !== "Activity", type: node.type === "Activity" ? node.activity : node.object_type } })
         nodeIDMap[nodeName] = id;
         return id;

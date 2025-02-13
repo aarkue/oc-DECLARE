@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::{collections::{HashMap, HashSet}, time::Instant};
 
 use itertools::Itertools;
 use process_mining::{
@@ -68,7 +68,7 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                 continue;
             }
             // Got bounds!
-            println!("[{ot}] {act}: {n_min} - {n_max} (starting from {mean})");
+            // println!("[{ot}] {act}: {n_min} - {n_max} (starting from {mean})");
             ret.push(OCDeclareArc {
                 from: OCDeclareNode::new_ob_init(ot),
                 to: OCDeclareNode::new_act(act),
@@ -88,7 +88,9 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
 
 
     // Third type of discovery: Eventually-follows 
-     ret.extend(locel.get_ev_types().par_bridge().flat_map(|act1|  {
+     ret.extend(locel.get_ev_types()
+    //  .par_bridge()
+     .flat_map(|act1|  {
         let mut arcs = Vec::new();
         let act1_oi = act_ob_inv.get(act1).unwrap();
         let act1_ot_set: HashSet<_> = act1_oi.keys().collect();
@@ -107,17 +109,22 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                         label: OCDeclareArcLabel { each: vec![], any: vec![ObjectTypeAssociation::new_simple(*ot)], all: vec![] },
                         counts: (Some(1),None),
                     };
-                    let (tot_sit,tot_vio, _) = arc.get_for_all_evs(locel);
-                    // CAREFULL! Talk about violated events here!
+                    // let now = Instant::now();
+                    let violation_frac = arc.get_for_all_evs_perf(locel);
+                    // let d = now.elapsed();
+                    // if d.as_secs_f64() >= 0.1 {
+                    //     println!("{ot}: {act1} -> {act2} {:?}",d);
+                    // }
+                    // CAREFULL! Talk about violated events here! TODO
                     // Otherwise monotonicity does not hold the same directly.
-                    let violation_frac = tot_vio as f64 / tot_sit as f64;
+                    // let violation_frac = tot_vio as f64 / tot_sit as f64;
                     if violation_frac <= noise_thresh {
                         // It IS a viable candidate!
                         arcs.push(arc);
                     }
-                }
+                // }
             }
-        // }
+        }
         arcs
     }).collect::<Vec<_>>());
 

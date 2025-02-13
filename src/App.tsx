@@ -280,6 +280,7 @@ export default function App() {
           edgeTypes={edgeTypes}
           // onEdgesChange={onEdgesChange}
           maxZoom={12}
+          minZoom={0.3}
           // defaultEdgeOptions={{
           //   type: "default",
           // }}
@@ -353,7 +354,7 @@ export default function App() {
                       return node.classList === undefined ||
                         !node.classList.contains("hide-in-image")
                     }
-                  })
+                  }).catch(e => console.error("Failed to get image:",e))
                     .then(async (dataURLOrBlob) => {
                       let blob = dataURLOrBlob;
                       if (typeof blob === 'string') {
