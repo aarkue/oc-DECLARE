@@ -96,7 +96,7 @@ export default function BackendButton() {
                         const targetID = lookupIDOrCreateNode(arc.to, nodeNameToIDs, flow);
                         const edgeType = translateArcTypeFromRsToTs(arc.arc_type);
                         const edgeID = String(Date.now() + Math.random() * 100);
-                        flow.addEdges({ id: edgeID, source: sourceID, target: targetID, data: { type: edgeType, objectTypes: arc.label, cardinality: arc.counts }, ...getMarkersForEdge(edgeType,edgeID) })
+                        flow.addEdges({ id: edgeID, source: sourceID, target: targetID, data: { type: edgeType, objectTypes: arc.label, cardinality: arc.counts }, ...getMarkersForEdge(edgeType, edgeID) })
                     }
                     console.log(discoverdArcs);
                 } catch (e) {
@@ -122,10 +122,11 @@ export default function BackendButton() {
 }
 
 function lookupIDOrCreateNode(node: OCDeclareNode, nodeIDMap: Record<string, string>, flow: ReactFlowInstance<ActivityNode, CustomEdge>): string {
-    const nodeName = node.type === "Activity" ? node.activity : (node.type === "ObjectInit" ? "<init> " + node.object_type : "<exit> " + node.object_type);
+    let nodeName = node.type === "Activity" ? node.activity : (node.type === "ObjectInit" ? "<init> " + node.object_type : "<exit> " + node.object_type);
+    nodeName = nodeName.replace("<init> ", "").replace("<exit> ", "");
     if (true || nodeIDMap[nodeName] == undefined) {
-        const id = Date.now() + nodeName + (100 *Math.random())
-        flow.addNodes({ id: id, type: "activity", position: { x: 0, y: 0 }, data: { isObject: node.type !== "Activity", type: node.type === "Activity" ? node.activity : node.object_type } })
+        const id = Date.now() + nodeName + (100 * Math.random())
+        flow.addNodes({ id: id, type: "activity", position: { x: 0, y: 0 }, data: { isObject: node.type !== "Activity" || node.activity.includes("<init> ") || node.activity.includes("<exit> "), type: node.type === "Activity" ? node.activity.replace("<init> ", "").replace("<exit> ", "") : node.object_type } })
         nodeIDMap[nodeName] = id;
         return id;
     } else {
