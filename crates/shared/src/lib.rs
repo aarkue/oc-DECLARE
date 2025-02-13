@@ -196,10 +196,10 @@ impl OCDeclareArc {
                         // Violated!
                         return true;
                     }
-                }else{
+                } else {
                     if let Some(c) = self.counts.1 {
-                        let count  =  target_ev_iterator.take(c+1).count();
-                        if c < count || count < self.counts.0.unwrap_or_default()  {
+                        let count = target_ev_iterator.take(c + 1).count();
+                        if c < count || count < self.counts.0.unwrap_or_default() {
                             // Violated
                             return true;
                         }
@@ -354,9 +354,7 @@ fn get_evs_with_objs<'a>(
                     if ev.event_type == etype
                         && items.iter().skip(1).all(|o| {
                             linked_ocel
-                                .get_e2o(e)
-                                // .iter()
-                                .any(|(q, o_index)| o_index == o)
+                                .get_e2o_set(e).contains(o)
                         })
                     {
                         Some(*e)
@@ -369,7 +367,7 @@ fn get_evs_with_objs<'a>(
     };
     for o in objs.iter() {
         initial.retain(|e| {
-            let obs = linked_ocel.get_e2o(e).map(|o| *o.1).collect();
+            let obs = linked_ocel.get_e2o_set(e);
             o.check(&obs)
         });
     }
@@ -383,22 +381,28 @@ fn get_evs_with_objs_perf<'a>(
 ) -> impl Iterator<Item = EventIndex> + use<'a> {
     let initial: Box<dyn Iterator<Item = EventIndex>> = match &objs[0] {
         SetFilter::Any(items) => {
-            Box::new(items.iter().flat_map(|o| {
-                linked_ocel
-                    .get_e2o_rev(o)
-                    // .get(o)
-                    // .unwrap()
-                    // .iter()
-                    .map(|e| e.1)
-                    .filter_map(|e| {
-                        let ev = linked_ocel.get_ev(&e);
-                        if ev.event_type == *etype {
-                            Some(*e)
-                        } else {
-                            None
-                        }
+            Box::new(
+                items
+                    .iter()
+                    .flat_map(|o| {
+                        linked_ocel
+                            .get_e2o_rev(o)
+                            // .get(o)
+                            // .unwrap()
+                            // .iter()
+                            .map(|e| e.1)
+                            .filter_map(|e| {
+                                let ev = linked_ocel.get_ev(&e);
+                                if ev.event_type == *etype {
+                                    Some(*e)
+                                } else {
+                                    None
+                                }
+                            })
                     })
-            }).collect::<HashSet<_>>().into_iter())
+                    .collect::<HashSet<_>>()
+                    .into_iter(),
+            )
         }
         SetFilter::All(items) => {
             if items.len() == 0 {
@@ -412,9 +416,9 @@ fn get_evs_with_objs_perf<'a>(
                             if ev.event_type == etype
                                 && items.iter().skip(1).all(|o| {
                                     linked_ocel
-                                        .get_e2o(e)
+                                        .get_e2o_set(e)
                                         // .iter()
-                                        .any(|(q, o_index)| o_index == o)
+                                        .contains(o)
                                 })
                             {
                                 Some(*e)
@@ -428,7 +432,7 @@ fn get_evs_with_objs_perf<'a>(
     };
     initial.filter(|e| {
         for o in objs.iter() {
-            let obs = linked_ocel.get_e2o(e).map(|o| *o.1).collect();
+            let obs = linked_ocel.get_e2o_set(e);
             if !o.check(&obs) {
                 return false;
             }
@@ -456,7 +460,7 @@ enum OCDeclareArcType {
     EFREV,
 }
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize, PartialOrd, Ord, TS)]
 #[ts(export)]
 #[serde(tag = "type")]
 enum ObjectTypeAssociation {
@@ -498,8 +502,9 @@ impl ObjectTypeAssociation {
     ) -> Vec<ObjectIndex> {
         match self {
             ObjectTypeAssociation::Simple { object_type } => linked_ocel
-                .get_e2o(ev)
-                .map(|x| x.1)
+                .get_e2o_set(ev)
+                // .map(|x| x.1)
+                .iter()
                 .filter_map(|o| {
                     let ob = linked_ocel.get_ob(&o);
                     if ob.object_type == *object_type {
@@ -514,10 +519,10 @@ impl ObjectTypeAssociation {
                 second,
                 reversed,
             } => linked_ocel
-                .get_e2o(ev)
+                .get_e2o_set(ev)
                 // .unwrap()
-                // .iter()
-                .map(|x| x.1)
+                .iter()
+                // .map(|x| x.1)
                 .filter(|o| linked_ocel.get_ob(&o).object_type == *first)
                 .flat_map(|o| {
                     if !reversed {
@@ -546,12 +551,56 @@ impl ObjectTypeAssociation {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default, TS)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default, Hash, TS)]
 #[ts(export)]
 struct OCDeclareArcLabel {
     each: Vec<ObjectTypeAssociation>,
     any: Vec<ObjectTypeAssociation>,
     all: Vec<ObjectTypeAssociation>,
+}
+
+impl OCDeclareArcLabel {
+    pub fn combine(&self, other: &Self) -> Self {
+        let all = self
+            .all
+            .iter()
+            .chain(other.all.iter())
+            .cloned()
+            .collect::<HashSet<_>>();
+        let each = self
+            .each
+            .iter()
+            .chain(other.each.iter())
+            .filter(|e| !all.contains(e))
+            .cloned()
+            .collect::<HashSet<_>>();
+        let any = self
+            .any
+            .iter()
+            .chain(other.any.iter())
+            .filter(|e| !all.contains(e) && !each.contains(e))
+            .cloned()
+            .collect::<HashSet<_>>();
+
+        Self {
+            each: each.into_iter().sorted().collect(),
+            all: all.into_iter().sorted().collect(),
+            any: any.into_iter().sorted().collect(),
+        }
+    }
+
+    pub fn is_dominated_by(&self, other: &Self) -> bool {
+        let all_all = self.all.iter().all(|a| other.all.contains(a));
+        if !all_all {
+            return false
+        }
+        let all_each = self.each.iter().all(|a| other.each.contains(a) || other.all.contains(a));
+        if !all_each {
+            return false
+        }
+        let all_any = self.any.iter().all(|a| other.any.contains(a) || other.each.contains(a) || other.all.contains(a));
+        return all_any
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -671,7 +720,7 @@ pub fn get_activity_object_involvements(
 
 #[cfg(test)]
 mod tests {
-    use std::time::Instant;
+    use std::{fs::File, time::Instant};
 
     use process_mining::import_ocel_json_from_path;
 
@@ -766,7 +815,7 @@ mod tests {
         //     "{violated} / {total}:  {:.?}",
         //     violated as f64 / total as f64
         // );
-        println!("{:.?}",violated_frac);
+        println!("{:.?}", violated_frac);
     }
 
     #[test]
@@ -783,6 +832,8 @@ mod tests {
         let res = discover(&linked_ocel, 0.2);
         println!("Took {:?}", now.elapsed());
         println!("Got {} results", res.len());
+
+        serde_json::to_writer_pretty(File::create("discovered.json").unwrap(), &res).unwrap();
         // println!("{:?}", all_res.iter().take(10).collect_vec());
 
         // let count: usize = all_res.iter().flatten().sum();

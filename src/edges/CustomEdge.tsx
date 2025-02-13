@@ -47,7 +47,8 @@ export default function CustomEdge({ id, source, target, markerEnd, style, marke
         sourceX: sx + ((targetPos === Position.Bottom || targetPos === Position.Top) ? (numberOfEarlierDuplicates * DISTANCE_FACTOR + numberOfLaterDuplicates * -DISTANCE_FACTOR) : 0),
         sourceY: sy + ((targetPos === Position.Left || targetPos === Position.Right) ? (numberOfEarlierDuplicates * DISTANCE_FACTOR + numberOfLaterDuplicates * -DISTANCE_FACTOR) : 0),
         targetX: tx + ((targetPos === Position.Bottom || targetPos === Position.Top) ? (numberOfEarlierDuplicates * DISTANCE_FACTOR + numberOfLaterDuplicates * -DISTANCE_FACTOR) : 0),
-        targetY: ty + ((targetPos === Position.Left || targetPos === Position.Right) ? (numberOfEarlierDuplicates * DISTANCE_FACTOR + numberOfLaterDuplicates * -DISTANCE_FACTOR) : 0),
+        // Otherwise SVG gradients might disappear :0
+        targetY: 0.001+ty + ((targetPos === Position.Left || targetPos === Position.Right) ? (numberOfEarlierDuplicates * DISTANCE_FACTOR + numberOfLaterDuplicates * -DISTANCE_FACTOR) : 0),
     };
     const [edgePath, labelX, labelY] = getStraightPath(modifiedPos);
 
@@ -94,8 +95,8 @@ export default function CustomEdge({ id, source, target, markerEnd, style, marke
     return (
         <>
             <defs>
-                <linearGradient id={gradientID}
-                    gradientTransform={(tDir === Position.Top || tDir === Position.Bottom) ? "rotate(90)" : ""}
+                <linearGradient id={gradientID}   spreadMethod="reflect"
+                    gradientTransform={(tDir === Position.Top || tDir === Position.Bottom) ? "rotate(90)" : "translate(-10,10)"}
                 >
                     {correctedGradient.length === 0 && <stop stopColor="var(--arrow-primary,black)"/>}
                     {correctedGradient.map((t, i) => <stop key={t.type} offset={`${orZero(Math.round(100 * (i / (correctedGradient.length - 1))))}%`} stopColor={t.color} />)}
