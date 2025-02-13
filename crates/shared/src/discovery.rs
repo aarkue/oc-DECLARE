@@ -1,8 +1,9 @@
-use std::collections::{HashMap, HashSet};
+use std::{collections::{HashMap, HashSet}, time::Instant};
 
+use indicatif::{ParallelProgressIterator, ProgressIterator};
 use itertools::Itertools;
 use process_mining::ocel::linked_ocel::{IndexLinkedOCEL, LinkedOCELAccess};
-use rayon::iter::{IntoParallelRefIterator, ParallelExtend, ParallelIterator};
+use rayon::iter::{IntoParallelRefIterator, ParallelBridge, ParallelExtend, ParallelIterator};
 
 use crate::{
     get_activity_object_involvements, OCDeclareArc, OCDeclareArcLabel, OCDeclareArcType,
@@ -11,6 +12,7 @@ use crate::{
 
 const MAX_COUNT_OPT: Option<usize> = Some(20);
 pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc> {
+    // let now = Instant::now();
     let mut ret = Vec::new();
     // First type of discovery: How many events of a specific type per object of specified type?
     let act_ob_inv = get_activity_object_involvements(locel);
@@ -80,20 +82,23 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
             });
         }
     }
-
+    // println!("Evs per Object Type took {:.?}",now.elapsed());
     // Second type of discovery: How many objects of object type per event of specified activity/event type?
 
     // Third type of discovery: Eventually-follows
     ret.extend(
         locel
-            .get_ev_types()
-            // .par_bridge()
+            .events_per_type.keys()
+            .par_bridge()
+            .progress_count(locel.events_per_type.len() as u64)
             .flat_map(|act1| {
+
                 let mut arcs = Vec::new();
                 let act1_oi = act_ob_inv.get(act1).unwrap();
                 let act1_ot_set: HashSet<_> = act1_oi.keys().collect();
                 for direction in &[OCDeclareArcType::EF, OCDeclareArcType::EFREV] {
                     for act2 in locel.get_ev_types() {
+                        // let now = Instant::now();
                         // Currently this is not supported in the UI, however: TODO: Also support self-loop arcs
                         if act1 == act2 {
                             continue;
@@ -173,6 +178,11 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                                 }
                             }
                         }
+                        // if now.elapsed().as_secs_f32() > 2.0 {
+                        //     println!("{:?}",act_arcs);
+                        //     println!("Before combining for {} -> {} [Took {:.2?}]",act1,act2,now.elapsed());
+                        // }
+                        // let now = Instant::now();
                         let mut changed = true;
                         while changed {
                             let mut to_remove = HashSet::new();
@@ -240,6 +250,10 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                                     }
                                 })
                         );
+
+                        // if now.elapsed().as_secs_f32() > 2.0 {
+                        // println!("After combining: [{:.2?}]",now.elapsed());
+                        // }
                     }
                 }
                 arcs

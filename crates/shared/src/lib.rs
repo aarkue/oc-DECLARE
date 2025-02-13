@@ -155,7 +155,9 @@ impl OCDeclareArc {
         let violated_evs_count = 
         // linked_ocel
             // .events_per_type.get(Into::<Cow<_>>::into(&self.from).as_str()).unwrap()
-            evs.into_par_iter()
+            evs
+            // .into_iter()
+            .into_par_iter()
             // .take(200)
             // .get(Into::<Cow<_>>::into(&self.from).as_str())
             // .unwrap()
@@ -386,19 +388,19 @@ fn get_evs_with_objs_perf<'a>(
                     .iter()
                     .flat_map(|o| {
                         linked_ocel
-                            .get_e2o_rev(o)
+                            .e2o_rev_et.get(etype).unwrap().get(o).into_iter().flatten().copied()
                             // .get(o)
                             // .unwrap()
                             // .iter()
-                            .map(|e| e.1)
-                            .filter_map(|e| {
-                                let ev = linked_ocel.get_ev(e);
-                                if ev.event_type == *etype {
-                                    Some(*e)
-                                } else {
-                                    None
-                                }
-                            })
+                            // .map(|e| e.1)
+                            // .filter_map(|e| {
+                                // let ev = linked_ocel.get_ev(e);
+                                // if ev.event_type == *etype {
+                                    // Some(*e)
+                                // } else {
+                                //     None
+                                // }
+                            // })
                     })
                     .collect::<HashSet<_>>()
                     .into_iter(),
@@ -410,22 +412,25 @@ fn get_evs_with_objs_perf<'a>(
             } else {
                 Box::new(
                     linked_ocel
-                        .get_e2o_rev(&items[0])
-                        .filter_map(move |(_, e)| {
-                            let ev = linked_ocel.get_ev(e);
-                            if ev.event_type == etype
-                                && items.iter().skip(1).all(|o| {
+                        .e2o_rev_et.get(etype).unwrap().get(&items[0]).into_iter().flatten().filter(|e| {
+
+                        // .filter_map(move |(_, e)| {
+                            // let ev = linked_ocel.get_ev(e);
+                            // if 
+                            // ev.event_type == etype
+                            //     &&
+                                 items.iter().skip(1).all(|o| {
                                     linked_ocel
                                         .get_e2o_set(e)
                                         // .iter()
                                         .contains(o)
                                 })
-                            {
-                                Some(*e)
-                            } else {
-                                None
-                            }
-                        }),
+                            // {
+                            //     // Some(*e)
+                            // } else {
+                            //     None
+                            // }
+                        }).copied(),
                 )
             }
         }
@@ -654,7 +659,14 @@ impl<'a> OCDeclareArcLabel {
                                     reversed,
                                 } => -(linked_ocel.get_obs_of_type(second).count() as i32),
                             })
-                            .map(|otass| SetFilter::Any(otass.get_for_ev(ev, linked_ocel))),
+                            .map(|otass| {
+                                let x = otass.get_for_ev(ev, linked_ocel);
+                                if x.len() == 1 {
+                                    SetFilter::All(x)
+                                }else{
+                                    SetFilter::Any(x)
+                                }
+                            }),
                     )
                     .collect_vec()
             })
