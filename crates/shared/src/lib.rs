@@ -10,14 +10,13 @@ use std::{
 use itertools::Itertools;
 pub use process_mining;
 use process_mining::{
-    ocel::{
+    event_log::Event, ocel::{
         linked_ocel::{
             index_linked_ocel::{EventIndex, ObjectIndex},
             IndexLinkedOCEL, LinkedOCELAccess,
         },
         ocel_struct::{OCELEvent, OCELRelationship, OCELType},
-    },
-    OCEL,
+    }, OCEL
 };
 
 use serde::{Deserialize, Serialize};
@@ -180,34 +179,47 @@ impl OCDeclareArc {
             .any(|binding| {
                 let binding = binding;
                 let to = Into::<Cow<_>>::into(&self.to);
-                let target_ev_iterator = get_evs_with_objs_perf(&binding, linked_ocel, to.as_str())
-                    .filter(|ev2| {
-                        let ev2 = linked_ocel.get_ev(ev2);
-                        match self.arc_type {
-                            OCDeclareArcType::ASS => true,
-                            OCDeclareArcType::EF => ev.time < ev2.time,
-                            OCDeclareArcType::EFREV => ev.time > ev2.time,
+                match self.arc_type {
+                    OCDeclareArcType::ASS | OCDeclareArcType::EF | OCDeclareArcType::EFREV => {
+                        let target_ev_iterator = get_evs_with_objs_perf(&binding, linked_ocel, to.as_str())
+                        .filter(|ev2| {
+                            let ev2 = linked_ocel.get_ev(ev2);
+                            match self.arc_type {
+                                OCDeclareArcType::ASS => true,
+                                OCDeclareArcType::EF => ev.time < ev2.time,
+                                OCDeclareArcType::EFREV => ev.time > ev2.time,
+                                _ => panic!("DF should not go here.")
+                                // OCDeclareArcType::DF => ev.time < ev2.time,
+                                // OCDeclareArcType::DFREV => ev.time > ev2.time,
+                            }
+                        });
+                    if self.counts.1.is_none() {
+                        // Only take necessary
+                        // ev_count.
+                        if self.counts.0.unwrap_or_default()
+                            > target_ev_iterator
+                                .take(self.counts.0.unwrap_or_default())
+                                .count()
+                        {
+                            // Violated!
+                            return true;
                         }
-                    });
-                if self.counts.1.is_none() {
-                    // Only take necessary
-                    // ev_count.
-                    if self.counts.0.unwrap_or_default()
-                        > target_ev_iterator
-                            .take(self.counts.0.unwrap_or_default())
-                            .count()
-                    {
-                        // Violated!
-                        return true;
+                    } else if let Some(c) = self.counts.1 {
+                        let count = target_ev_iterator.take(c + 1).count();
+                        if c < count || count < self.counts.0.unwrap_or_default() {
+                            // Violated
+                            return true;
+                        }
                     }
-                } else if let Some(c) = self.counts.1 {
-                    let count = target_ev_iterator.take(c + 1).count();
-                    if c < count || count < self.counts.0.unwrap_or_default() {
-                        // Violated
-                        return true;
-                    }
+                    false
+                    },
+                    OCDeclareArcType::DF | OCDeclareArcType::DFREV => {
+                        let df_ev = get_df_or_dp_event_perf(&binding, linked_ocel, ev, self.arc_type == OCDeclareArcType::DF);
+                        let count = if df_ev.is_some() {1} else {0};
+                        return self.counts.0.is_none_or(|c| count >= c) && self.counts.1.is_none_or(|c| count <= c)
+                    },
                 }
-                false
+             
             })
     }
 
@@ -231,6 +243,7 @@ impl OCDeclareArc {
                             OCDeclareArcType::ASS => true,
                             OCDeclareArcType::EF => ev.time < ev2.time,
                             OCDeclareArcType::EFREV => ev.time > ev2.time,
+                            _ => todo!("Not implemented yet for non-perf version!")
                         }
                     })
                     .collect_vec();
@@ -389,18 +402,6 @@ fn get_evs_with_objs_perf<'a>(
                     .flat_map(|o| {
                         linked_ocel
                             .e2o_rev_et.get(etype).unwrap().get(o).into_iter().flatten().copied()
-                            // .get(o)
-                            // .unwrap()
-                            // .iter()
-                            // .map(|e| e.1)
-                            // .filter_map(|e| {
-                                // let ev = linked_ocel.get_ev(e);
-                                // if ev.event_type == *etype {
-                                    // Some(*e)
-                                // } else {
-                                //     None
-                                // }
-                            // })
                     })
                     .collect::<HashSet<_>>()
                     .into_iter(),
@@ -413,23 +414,11 @@ fn get_evs_with_objs_perf<'a>(
                 Box::new(
                     linked_ocel
                         .e2o_rev_et.get(etype).unwrap().get(&items[0]).into_iter().flatten().filter(|e| {
-
-                        // .filter_map(move |(_, e)| {
-                            // let ev = linked_ocel.get_ev(e);
-                            // if 
-                            // ev.event_type == etype
-                            //     &&
                                  items.iter().skip(1).all(|o| {
                                     linked_ocel
                                         .get_e2o_set(e)
-                                        // .iter()
                                         .contains(o)
                                 })
-                            // {
-                            //     // Some(*e)
-                            // } else {
-                            //     None
-                            // }
                         }).copied(),
                 )
             }
@@ -444,16 +433,59 @@ fn get_evs_with_objs_perf<'a>(
         }
         true
     })
-    // for o in objs.iter() {
-    //     initial.retain(|e| {
-    //         let obs = linked_ocel
-    //             .get_e2o(e)
-    //             .map(|o| *o.1)
-    //             .collect();
-    //         o.check(&obs)
-    //     });
-    // }
-    // initial
+}
+
+
+fn get_df_or_dp_event_perf<'a>(
+    objs: &'a Vec<SetFilter<ObjectIndex>>,
+    linked_ocel: &'a IndexLinkedOCEL,
+    reference_event: &'a OCELEvent,
+    following: bool
+) -> Option<EventIndex> {
+    let initial: Box<dyn Iterator<Item = EventIndex>> = match &objs[0] {
+        SetFilter::Any(items) => {
+            Box::new(
+                items
+                    .iter()
+                    .flat_map(|o| {
+                        linked_ocel.get_e2o_rev(o).map(|e| e.1).copied()
+                    })
+                    .collect::<HashSet<_>>()
+                    .into_iter(),
+            )
+        }
+        SetFilter::All(items) => {
+            if items.is_empty() {
+                Box::new(Vec::new().into_iter())
+            } else {
+                Box::new(
+                    linked_ocel.get_e2o_rev(&items[0]).map(|e| e.1).filter(|e| {
+                                 items.iter().skip(1).all(|o| {
+                                    linked_ocel
+                                        .get_e2o_set(e)
+                                        .contains(o)
+                                })
+                        }).copied(),
+                )
+            }
+        }
+    };
+    let mut x = initial.filter(|e| {
+        if (reference_event.time < linked_ocel.get_ev(e).time) != following {
+            return false;
+        }
+        for o in objs.iter() {
+            let obs = linked_ocel.get_e2o_set(e);
+            if !o.check(obs) {
+                return false;
+            }
+        }
+        true
+    }).sorted_by_cached_key(|e| linked_ocel.get_ev(e).time);
+    match following {
+        true => x.next(),
+        false => x.last(),
+    }
 }
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize, TS)]
@@ -463,6 +495,8 @@ enum OCDeclareArcType {
     ASS,
     EF,
     EFREV,
+    DF,
+    DFREV
 }
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize, PartialOrd, Ord, TS)]
