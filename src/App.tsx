@@ -146,6 +146,7 @@ export default function App() {
         const data = JSON.stringify(selectedRef.current);
         console.log({ ...selectedRef.current })
         ev.clipboardData.setData("application/json+oc-declare-flow", data);
+        ev.clipboardData.setData("text/plain", data);
       }
       toast("Copied selection!", { icon: <ClipboardCopy /> });
     }
@@ -351,8 +352,8 @@ export default function App() {
                 requestAnimationFrame(() => {
 
                   void (useSVG ? toSvg : toBlob)(viewPort, {
-                    canvasHeight: viewPort.clientHeight * scaleFactor * 2,
-                    canvasWidth: viewPort.clientWidth * scaleFactor * 2,
+                    canvasHeight: viewPort.clientHeight * scaleFactor * 1,
+                    canvasWidth: viewPort.clientWidth * scaleFactor * 1,
                     filter: (node) => {
                       return node.classList === undefined ||
                         !node.classList.contains("hide-in-image")
@@ -416,6 +417,21 @@ export default function App() {
               </marker>
               <marker
                 className="react-flow__arrowhead"
+                id="single-arrow-direct-marker"
+                markerWidth="10"
+                markerHeight="10"
+                viewBox="-20 -20 40 40"
+                orient="auto"
+                refX="16.9"
+                refY="10"
+              >
+
+                {/* Directly: */}
+                <path d="M13.5,0 L13.5,20 L16.5,20 L16.5,0 Z " fill="var(--arrow-primary,black)" />
+                <path d="M0,0 L20,9.5 L20,10 L20,10.5 L0,20 Z " fill="var(--arrow-primary,black)" />
+              </marker>
+              <marker
+                className="react-flow__arrowhead"
                 id="single-not-arrow-marker"
                 markerWidth="10"
                 markerHeight="10"
@@ -424,6 +440,21 @@ export default function App() {
                 refX="16.9"
                 refY="10"
               >
+                <path d="M-15,0 L-13,20 L-10,20 L-12,0 Z" fill="var(--arrow-primary,black)" />
+                <path d="M-10,0 L-8,20 L-5,20 L-7,0 Z" fill="var(--arrow-primary,black)" />
+                <path d="M0,0 L20,9.5 L20,10 L20,10.5 L0,20 Z " fill="var(--arrow-primary,black)" />
+              </marker>
+              <marker
+                className="react-flow__arrowhead"
+                id="single-not-arrow-direct-marker"
+                markerWidth="10"
+                markerHeight="10"
+                viewBox="-20 -20 40 40"
+                orient="auto"
+                refX="16.9"
+                refY="10"
+              >
+                <path d="M13.5,0 L13.5,20 L16.5,20 L16.5,0 Z " fill="var(--arrow-primary,black)" />
                 <path d="M-15,0 L-13,20 L-10,20 L-12,0 Z" fill="var(--arrow-primary,black)" />
                 <path d="M-10,0 L-8,20 L-5,20 L-7,0 Z" fill="var(--arrow-primary,black)" />
                 <path d="M0,0 L20,9.5 L20,10 L20,10.5 L0,20 Z " fill="var(--arrow-primary,black)" />

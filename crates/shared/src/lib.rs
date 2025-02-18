@@ -215,8 +215,19 @@ impl OCDeclareArc {
                     },
                     OCDeclareArcType::DF | OCDeclareArcType::DFREV => {
                         let df_ev = get_df_or_dp_event_perf(&binding, linked_ocel, ev, self.arc_type == OCDeclareArcType::DF);
-                        let count = if df_ev.is_some() {1} else {0};
-                        return self.counts.0.is_none_or(|c| count >= c) && self.counts.1.is_none_or(|c| count <= c)
+                        let count = if df_ev.is_some_and(|e| linked_ocel.get_ev(&e).event_type == to.as_str()) {1} else {0};
+                        if let Some(min_c) = self.counts.0 {
+                            if count < min_c {
+                                return true;
+                            }
+                        }
+                        if let Some(max_c) = self.counts.1 {
+                            if count > max_c {
+                                return true;
+                            }
+                        }
+                        false
+                        // return self.counts.0.is_none_or(|c| count >= c) && self.counts.1.is_none_or(|c| count <= c)
                     },
                 }
              
@@ -471,7 +482,10 @@ fn get_df_or_dp_event_perf<'a>(
         }
     };
     let mut x = initial.filter(|e| {
-        if (reference_event.time < linked_ocel.get_ev(e).time) != following {
+        if following && reference_event.time >= linked_ocel.get_ev(e).time {
+            return false;
+        }
+        if !following && reference_event.time <= linked_ocel.get_ev(e).time {
             return false;
         }
         for o in objs.iter() {

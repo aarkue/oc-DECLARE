@@ -90,7 +90,7 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
         locel
             .events_per_type.keys()
             .par_bridge()
-            .progress_count(locel.events_per_type.len() as u64)
+            // .progress_count(locel.events_per_type.len() as u64)
             .flat_map(|act1| {
 
                 let mut arcs = Vec::new();
@@ -100,9 +100,9 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                     for act2 in locel.get_ev_types() {
                         // let now = Instant::now();
                         // Currently this is not supported in the UI, however: TODO: Also support self-loop arcs
-                        if act1 == act2 {
-                            continue;
-                        }
+                        // if act1 == act2 {
+                        //     continue;
+                        // }
                         let act2_oi = act_ob_inv.get(act2).unwrap();
                         let act2_ot_set: HashSet<_> = act2_oi.keys().collect();
                         let mut act_arcs = Vec::new();
@@ -240,13 +240,18 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                                         to: OCDeclareNode::new_act(act2),
                                         arc_type: direction.clone(),
                                         label: label.clone(),
-                                        counts: (Some(1), MAX_COUNT_OPT),
+                                        counts: (Some(1), Some(1)),
                                     };
                                     if arc.get_for_all_evs_perf(locel) <= noise_thresh {
-                                        arc.counts.1 = None;
                                         Some(arc)
                                     } else {
-                                        None
+                                        arc.counts.1 = MAX_COUNT_OPT;
+                                        if arc.get_for_all_evs_perf(locel) <= noise_thresh {
+                                            arc.counts.1 = None;
+                                            Some(arc)
+                                        }else{
+                                            None
+                                        }
                                     }
                                 })
                         );
@@ -260,8 +265,16 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
             })
             .collect::<Vec<_>>(),
     );
+    // Also test if the discovered (EF / EF-rev) constraints hold if we set min = max = 1
+    // Also include directly-follows constraints:
+        // Collect all EF constraints that hold (i.e., also the dominated/superseeded ones)
+        // For each of them check if DF also holds
+        // Collect DF constraints, remove dominated ones
+        // Remove EF constraints dominated by DF constraints (i.e., those where the sets are the same)
 
     // Fourth type of discovery: NOT Eventually Follows
+    // There we also have monotonicity properties, but different ones!
+    // In particular, A --T-//-> B implies A --T,T'--//-> B and so on
 
     ret
 }

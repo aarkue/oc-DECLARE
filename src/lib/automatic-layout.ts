@@ -19,7 +19,7 @@ const defaultOptions = {
     "elk.direction": "RIGHT",
     // "elk.algorithm": "stress",
     "elk.algorithm": "mrtree",
-    "elk.spacing.nodeNode": "100",
+    "elk.spacing.nodeNode": "235",
 };
 
 export function useLayoutedElements<N extends Record<string, unknown>>() {

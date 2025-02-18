@@ -11,6 +11,7 @@ import { OCDeclareArcType } from "crates/shared/bindings/OCDeclareArcType";
 import { OCDeclareNode } from "crates/shared/bindings/OCDeclareNode";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { applyLayoutToNodes } from "@/lib/automatic-layout";
 export default function BackendButton() {
     const inputRef = useRef<HTMLInputElement>(null);
     const flow = useReactFlow<ActivityNode, CustomEdge>();
@@ -23,8 +24,7 @@ export default function BackendButton() {
             if (inputRef.current?.files?.length) {
                 await init();
                 try {
-
-                    await await initThreadPool(navigator.hardwareConcurrency);
+                    await await initThreadPool(Math.max(1, Math.round(0.25 * navigator.hardwareConcurrency)));
                 } catch (e) {
                     console.log("Thread pool error: ", e);
                 }
@@ -63,6 +63,7 @@ export default function BackendButton() {
                         counts,
                         label: e.data!.objectTypes
                     };
+                    console.log(x)
                     // console.log(x);
                     // console.log(JSON.stringify(x));
                     // const before = Date.now();
@@ -94,13 +95,19 @@ export default function BackendButton() {
                     console.log("Discovery took " + ((Date.now() - now) / 1000) + "s");
                     const discoverdArcs: OCDeclareArc[] = JSON.parse(res);
                     const nodeNameToIDs: Record<string, string> = {};
+                    const edges: CustomEdge[] = [];
+                    const nodes: ActivityNode[] = [];
                     for (const arc of discoverdArcs) {
-                        const sourceID = lookupIDOrCreateNode(arc.from, nodeNameToIDs, flow);
-                        const targetID = lookupIDOrCreateNode(arc.to, nodeNameToIDs, flow);
+                        const sourceID = lookupIDOrCreateNode(arc.from, nodeNameToIDs, nodes);
+                        const targetID = lookupIDOrCreateNode(arc.to, nodeNameToIDs, nodes);
                         const edgeType = translateArcTypeFromRsToTs(arc.arc_type);
                         const edgeID = uuidv4();
-                        flow.addEdges({ id: edgeID, source: sourceID, target: targetID, data: { type: edgeType, objectTypes: arc.label, cardinality: arc.counts }, ...getMarkersForEdge(edgeType, edgeID) })
+                        edges.push({ id: edgeID, source: sourceID, target: targetID, data: { type: edgeType, objectTypes: arc.label, cardinality: arc.counts }, ...getMarkersForEdge(edgeType, edgeID) })
                     }
+                    applyLayoutToNodes(nodes, edges).then(() => {
+                        flow.addNodes(nodes);
+                        flow.addEdges(edges);
+                    })
                     console.log(discoverdArcs);
                 } catch (e) {
                     console.error(e);
@@ -119,17 +126,21 @@ export default function BackendButton() {
                 return ["EFREV", [0, 0]]
             case "ass":
                 return ["ASS", data?.cardinality ?? [1, null]]
+            case "df": return ["DF", data?.cardinality ?? [1, null]]
+            case "df-rev": return ["DFREV", data?.cardinality ?? [1, null]]
+            case "ndf": return ["DF", [0, 0]]
+            case "ndf-rev": return ["DFREV", [0, 0]]
         };
 
     }
 }
 
-function lookupIDOrCreateNode(node: OCDeclareNode, nodeIDMap: Record<string, string>, flow: ReactFlowInstance<ActivityNode, CustomEdge>): string {
+function lookupIDOrCreateNode(node: OCDeclareNode, nodeIDMap: Record<string, string>, nodes: ActivityNode[]): string {
     let nodeName = node.type === "Activity" ? node.activity : (node.type === "ObjectInit" ? "<init> " + node.object_type : "<exit> " + node.object_type);
     const isObject = node.type !== "Activity" || node.activity.includes("<init> ") || node.activity.includes("<exit> ");
     if (true || isObject || nodeIDMap[nodeName] == undefined) {
         const id = uuidv4();
-        flow.addNodes({ id: id, type: "activity", position: { x: 0, y: 0 }, data: { isObject, type: node.type === "Activity" ? node.activity.replace("<init> ", "").replace("<exit> ", "") : node.object_type } })
+        nodes.push({ id: id, type: "activity", position: { x: 0, y: 0 }, data: { isObject, type: node.type === "Activity" ? node.activity.replace("<init> ", "").replace("<exit> ", "") : node.object_type } })
         nodeIDMap[nodeName] = id;
         return id;
     } else {

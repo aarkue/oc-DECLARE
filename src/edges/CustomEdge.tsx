@@ -19,9 +19,27 @@ import { ActivityNode } from '@/nodes/types';
 import { ContextMenuArrow } from '@radix-ui/react-context-menu';
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, LucideArrowLeftRight, LucideHash, LucideShapes, LucideXCircle, TrendingUp } from 'lucide-react';
 import React, { CSSProperties, Fragment, ReactNode, useEffect, useMemo, useState } from "react";
-import { ALL_EDGE_TYPES, CustomEdge as CustomEdgeType, getMarkersForEdge } from './types';
+import { ALL_EDGE_TYPES, CustomEdge as CustomEdgeType, EdgeType, getMarkersForEdge } from './types';
 const DISTANCE_FACTOR = 13;
 const interactionWidth = 20;
+import dfSvg from "./icons/df.svg?url"
+import dpSvg from "./icons/dp.svg?url"
+import asSvg from "./icons/ass.svg?url"
+import efSvg from "./icons/ef.svg?url"
+import epSvg from "./icons/ep.svg?url"
+
+
+const ArrowSVGs : Record<EdgeType,string> = {
+    "ass": asSvg,
+    "df": dfSvg,
+    "ndf": dfSvg,
+    "df-rev": dpSvg,
+    "ndf-rev": dpSvg,
+    "ef": efSvg,
+    "ef-rev": epSvg,
+    "nef": efSvg,
+    "nef-rev": epSvg,
+}
 
 function orZero(n: number) {
     if (isNaN(n)) {
@@ -47,8 +65,8 @@ export default function CustomEdge({ id, source, target, markerEnd, style, marke
         sourceX: sx + ((targetPos === Position.Bottom || targetPos === Position.Top) ? (numberOfEarlierDuplicates * DISTANCE_FACTOR + numberOfLaterDuplicates * -DISTANCE_FACTOR) : 0),
         sourceY: sy + ((targetPos === Position.Left || targetPos === Position.Right) ? (numberOfEarlierDuplicates * DISTANCE_FACTOR + numberOfLaterDuplicates * -DISTANCE_FACTOR) : 0),
         // Add epsilon, Otherwise SVG gradients might disappear :0
-        targetX: 0.001+tx + ((targetPos === Position.Bottom || targetPos === Position.Top) ? (numberOfEarlierDuplicates * DISTANCE_FACTOR + numberOfLaterDuplicates * -DISTANCE_FACTOR) : 0),
-        targetY: 0.001+ty + ((targetPos === Position.Left || targetPos === Position.Right) ? (numberOfEarlierDuplicates * DISTANCE_FACTOR + numberOfLaterDuplicates * -DISTANCE_FACTOR) : 0),
+        targetX: 0.001 + tx + ((targetPos === Position.Bottom || targetPos === Position.Top) ? (numberOfEarlierDuplicates * DISTANCE_FACTOR + numberOfLaterDuplicates * -DISTANCE_FACTOR) : 0),
+        targetY: 0.001 + ty + ((targetPos === Position.Left || targetPos === Position.Right) ? (numberOfEarlierDuplicates * DISTANCE_FACTOR + numberOfLaterDuplicates * -DISTANCE_FACTOR) : 0),
     };
     const [edgePath, labelX, labelY] = getStraightPath(modifiedPos);
 
@@ -95,10 +113,10 @@ export default function CustomEdge({ id, source, target, markerEnd, style, marke
     return (
         <>
             <defs>
-                <linearGradient id={gradientID}   spreadMethod="reflect"
-                    gradientTransform={(tDir === Position.Top || tDir === Position.Bottom) ? "rotate(90)" : "translate(-10,10)"}
+                <linearGradient id={gradientID}
+                    gradientTransform={(tDir === Position.Top || tDir === Position.Bottom) ? "rotate(90)" : ""}
                 >
-                    {correctedGradient.length === 0 && <stop stopColor="var(--arrow-primary,black)"/>}
+                    {correctedGradient.length === 0 && <stop stopColor="var(--arrow-primary,black)" />}
                     {correctedGradient.map((t, i) => <stop key={t.type} offset={`${orZero(Math.round(100 * (i / (correctedGradient.length - 1))))}%`} stopColor={t.color} />)}
                 </linearGradient>
             </defs>
@@ -150,7 +168,10 @@ export default function CustomEdge({ id, source, target, markerEnd, style, marke
                                     flow.updateEdge(id, { data: { ...data, type: et }, ...getMarkersForEdge(et, id) })
                                 }}>
 
-                                    {et}
+                                  <span className="w-[3rem]">{et}</span> <span className="inline-block relative">
+                                    {et.includes("n") && <span className={clsx("absolute top-1/2 -translate-y-1/2 tracking-[-1pt] text-xs", !et.includes("rev") && "right-[20%]",et.includes("rev") &&  "right-[0%]")}>//</span>}
+                                    <img src={ArrowSVGs[et]} className="size-5 scale-150 ml-3"/>
+                                    </span>
                                 </ContextMenuCheckboxItem>)}
                                 <ContextMenuArrow />
 
@@ -232,7 +253,7 @@ export default function CustomEdge({ id, source, target, markerEnd, style, marke
                 <linearGradient id={gradientID + "-start"}
                     gradientTransform={(tDir === Position.Top || tDir === Position.Bottom) ? "rotate(90)" : ""}
                 >
-                    {data.objectTypes.each.length === 0 && <stop stopColor="var(--arrow-primary,black)"/>}
+                    {data.objectTypes.each.length === 0 && <stop stopColor="var(--arrow-primary,black)" />}
                     {data.objectTypes.each.map((t, i) => <Fragment key={i}>
                         {t.type === "Simple" &&
                             <stop offset={`${orZero(Math.round(100 * (((i) / (data.objectTypes.each.length - i)))))}%`} stopColor={getRandomStringColor(t.object_type)} />
@@ -255,19 +276,25 @@ export default function CustomEdge({ id, source, target, markerEnd, style, marke
                     refY="0"
                 //   style={{"--arrow-primary": data.objectTypes.each[0] && data.objectTypes.each[0].type === "Simple" ? getRandomStringColor(data.objectTypes.each[0].object_type) :"black"} as CSSProperties}
                 >
-                    {data.type === "ef-rev" && <g transform="rotate(180,0,0) translate(-26, -10)">
+                    {(data.type === "ef-rev" || data.type === "df-rev") && <g transform="rotate(180,0,0) translate(-26, -10)">
                         {/* DIRECTLY: */}
-                        {/* <path d="M16,0 L16,20 L13,20 L13,0 Z " fill="var(--arrow-primary,black)" /> */}
+                        {data.type === "df-rev" &&
+                            <path d="M16,0 L16,20 L13,20 L13,0 Z " fill="var(--arrow-primary,black)" />
+                        }
                         <path d="M0,0 L20,9.5 L20,10 L20,10.5 L0,20 Z " fill="var(--arrow-primary,black)" />
                     </g>}
-                    {data.type === "nef-rev" &&               <g transform="rotate(180,0,0) translate(-26, -10)">
-                <path d="M-15,0 L-13,20 L-10,20 L-12,0 Z" fill="var(--arrow-primary,black)" />
-                <path d="M-10,0 L-8,20 L-5,20 L-7,0 Z" fill="var(--arrow-primary,black)" />
-                <path d="M0,0 L20,9.5 L20,10 L20,10.5 L0,20 Z " fill="var(--arrow-primary,black)" />
-              </g>}
-                   {data.objectTypes.each.length > 0 && <text className="font-medium" transform={Math.abs(slopeDegreeReal) > 90 ? `scale(-1,-1) translate(-${35+eachText.length*9},0)` : "scale(1,1)"} fill={`url(#${gradientID}-start)`} dx="14" dy="-8">{Math.abs(slopeDegreeReal) <= 90 && "∀"} {eachText} {Math.abs(slopeDegreeReal) > 90 && "∀"}</text>
-                   }
-                    <circle cx="0" cy="0" r="10" fill={`url(#${gradientID}-start)`} strokeWidth="2" stroke="var(--arrow-primary,black)"/>
+                    {(data.type === "nef-rev" || data.type === "ndf-rev") && <g transform="rotate(180,0,0) translate(-26, -10)">
+                        {/* DIRECTLY: */}
+                        {data.type === "ndf-rev" &&
+                            <path d="M16,0 L16,20 L13,20 L13,0 Z " fill="var(--arrow-primary,black)" />
+                        }
+                        <path d="M-15,0 L-13,20 L-10,20 L-12,0 Z" fill="var(--arrow-primary,black)" />
+                        <path d="M-10,0 L-8,20 L-5,20 L-7,0 Z" fill="var(--arrow-primary,black)" />
+                        <path d="M0,0 L20,9.5 L20,10 L20,10.5 L0,20 Z " fill="var(--arrow-primary,black)" />
+                    </g>}
+                    {data.objectTypes.each.length > 0 && <text className="font-medium" transform={Math.abs(slopeDegreeReal) > 90 ? `scale(-1,-1) translate(-${35 + eachText.length * 9},0)` : "scale(1,1)"} fill={`url(#${gradientID}-start)`} dx="14" dy="-8">{Math.abs(slopeDegreeReal) <= 90 && "∀"} {eachText} {Math.abs(slopeDegreeReal) > 90 && "∀"}</text>
+                    }
+                    <circle cx="0" cy="0" r="10" fill={`url(#${gradientID}-start)`} strokeWidth="2" stroke="var(--arrow-primary,black)" />
                 </marker>
             </defs>
         </>

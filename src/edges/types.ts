@@ -3,9 +3,17 @@ import { OCDeclareArcLabel } from 'crates/shared/bindings/OCDeclareArcLabel';
 
 export const ALL_EDGE_TYPES = [
     // "ass",
-    "ef", "ef-rev", "nef", "nef-rev", "ass"] as const;
+    "ef",
+    "ef-rev",
+    "nef",
+    "nef-rev",
+    "df",
+    "df-rev",
+    "ndf",
+    "ndf-rev",
+    "ass"] as const;
 export type EdgeType = typeof ALL_EDGE_TYPES[number];
-export type CustomEdge = Edge<{ type: EdgeType, objectTypes: OCDeclareArcLabel  , cardinality?: [number | null, number | null], violationInfo?: {violationPercentage: number} }>;
+export type CustomEdge = Edge<{ type: EdgeType, objectTypes: OCDeclareArcLabel, cardinality?: [number | null, number | null], violationInfo?: { violationPercentage: number } }>;
 export type AppNode = CustomEdge;
 
 
@@ -49,10 +57,35 @@ export function getMarkersForEdge(edgeType: EdgeType, id?: string): { markerStar
     }
     if (edgeType === "ef-rev") {
         return {
-
             markerStart: `start-${id}`,
             // markerStart: "single-arrow-marker-rev",
             markerEnd: undefined,
+            style: { stroke: "var(--arrow-primary)", strokeWidth: STROKE_WIDTH }
+
+        }
+    }
+    if (edgeType === "df") {
+        return {
+            markerStart: `start-${id}`,
+            // markerStart: "single-arrow-marker-rev",
+            markerEnd: "single-arrow-direct-marker",
+            style: { stroke: "var(--arrow-primary)", strokeWidth: STROKE_WIDTH }
+        }
+    }
+    if (edgeType === "df-rev" || edgeType === "ndf-rev") {
+        return {
+            markerStart: `start-${id}`,
+            // markerStart: "single-arrow-marker-rev",
+            markerEnd: undefined,
+            style: { stroke: "var(--arrow-primary)", strokeWidth: STROKE_WIDTH }
+
+        }
+    }
+    if (edgeType === "ndf") {
+        return {
+            markerStart: `start-${id}`,
+            // markerStart: "single-arrow-marker-rev",
+            markerEnd: "single-not-arrow-direct-marker",
             style: { stroke: "var(--arrow-primary)", strokeWidth: STROKE_WIDTH }
 
         }
