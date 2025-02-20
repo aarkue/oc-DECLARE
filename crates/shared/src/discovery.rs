@@ -6,8 +6,7 @@ use process_mining::ocel::linked_ocel::{IndexLinkedOCEL, LinkedOCELAccess};
 use rayon::iter::{IntoParallelRefIterator, ParallelBridge, ParallelExtend, ParallelIterator};
 
 use crate::{
-    get_activity_object_involvements, OCDeclareArc, OCDeclareArcLabel, OCDeclareArcType,
-    OCDeclareNode, ObjectTypeAssociation, INIT_EVENT_PREFIX,
+    get_activity_object_involvements, OCDeclareArc, OCDeclareArcLabel, OCDeclareArcType, OCDeclareNode, ObjectTypeAssociation, EXIT_EVENT_PREFIX, INIT_EVENT_PREFIX
 };
 
 const MAX_COUNT_OPT: Option<usize> = Some(20);
@@ -21,7 +20,7 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
         let mut ev_types_per_ob: HashMap<&str, Vec<usize>> = act_ob_inv
             .iter()
             .filter_map(|(act_name, ob_inv)| {
-                if act_name.starts_with(INIT_EVENT_PREFIX) {
+                if act_name.starts_with(INIT_EVENT_PREFIX) || act_name.starts_with(EXIT_EVENT_PREFIX) {
                     return None;
                 }
                 if let Some(oi) = ob_inv.get(ot) {
@@ -98,6 +97,9 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                 let act1_ot_set: HashSet<_> = act1_oi.keys().collect();
                 for direction in &[OCDeclareArcType::EF, OCDeclareArcType::EFREV] {
                     for act2 in locel.get_ev_types() {
+                        if act1.starts_with(INIT_EVENT_PREFIX) || act1.starts_with(EXIT_EVENT_PREFIX) || act2.starts_with(INIT_EVENT_PREFIX) || act2.starts_with(EXIT_EVENT_PREFIX) {
+                            continue;
+                        }
                         // let now = Instant::now();
                         // Currently this is not supported in the UI, however: TODO: Also support self-loop arcs
                         // if act1 == act2 {

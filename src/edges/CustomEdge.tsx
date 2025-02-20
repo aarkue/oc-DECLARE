@@ -229,7 +229,7 @@ export default function CustomEdge({ id, source, target, markerEnd, style, marke
                 {/* <EdgeLabel transform={`translate(-50%, -50%) translate(${modifiedPos.sourceX}px,${modifiedPos.sourceY}px) ${(targetPos === Position.Top) ? "translate(8px,9px)" : targetPos === Position.Left ? "translate(12px,-11px)" : targetPos === Position.Bottom ? "translate(8px,-9px)" : "translate(-11px,-11px)"} `}
                     label={"1"} /> */}
                 <EdgeLabel
-                    transform={`translate(${modifiedPos.targetX}px,${modifiedPos.targetY}px)  translate(-50%, -50%)  rotate(${Math.round(slopeDegreeReal)}deg) translate(-100%,0pt) translate(${data.type === "nef" ? "-16px" : (data.type === "ef" ? "-8px" : "0")},7px)  rotate(${Math.round(slopeDegree - slopeDegreeReal)}deg)`}
+                    transform={`translate(${modifiedPos.targetX}px,${modifiedPos.targetY}px)  translate(-50%, -50%)  rotate(${Math.round(slopeDegreeReal)}deg) translate(-100%,0pt) translate(${(data.type === "nef" ||data.type === "ndf") ? "-16px" : ((data.type === "ef" || data.type === "df") ? "-8px" : "0")},7px)  rotate(${Math.round(slopeDegree - slopeDegreeReal)}deg)`}
                     label={
                         <>
                             {data.cardinality && <div className=" p-0.25 text-[6pt] font-medium leading-1.5 rounded-xs">

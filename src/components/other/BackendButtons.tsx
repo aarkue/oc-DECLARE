@@ -57,13 +57,13 @@ export default function BackendButton() {
                     const [arc_type, counts] = translateArcInfo(e.data!);
 
                     const x: OCDeclareArc = {
-                        from: flow.getNode(e.source)!.data.isObject ? { type: "ObjectInit", object_type: flow.getNode(e.source)!.data.type } : { type: "Activity", activity: flow.getNode(e.source)!.data.type },
-                        to: flow.getNode(e.target)!.data.isObject ? { type: "ObjectInit", object_type: flow.getNode(e.target)!.data.type } : { type: "Activity", activity: flow.getNode(e.target)!.data.type },
+                        from: flow.getNode(e.source)!.data.isObject === "init" ? { type: "ObjectInit", object_type: flow.getNode(e.source)!.data.type } : flow.getNode(e.source)!.data.isObject === "exit" ? { type: "ObjectEnd", object_type: flow.getNode(e.source)!.data.type } : { type: "Activity", activity: flow.getNode(e.source)!.data.type },
+                        to: flow.getNode(e.target)!.data.isObject === "init" ? { type: "ObjectInit", object_type: flow.getNode(e.target)!.data.type } : flow.getNode(e.target)!.data.isObject === "exit" ? { type: "ObjectEnd", object_type: flow.getNode(e.target)!.data.type } : { type: "Activity", activity: flow.getNode(e.target)!.data.type },
                         arc_type,
                         counts,
                         label: e.data!.objectTypes
                     };
-                    console.log(x)
+                    // console.log(x)
                     // console.log(x);
                     // console.log(JSON.stringify(x));
                     // const before = Date.now();
@@ -137,7 +137,18 @@ export default function BackendButton() {
 
 function lookupIDOrCreateNode(node: OCDeclareNode, nodeIDMap: Record<string, string>, nodes: ActivityNode[]): string {
     let nodeName = node.type === "Activity" ? node.activity : (node.type === "ObjectInit" ? "<init> " + node.object_type : "<exit> " + node.object_type);
-    const isObject = node.type !== "Activity" || node.activity.includes("<init> ") || node.activity.includes("<exit> ");
+    let isObject: ActivityNode['data']['isObject'] = undefined;
+    if (node.type === "Activity") {
+        if (node.activity.includes("<init> ")) {
+            isObject = "init";
+        } else if (node.activity.includes("<exit> ")) {
+            isObject = "exit";
+        }
+    } else if (node.type === "ObjectInit") {
+        isObject = "init"
+    } else {
+        isObject = "exit"
+    }
     if (true || isObject || nodeIDMap[nodeName] == undefined) {
         const id = uuidv4();
         nodes.push({ id: id, type: "activity", position: { x: 0, y: 0 }, data: { isObject, type: node.type === "Activity" ? node.activity.replace("<init> ", "").replace("<exit> ", "") : node.object_type } })

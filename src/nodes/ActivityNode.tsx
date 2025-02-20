@@ -8,6 +8,7 @@ import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } 
 import { OCELInfoContext } from '@/lib/ocel-info';
 import { MinMaxDisplayWithSugar } from '@/components/other/MinMaxSugar';
 const OBJECT_INIT = "<init>";
+const OBJECT_EXIT = "<exit>";
 export function ActivityNode({
   id,
   data,
@@ -26,14 +27,14 @@ export function ActivityNode({
       | React.FocusEvent<HTMLDivElement, Element>
       | React.MouseEvent<HTMLDivElement, MouseEvent>,
   ) {
-    const isObject = ev.currentTarget.innerText.includes(OBJECT_INIT);
-    const newLabel = ev.currentTarget.innerText.replace("\n", "").replace(OBJECT_INIT + " ", "");
+    const objectMode = ev.currentTarget.innerText.includes(OBJECT_INIT) ? "init" : ev.currentTarget.innerText.includes(OBJECT_EXIT) ? "exit" : undefined;
+    const newLabel = ev.currentTarget.innerText.replace("\n", "").replace(OBJECT_INIT + " ", "").replace(OBJECT_EXIT + " ","");
     setEditMode(false);
     setNodes((nodes) => {
       const newNodes = [...nodes];
       newNodes.map((n) => {
         if (n.id === id) {
-          n.data = { type: newLabel || "-", isObject };
+          n.data = { type: newLabel || "-", isObject: objectMode };
         }
         return n;
       });
@@ -154,7 +155,7 @@ export function ActivityNode({
               position: "relative",
             }}
           >
-            {(data.isObject ? "<init> " : "") + data.type}
+            {(data.isObject  === "init" ? "<init> " : data.isObject === "exit" ? "<exit> " : "") + data.type}
           </div>
         </div>
         {!connection.inProgress && (
@@ -168,7 +169,7 @@ export function ActivityNode({
           <Handle className="customHandle z-10" position={Position.Left} type="target" isConnectableStart={false} />
         )}
         {selected &&
-          <ObjectInvolvementHelper activity={data.isObject ? "<init> " + data.type : data.type} />
+          <ObjectInvolvementHelper activity={(data.isObject  === "init" ? "<init> " : data.isObject === "exit" ? "<exit> " : "") + data.type} />
         }
       </div></>
   );

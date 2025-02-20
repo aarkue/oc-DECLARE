@@ -21,35 +21,47 @@ use process_mining::{
 
 use serde::{Deserialize, Serialize};
 const INIT_EVENT_PREFIX: &str = "<init>";
+const EXIT_EVENT_PREFIX: &str = "<exit>";
 pub fn preprocess_ocel(mut ocel: OCEL) -> IndexLinkedOCEL {
+    let locel : IndexLinkedOCEL = ocel.into();
+    let new_evs = locel.object_ids_to_index.values()
+        .flat_map(|obi| {
+            let ob = locel.get_ob(obi);
+            let iter = locel.get_e2o_rev(obi).map(|(_q,e)| locel.get_ev(e).time).sorted();
+            let first_ev = iter.clone().next();
+            let first_ev_time = first_ev.map(|ev| ev).unwrap_or_default();
+            let last_ev = iter.clone().last();
+            let last_ev_time = last_ev.map(|ev| ev).unwrap_or_default();
+            vec![OCELEvent {
+                id: format!("{}_{}_{}", INIT_EVENT_PREFIX, ob.object_type, ob.id),
+                event_type: format!("{} {}", INIT_EVENT_PREFIX, ob.object_type),
+                time: first_ev_time,
+                attributes: Vec::default(),
+                relationships: vec![OCELRelationship {
+                    object_id: ob.id.clone(),
+                    qualifier: String::from("init"),
+                }],
+            }, OCELEvent {
+                id: format!("{}_{}_{}", EXIT_EVENT_PREFIX, ob.object_type, ob.id),
+                event_type: format!("{} {}", EXIT_EVENT_PREFIX, ob.object_type),
+                time: last_ev_time,
+                attributes: Vec::default(),
+                relationships: vec![OCELRelationship {
+                    object_id: ob.id.clone(),
+                    qualifier: String::from("exit"),
+                }],
+            },]
+        }).collect_vec();
+    let mut ocel = locel.into_inner();
     ocel.event_types
-        .extend(ocel.object_types.iter().map(|ot| OCELType {
-            name: format!("{} {}", INIT_EVENT_PREFIX, ot.name),
-            attributes: Vec::default(),
-        }));
-    ocel.events.extend(
-        ocel.objects
-            .iter()
-            .map(|ob| {
-                // let first_ev = ocel
-                //     .events
-                //     .iter()
-                //     .filter(|ev| ev.relationships.iter().any(|r| r.object_id == ob.id))
-                //     .sorted_by_key(|ev| ev.time)
-                //     .next();
-                // let first_ev_time = first_ev.map(|ev| ev.time).unwrap_or_default();
-                OCELEvent {
-                    id: format!("{}_{}_{}", INIT_EVENT_PREFIX, ob.object_type, ob.id),
-                    event_type: format!("{} {}", INIT_EVENT_PREFIX, ob.object_type),
-                    time: Default::default(),
-                    attributes: Vec::default(),
-                    relationships: vec![OCELRelationship {
-                        object_id: ob.id.clone(),
-                        qualifier: String::from("init"),
-                    }],
-                }
-            }),
-    );
+    .extend(ocel.object_types.iter().flat_map(|ot| vec![OCELType {
+        name: format!("{} {}", INIT_EVENT_PREFIX, ot.name),
+        attributes: Vec::default(),
+    },OCELType {
+        name: format!("{} {}", EXIT_EVENT_PREFIX, ot.name),
+        attributes: Vec::default(),
+    }]));
+    ocel.events.extend(new_evs);
     ocel.into()
 }
 
@@ -124,6 +136,7 @@ pub enum ViolationInfo {
     },
 }
 use rayon::prelude::*;
+use serde_json::value::Index;
 use ts_rs::TS;
 impl OCDeclareArc {
     pub fn get_for_all_evs(
