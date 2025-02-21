@@ -1,15 +1,22 @@
-use std::{collections::{HashMap, HashSet}, time::Instant};
+use std::{
+    collections::{HashMap, HashSet},
+    sync::Arc,
+    time::Instant,
+};
 
 use indicatif::{ParallelProgressIterator, ProgressIterator};
 use itertools::Itertools;
 use process_mining::ocel::linked_ocel::{IndexLinkedOCEL, LinkedOCELAccess};
-use rayon::iter::{IntoParallelRefIterator, ParallelBridge, ParallelExtend, ParallelIterator};
-
-use crate::{
-    get_activity_object_involvements, OCDeclareArc, OCDeclareArcLabel, OCDeclareArcType, OCDeclareNode, ObjectTypeAssociation, EXIT_EVENT_PREFIX, INIT_EVENT_PREFIX
+use rayon::iter::{
+    IntoParallelIterator, IntoParallelRefIterator, ParallelBridge, ParallelExtend, ParallelIterator,
 };
 
-const MAX_COUNT_OPT: Option<usize> = Some(20);
+use crate::{
+    get_activity_object_involvements, perf, OCDeclareArc, OCDeclareArcLabel, OCDeclareArcType,
+    OCDeclareNode, ObjectTypeAssociation, EXIT_EVENT_PREFIX, INIT_EVENT_PREFIX,
+};
+
+const MAX_COUNT_OPT: Option<usize> =  None; //Some(20);
 pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc> {
     // let now = Instant::now();
     let mut ret = Vec::new();
@@ -20,7 +27,9 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
         let mut ev_types_per_ob: HashMap<&str, Vec<usize>> = act_ob_inv
             .iter()
             .filter_map(|(act_name, ob_inv)| {
-                if act_name.starts_with(INIT_EVENT_PREFIX) || act_name.starts_with(EXIT_EVENT_PREFIX) {
+                if act_name.starts_with(INIT_EVENT_PREFIX)
+                    || act_name.starts_with(EXIT_EVENT_PREFIX)
+                {
                     return None;
                 }
                 if let Some(oi) = ob_inv.get(ot) {
@@ -53,7 +62,7 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                 .iter()
                 .filter(|c| c >= &&n_min && c <= &&n_max)
                 .count()
-                <= min_fitting_len
+                < min_fitting_len
             {
                 n_min = if n_min <= 0 { n_min } else { n_min - 1 };
                 n_max += 1;
@@ -85,199 +94,293 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
     // Second type of discovery: How many objects of object type per event of specified activity/event type?
 
     // Third type of discovery: Eventually-follows
+    let direction = OCDeclareArcType::ASS;
+    let counts = (Some(1), None);
     ret.extend(
         locel
-            .events_per_type.keys()
-            .par_bridge()
-            // .progress_count(locel.events_per_type.len() as u64)
-            .flat_map(|act1| {
-
-                let mut arcs = Vec::new();
+            .events_per_type
+            .keys()
+            .cartesian_product(locel.events_per_type.keys())
+            // .par_bridge()
+            // .progress_count(locel.events_per_type.len() as u64 * locel.events_per_type.len() as u64)
+            .filter(|(act1, act2)| {
+                if act1.starts_with(INIT_EVENT_PREFIX)
+                    || act1.starts_with(EXIT_EVENT_PREFIX)
+                    || act2.starts_with(INIT_EVENT_PREFIX)
+                    || act2.starts_with(EXIT_EVENT_PREFIX)
+                {
+                    return false;
+                }
+                true
+            })
+            .flat_map(|(act1, act2)| {
+                // let now = Instant::now();
+                // let mut arcs = Vec::new();
                 let act1_oi = act_ob_inv.get(act1).unwrap();
                 let act1_ot_set: HashSet<_> = act1_oi.keys().collect();
-                for direction in &[OCDeclareArcType::EF, OCDeclareArcType::EFREV] {
-                    for act2 in locel.get_ev_types() {
-                        if act1.starts_with(INIT_EVENT_PREFIX) || act1.starts_with(EXIT_EVENT_PREFIX) || act2.starts_with(INIT_EVENT_PREFIX) || act2.starts_with(EXIT_EVENT_PREFIX) {
-                            continue;
-                        }
-                        // let now = Instant::now();
-                        // Currently this is not supported in the UI, however: TODO: Also support self-loop arcs
-                        // if act1 == act2 {
-                        //     continue;
-                        // }
-                        let act2_oi = act_ob_inv.get(act2).unwrap();
-                        let act2_ot_set: HashSet<_> = act2_oi.keys().collect();
-                        let mut act_arcs = Vec::new();
-                        for ot in act2_ot_set.intersection(&act1_ot_set) {
-                            // ANY?
-                            let label = OCDeclareArcLabel {
-                                each: vec![],
-                                any: vec![ObjectTypeAssociation::new_simple(*ot)],
-                                all: vec![],
-                            };
-                            let any_arc = OCDeclareArc {
-                                from: OCDeclareNode::new_act(act1),
-                                to: OCDeclareNode::new_act(act2),
-                                arc_type: direction.clone(),
-                                label,
-                                counts: (Some(1), None),
-                            };
-                            let violation_frac = any_arc.get_for_all_evs_perf(locel);
-                            if violation_frac <= noise_thresh {
-                                // It IS a viable candidate!
-                                // act_arcs.insert(any_arc.label.clone());
-                                // Also test Each/All:
-                                if let Some(oi) = act1_oi.get(ot.as_str())
-                                // (if *direction == OCDeclareArcType::EF {
-                                //     act1_oi
-                                // } else {
-                                //     act2_oi
-                                // }
-                                // .get(ot.as_str()))
-                                {
-                                    let each_arc = OCDeclareArc {
-                                        from: any_arc.from.clone(),
-                                        to: any_arc.to.clone(),
-                                        arc_type: any_arc.arc_type.clone(),
-                                        label: OCDeclareArcLabel {
-                                            each: any_arc.label.any.clone(),
-                                            any: vec![],
-                                            all: vec![],
-                                        },
-                                        counts: any_arc.counts,
+                // for direction in &[OCDeclareArcType::EF, OCDeclareArcType::EFREV] {
+                // for act2 in locel.get_ev_types() {
+                // if act1.starts_with(INIT_EVENT_PREFIX)
+                //     || act1.starts_with(EXIT_EVENT_PREFIX)
+                //     || act2.starts_with(INIT_EVENT_PREFIX)
+                //     || act2.starts_with(EXIT_EVENT_PREFIX)
+                // {
+                //     continue;
+                // }
+                let act2_oi = act_ob_inv.get(act2).unwrap();
+                let act2_ot_set: HashSet<_> = act2_oi.keys().collect();
+                let mut act_arcs = Vec::new();
+                for ot in act2_ot_set.intersection(&act1_ot_set) {
+                    // ANY?
+                    let any_label = OCDeclareArcLabel {
+                        each: vec![],
+                        any: vec![ObjectTypeAssociation::new_simple(*ot)],
+                        all: vec![],
+                    };
+                    let sat = perf::get_for_all_evs_perf_thresh(
+                        act1,
+                        act2,
+                        &any_label,
+                        &direction,
+                        &counts,
+                        locel,
+                        noise_thresh,
+                    );
+                    if sat {
+                        // It IS a viable candidate!
+                        // Also test Each/All:
+                        if let Some(oi) = act1_oi.get(ot.as_str()) {
+                            if oi.max > 1 {
+                                let each_label = OCDeclareArcLabel {
+                                    each: any_label.any.clone(),
+                                    any: vec![],
+                                    all: vec![],
+                                };
+                                // Otherwise, do not need to bother with differentiating Each/All!
+                                let sat = perf::get_for_all_evs_perf_thresh(
+                                    act1,
+                                    act2,
+                                    &each_label,
+                                    &direction,
+                                    &counts,
+                                    locel,
+                                    noise_thresh,
+                                );
+                                if sat {
+                                    // Each is also valid!
+                                    // Next, test ALL:
+                                    let all_label = OCDeclareArcLabel {
+                                        each: vec![],
+                                        any: vec![],
+                                        all: any_label.any.clone(),
                                     };
-                                    if oi.max > 1 {
-                                        // Otherwise, do not need to bother with differentiating Each/All!
-                                        let violation_frac = each_arc.get_for_all_evs_perf(locel);
-                                        if violation_frac <= noise_thresh {
-                                            // Each is also valid!
-                                            // Next, test ALL:
-                                            let all_arc = OCDeclareArc {
-                                                from: any_arc.from.clone(),
-                                                to: any_arc.to.clone(),
-                                                arc_type: any_arc.arc_type.clone(),
-                                                label: OCDeclareArcLabel {
-                                                    each: vec![],
-                                                    any: vec![],
-                                                    all: any_arc.label.any.clone(),
-                                                },
-                                                counts: any_arc.counts,
-                                            };
-                                            let violation_frac =
-                                                all_arc.get_for_all_evs_perf(locel);
-                                            if violation_frac <= noise_thresh {
-                                                // All is also valid!
-                                                act_arcs.push(all_arc.label);
-                                            } else {
-                                                act_arcs.push(each_arc.label);
-                                            }
-                                        } else {
-                                            act_arcs.push(any_arc.label);
-                                        }
+                                    let sat = perf::get_for_all_evs_perf_thresh(
+                                        act1,
+                                        act2,
+                                        &all_label,
+                                        &direction,
+                                        &counts,
+                                        locel,
+                                        noise_thresh,
+                                    );
+                                    if sat {
+                                        // All is also valid!
+                                        act_arcs.push(all_label);
                                     } else {
-                                        act_arcs.push(each_arc.label);
+                                        act_arcs.push(each_label);
                                     }
+                                } else {
+                                    act_arcs.push(any_label);
                                 }
+                            } else {
+                                act_arcs.push(OCDeclareArcLabel {
+                                    each: any_label.any,
+                                    any: vec![],
+                                    all: vec![],
+                                });
                             }
                         }
-                        // if now.elapsed().as_secs_f32() > 2.0 {
-                        //     println!("{:?}",act_arcs);
-                        //     println!("Before combining for {} -> {} [Took {:.2?}]",act1,act2,now.elapsed());
-                        // }
-                        // let now = Instant::now();
-                        let mut changed = true;
-                        while changed {
-                            let mut to_remove = HashSet::new();
-                            let mut to_add = HashSet::new();
-
-                            for arc1_i in 0..act_arcs.len() {
-                                for arc2_i in (arc1_i + 1)..act_arcs.len() {
-                                    let arc1 = &act_arcs[arc1_i];
-                                    let arc2 = &act_arcs[arc2_i];
-                                    // if arc1.is_dominated_by(arc2) || arc2.is_dominated_by(arc1){
-                                    //     continue;
-                                    // }
-                                    let new_arc_label = arc1.combine(arc2);
-                                    // if !act_arcs.contains(&new_arc_label) {
-                                    let new_arc = OCDeclareArc {
-                                        from: OCDeclareNode::new_act(act1),
-                                        to: OCDeclareNode::new_act(act2),
-                                        arc_type: direction.clone(),
-                                        label: new_arc_label,
-                                        counts: (Some(1), MAX_COUNT_OPT),
-                                    };
-                                    let violation_frac = new_arc.get_for_all_evs_perf(locel);
-                                    if violation_frac <= noise_thresh {
-                                        // println!("Combined into {:?}", new_arc);
-                                        // It IS a viable candidate!
-                                        to_add.insert(new_arc.label);
-                                        to_remove.insert(arc1);
-                                        to_remove.insert(arc2);
-                                    }
-                                    // }
-                                }
-                            }
-                            changed = !to_add.is_empty();
-                            act_arcs = act_arcs
-                                .iter()
-                                .filter(|arc| !to_remove.contains(arc))
-                                .cloned()
-                                .chain(to_add)
-                                .collect();
-                        }
-
-                        arcs.par_extend(
-                            act_arcs
-                                .par_iter()
-                                .filter(|arc1| {
-                                    !act_arcs.iter().any(|arc2| {
-                                        *arc1 != arc2 && arc1.is_dominated_by(arc2)
-                                        // && !arc2.is_dominated_by(&arc1)
-                                    })
-                                })
-                                // .into_iter()
-                                .filter_map(|label| {
-                                    let mut arc = OCDeclareArc {
-                                        from: OCDeclareNode::new_act(act1),
-                                        to: OCDeclareNode::new_act(act2),
-                                        arc_type: direction.clone(),
-                                        label: label.clone(),
-                                        counts: (Some(1), Some(1)),
-                                    };
-                                    if arc.get_for_all_evs_perf(locel) <= noise_thresh {
-                                        Some(arc)
-                                    } else {
-                                        arc.counts.1 = MAX_COUNT_OPT;
-                                        if arc.get_for_all_evs_perf(locel) <= noise_thresh {
-                                            arc.counts.1 = None;
-                                            Some(arc)
-                                        }else{
-                                            None
-                                        }
-                                    }
-                                })
-                        );
-
-                        // if now.elapsed().as_secs_f32() > 2.0 {
-                        // println!("After combining: [{:.2?}]",now.elapsed());
-                        // }
                     }
                 }
-                arcs
-            })
-            .collect::<Vec<_>>(),
+                // if now.elapsed().as_secs_f32() > 2.0 {
+                //     println!("{:?}",act_arcs);
+                // println!(
+                //     "Before combining for {} -> {} [Took {:.2?}]",
+                //     act1,
+                //     act2,
+                //     now.elapsed()
+                // );
+                // }
+                // let now = Instant::now();
+                let mut changed = true;
+                while changed {
+                    let mut to_remove = HashSet::new();
+                    let mut to_add = HashSet::new();
+
+                    for arc1_i in 0..act_arcs.len() {
+                        for arc2_i in (arc1_i + 1)..act_arcs.len() {
+                            let arc1 = &act_arcs[arc1_i];
+                            let arc2 = &act_arcs[arc2_i];
+                            // if arc1.is_dominated_by(arc2) || arc2.is_dominated_by(arc1){
+                            //     continue;
+                            // }
+                            let new_arc_label = arc1.combine(arc2);
+                            if !act_arcs.contains(&new_arc_label) {
+                                let sat = perf::get_for_all_evs_perf_thresh(
+                                    act1,
+                                    act2,
+                                    &new_arc_label,
+                                    &direction,
+                                    &counts,
+                                    locel,
+                                    noise_thresh,
+                                );
+                                if sat {
+                                    // It IS a viable candidate!
+                                    to_add.insert(new_arc_label);
+                                    to_remove.insert(arc1_i);
+                                    to_remove.insert(arc2_i);
+                                }
+                            }
+                        }
+                    }
+                    changed = !to_add.is_empty();
+                    act_arcs = act_arcs
+                        .into_iter()
+                        .enumerate()
+                        .filter_map(|(index, _arc)| {
+                            if to_remove.contains(&index) {
+                                None
+                            } else {
+                                Some(_arc)
+                            }
+                        })
+                        .chain(to_add)
+                        .collect();
+                }
+                // println!(
+                //     "Combining for {} -> {} [Took {:.2?}]",
+                //     act1,
+                //     act2,
+                //     now.elapsed()
+                // );
+                // let now = Instant::now();
+                // arcs.extend(
+                let v = act_arcs
+                    .clone()
+                    .into_iter()
+                    // .iter()
+                    // .into_par_iter()
+                    .filter(move |arc1| {
+                        !act_arcs.iter().any(|arc2| {
+                            *arc1 != *arc2 && arc1.is_dominated_by(arc2)
+                            // && !arc2.is_dominated_by(&arc1)
+                        })
+                    })
+                    // .into_iter()
+                    .flat_map(move |label| {
+                        let arc = OCDeclareArc {
+                            from: OCDeclareNode::new_act(act1.clone()),
+                            to: OCDeclareNode::new_act(act2.clone()),
+                            arc_type: OCDeclareArcType::ASS,
+                            label: label,
+                            counts: (Some(1), MAX_COUNT_OPT),
+                        };
+                        // vec![arc]
+                        get_stricter_arrows_for_as(arc, noise_thresh, locel)
+                        // if arc.get_for_all_evs_perf(locel) <= noise_thresh {
+                        //     Some(arc)
+                        // } else {
+                        //     arc.counts.1 = MAX_COUNT_OPT;
+                        //     if arc.get_for_all_evs_perf(locel) <= noise_thresh {
+                        //         arc.counts.1 = None;
+                        //         Some(arc)
+                        //     } else {
+                        //         None
+                        //     }
+                        // }
+                    });
+                // .collect_vec();
+
+                // println!(
+                //     "Creating v for {} -> {}, |act_arcs|={}, |v|={} [Took {:.2?}]",
+                //     act1,
+                //     act2,
+                //     act_arcs.len(),
+                //     v.len(),
+                //     now.elapsed()
+                // );
+                v
+                // );
+
+                // if now.elapsed().as_secs_f32() > 2.0 {
+                // println!("After combining: [{:.2?}]",now.elapsed());
+                // }
+                // }
+                // }
+
+                // arcs
+            }),
     );
     // Also test if the discovered (EF / EF-rev) constraints hold if we set min = max = 1
     // Also include directly-follows constraints:
-        // Collect all EF constraints that hold (i.e., also the dominated/superseeded ones)
-        // For each of them check if DF also holds
-        // Collect DF constraints, remove dominated ones
-        // Remove EF constraints dominated by DF constraints (i.e., those where the sets are the same)
+    // Collect all EF constraints that hold (i.e., also the dominated/superseeded ones)
+    // For each of them check if DF also holds
+    // Collect DF constraints, remove dominated ones
+    // Remove EF constraints dominated by DF constraints (i.e., those where the sets are the same)
 
     // Fourth type of discovery: NOT Eventually Follows
     // There we also have monotonicity properties, but different ones!
     // In particular, A --T-//-> B implies A --T,T'--//-> B and so on
 
+    ret
+}
+
+fn get_stricter_arrows_for_as(
+    mut a: OCDeclareArc,
+    noise_thresh: f64,
+    locel: &IndexLinkedOCEL,
+) -> Vec<OCDeclareArc> {
+    let mut ret: Vec<OCDeclareArc> = Vec::new();
+    {
+        // Test EF
+        a.arc_type = OCDeclareArcType::EF;
+        if a.get_for_all_evs_perf_thresh(locel, noise_thresh) {
+            // Test DF
+            a.arc_type = OCDeclareArcType::DF;
+            // let df_viol_frac = a.get_for_all_evs_perf(locel);
+            if a.get_for_all_evs_perf_thresh(locel, noise_thresh) {
+                ret.push(a.clone());
+            } else {
+                a.arc_type = OCDeclareArcType::EF;
+                ret.push(a.clone());
+            }
+        }
+    }
+    {
+        // Test EP
+        a.arc_type = OCDeclareArcType::EFREV;
+        // let ep_viol_frac = a.get_for_all_evs_perf(locel);
+        if a.get_for_all_evs_perf_thresh(locel, noise_thresh) {
+            // Test DFREV
+            a.arc_type = OCDeclareArcType::DFREV;
+            // let dp_viol_frac = a.get_for_all_evs_perf(locel);
+            if a.get_for_all_evs_perf_thresh(locel, noise_thresh) {
+                ret.push(a.clone());
+            } else {
+                a.arc_type = OCDeclareArcType::EFREV;
+                ret.push(a.clone());
+            }
+        }
+    }
+    if ret.is_empty() {
+        if a.from != a.to {
+            a.arc_type = OCDeclareArcType::ASS;
+            // if a.get_for_all_evs_perf(locel) <= noise_thresh {
+            ret.push(a);
+        }
+        // }
+    }
     ret
 }
 

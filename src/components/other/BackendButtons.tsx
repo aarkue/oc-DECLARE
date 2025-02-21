@@ -167,7 +167,10 @@ function translateArcTypeFromRsToTs(arcType: OCDeclareArcType): EdgeType {
             return "ef"
         case "EFREV":
             return "ef-rev"
+        case "DF":
+            return "df"
+        case "DFREV":
+            return "df-rev"
     }
-    return "ass"
 
 }

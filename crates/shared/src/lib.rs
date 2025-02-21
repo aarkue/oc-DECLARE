@@ -10,57 +10,73 @@ use std::{
 use itertools::Itertools;
 pub use process_mining;
 use process_mining::{
-    event_log::Event, ocel::{
+    event_log::Event,
+    ocel::{
         linked_ocel::{
             index_linked_ocel::{EventIndex, ObjectIndex},
             IndexLinkedOCEL, LinkedOCELAccess,
         },
         ocel_struct::{OCELEvent, OCELRelationship, OCELType},
-    }, OCEL
+    },
+    OCEL,
 };
 
 use serde::{Deserialize, Serialize};
 const INIT_EVENT_PREFIX: &str = "<init>";
 const EXIT_EVENT_PREFIX: &str = "<exit>";
 pub fn preprocess_ocel(mut ocel: OCEL) -> IndexLinkedOCEL {
-    let locel : IndexLinkedOCEL = ocel.into();
-    let new_evs = locel.object_ids_to_index.values()
+    let locel: IndexLinkedOCEL = ocel.into();
+    let new_evs = locel
+        .object_ids_to_index
+        .values()
         .flat_map(|obi| {
             let ob = locel.get_ob(obi);
-            let iter = locel.get_e2o_rev(obi).map(|(_q,e)| locel.get_ev(e).time).sorted();
+            let iter = locel
+                .get_e2o_rev(obi)
+                .map(|(_q, e)| locel.get_ev(e).time)
+                .sorted();
             let first_ev = iter.clone().next();
             let first_ev_time = first_ev.map(|ev| ev).unwrap_or_default();
             let last_ev = iter.clone().last();
             let last_ev_time = last_ev.map(|ev| ev).unwrap_or_default();
-            vec![OCELEvent {
-                id: format!("{}_{}_{}", INIT_EVENT_PREFIX, ob.object_type, ob.id),
-                event_type: format!("{} {}", INIT_EVENT_PREFIX, ob.object_type),
-                time: first_ev_time,
-                attributes: Vec::default(),
-                relationships: vec![OCELRelationship {
-                    object_id: ob.id.clone(),
-                    qualifier: String::from("init"),
-                }],
-            }, OCELEvent {
-                id: format!("{}_{}_{}", EXIT_EVENT_PREFIX, ob.object_type, ob.id),
-                event_type: format!("{} {}", EXIT_EVENT_PREFIX, ob.object_type),
-                time: last_ev_time,
-                attributes: Vec::default(),
-                relationships: vec![OCELRelationship {
-                    object_id: ob.id.clone(),
-                    qualifier: String::from("exit"),
-                }],
-            },]
-        }).collect_vec();
+            vec![
+                OCELEvent {
+                    id: format!("{}_{}_{}", INIT_EVENT_PREFIX, ob.object_type, ob.id),
+                    event_type: format!("{} {}", INIT_EVENT_PREFIX, ob.object_type),
+                    time: first_ev_time,
+                    attributes: Vec::default(),
+                    relationships: vec![OCELRelationship {
+                        object_id: ob.id.clone(),
+                        qualifier: String::from("init"),
+                    }],
+                },
+                OCELEvent {
+                    id: format!("{}_{}_{}", EXIT_EVENT_PREFIX, ob.object_type, ob.id),
+                    event_type: format!("{} {}", EXIT_EVENT_PREFIX, ob.object_type),
+                    time: last_ev_time,
+                    attributes: Vec::default(),
+                    relationships: vec![OCELRelationship {
+                        object_id: ob.id.clone(),
+                        qualifier: String::from("exit"),
+                    }],
+                },
+            ]
+        })
+        .collect_vec();
     let mut ocel = locel.into_inner();
     ocel.event_types
-    .extend(ocel.object_types.iter().flat_map(|ot| vec![OCELType {
-        name: format!("{} {}", INIT_EVENT_PREFIX, ot.name),
-        attributes: Vec::default(),
-    },OCELType {
-        name: format!("{} {}", EXIT_EVENT_PREFIX, ot.name),
-        attributes: Vec::default(),
-    }]));
+        .extend(ocel.object_types.iter().flat_map(|ot| {
+            vec![
+                OCELType {
+                    name: format!("{} {}", INIT_EVENT_PREFIX, ot.name),
+                    attributes: Vec::default(),
+                },
+                OCELType {
+                    name: format!("{} {}", EXIT_EVENT_PREFIX, ot.name),
+                    attributes: Vec::default(),
+                },
+            ]
+        }));
     ocel.events.extend(new_evs);
     ocel.into()
 }
@@ -116,6 +132,14 @@ pub struct OCDeclareArc {
     counts: (Option<usize>, Option<usize>),
 }
 
+impl OCDeclareArc {
+    pub fn clone_with_arc_type(&self, arc_type: OCDeclareArcType) -> Self {
+        let mut ret = self.clone();
+        ret.arc_type = arc_type;
+        ret
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
 #[serde(tag = "type")]
@@ -135,8 +159,6 @@ pub enum ViolationInfo {
         count: usize,
     },
 }
-use rayon::prelude::*;
-use serde_json::value::Index;
 use ts_rs::TS;
 impl OCDeclareArc {
     pub fn get_for_all_evs(
@@ -157,94 +179,34 @@ impl OCDeclareArc {
     }
 
     pub fn get_for_all_evs_perf(&self, linked_ocel: &IndexLinkedOCEL) -> f64 {
-        let evs = linked_ocel
-        .events_per_type.get(Into::<Cow<_>>::into(&self.from).as_str()).unwrap();
-        let ev_count = evs.len();
-        //  linked_ocel
-            // .get_evs_of_type(Into::<Cow<_>>::into(&self.from).as_str())
-            //.take(200)
-            // .count();
-        let violated_evs_count = 
-        // linked_ocel
-            // .events_per_type.get(Into::<Cow<_>>::into(&self.from).as_str()).unwrap()
-            evs
-            // .into_iter()
-            .into_par_iter()
-            // .take(200)
-            // .get(Into::<Cow<_>>::into(&self.from).as_str())
-            // .unwrap()
-            // .par_bridge()
-            // iter()
-            .filter(|ev| self.get_for_ev_perf(ev, linked_ocel))
-            .count();
-        violated_evs_count as f64 / ev_count as f64
+        let from = Into::<Cow<_>>::into(&self.from);
+        let to = Into::<Cow<_>>::into(&self.to);
+        perf::get_for_all_evs_perf(
+            from.as_str(),
+            to.as_str(),
+            &self.label,
+            &self.arc_type,
+            &self.counts,
+            linked_ocel,
+        )
     }
 
-    /// Returns true if violated!
-    pub fn get_for_ev_perf<'a>(
+    pub fn get_for_all_evs_perf_thresh(
         &self,
-        ev_index: &EventIndex,
         linked_ocel: &IndexLinkedOCEL,
+        noise_thresh: f64,
     ) -> bool {
-        let ev = linked_ocel.get_ev(ev_index);
-        self.label
-            .get_bindings(ev_index, linked_ocel)
-            .any(|binding| {
-                let binding = binding;
-                let to = Into::<Cow<_>>::into(&self.to);
-                match self.arc_type {
-                    OCDeclareArcType::ASS | OCDeclareArcType::EF | OCDeclareArcType::EFREV => {
-                        let target_ev_iterator = get_evs_with_objs_perf(&binding, linked_ocel, to.as_str())
-                        .filter(|ev2| {
-                            let ev2 = linked_ocel.get_ev(ev2);
-                            match self.arc_type {
-                                OCDeclareArcType::ASS => true,
-                                OCDeclareArcType::EF => ev.time < ev2.time,
-                                OCDeclareArcType::EFREV => ev.time > ev2.time,
-                                _ => panic!("DF should not go here.")
-                                // OCDeclareArcType::DF => ev.time < ev2.time,
-                                // OCDeclareArcType::DFREV => ev.time > ev2.time,
-                            }
-                        });
-                    if self.counts.1.is_none() {
-                        // Only take necessary
-                        // ev_count.
-                        if self.counts.0.unwrap_or_default()
-                            > target_ev_iterator
-                                .take(self.counts.0.unwrap_or_default())
-                                .count()
-                        {
-                            // Violated!
-                            return true;
-                        }
-                    } else if let Some(c) = self.counts.1 {
-                        let count = target_ev_iterator.take(c + 1).count();
-                        if c < count || count < self.counts.0.unwrap_or_default() {
-                            // Violated
-                            return true;
-                        }
-                    }
-                    false
-                    },
-                    OCDeclareArcType::DF | OCDeclareArcType::DFREV => {
-                        let df_ev = get_df_or_dp_event_perf(&binding, linked_ocel, ev, self.arc_type == OCDeclareArcType::DF);
-                        let count = if df_ev.is_some_and(|e| linked_ocel.get_ev(&e).event_type == to.as_str()) {1} else {0};
-                        if let Some(min_c) = self.counts.0 {
-                            if count < min_c {
-                                return true;
-                            }
-                        }
-                        if let Some(max_c) = self.counts.1 {
-                            if count > max_c {
-                                return true;
-                            }
-                        }
-                        false
-                        // return self.counts.0.is_none_or(|c| count >= c) && self.counts.1.is_none_or(|c| count <= c)
-                    },
-                }
-             
-            })
+        let from = Into::<Cow<_>>::into(&self.from);
+        let to = Into::<Cow<_>>::into(&self.to);
+        perf::get_for_all_evs_perf_thresh(
+            from.as_str(),
+            to.as_str(),
+            &self.label,
+            &self.arc_type,
+            &self.counts,
+            linked_ocel,
+            noise_thresh,
+        )
     }
 
     pub fn get_for_ev<'a>(
@@ -267,7 +229,7 @@ impl OCDeclareArc {
                             OCDeclareArcType::ASS => true,
                             OCDeclareArcType::EF => ev.time < ev2.time,
                             OCDeclareArcType::EFREV => ev.time > ev2.time,
-                            _ => todo!("Not implemented yet for non-perf version!")
+                            _ => todo!("Not implemented yet for non-perf version!"),
                         }
                     })
                     .collect_vec();
@@ -391,10 +353,10 @@ fn get_evs_with_objs<'a>(
                 .filter_map(|(_, e)| {
                     let ev = linked_ocel.get_ev(e);
                     if ev.event_type == etype
-                        && items.iter().skip(1).all(|o| {
-                            linked_ocel
-                                .get_e2o_set(e).contains(o)
-                        })
+                        && items
+                            .iter()
+                            .skip(1)
+                            .all(|o| linked_ocel.get_e2o_set(e).contains(o))
                     {
                         Some(*e)
                     } else {
@@ -419,31 +381,41 @@ fn get_evs_with_objs_perf<'a>(
     etype: &'a str,
 ) -> impl Iterator<Item = EventIndex> + use<'a> {
     let initial: Box<dyn Iterator<Item = EventIndex>> = match &objs[0] {
-        SetFilter::Any(items) => {
-            Box::new(
-                items
-                    .iter()
-                    .flat_map(|o| {
-                        linked_ocel
-                            .e2o_rev_et.get(etype).unwrap().get(o).into_iter().flatten().copied()
-                    })
-                    .collect::<HashSet<_>>()
-                    .into_iter(),
-            )
-        }
+        SetFilter::Any(items) => Box::new(
+            items
+                .iter()
+                .flat_map(|o| {
+                    linked_ocel
+                        .e2o_rev_et
+                        .get(etype)
+                        .unwrap()
+                        .get(o)
+                        .into_iter()
+                        .flatten()
+                        .copied()
+                })
+                .collect::<HashSet<_>>()
+                .into_iter(),
+        ),
         SetFilter::All(items) => {
             if items.is_empty() {
                 Box::new(Vec::new().into_iter())
             } else {
                 Box::new(
                     linked_ocel
-                        .e2o_rev_et.get(etype).unwrap().get(&items[0]).into_iter().flatten().filter(|e| {
-                                 items.iter().skip(1).all(|o| {
-                                    linked_ocel
-                                        .get_e2o_set(e)
-                                        .contains(o)
-                                })
-                        }).copied(),
+                        .e2o_rev_et
+                        .get(etype)
+                        .unwrap()
+                        .get(&items[0])
+                        .into_iter()
+                        .flatten()
+                        .filter(|e| {
+                            items
+                                .iter()
+                                .skip(1)
+                                .all(|o| linked_ocel.get_e2o_set(e).contains(o))
+                        })
+                        .copied(),
                 )
             }
         }
@@ -459,46 +431,53 @@ fn get_evs_with_objs_perf<'a>(
     })
 }
 
-
 fn get_df_or_dp_event_perf<'a>(
     objs: &'a Vec<SetFilter<ObjectIndex>>,
     linked_ocel: &'a IndexLinkedOCEL,
+    reference_event_index: &'a EventIndex,
     reference_event: &'a OCELEvent,
-    following: bool
-) -> Option<EventIndex> {
-    let initial: Box<dyn Iterator<Item = EventIndex>> = match &objs[0] {
-        SetFilter::Any(items) => {
-            Box::new(
-                items
-                    .iter()
-                    .flat_map(|o| {
-                        linked_ocel.get_e2o_rev(o).map(|e| e.1).copied()
+    following: bool,
+) -> Option<&'a EventIndex> {
+    let initial: Box<dyn Iterator<Item = &EventIndex>> = match &objs[0] {
+        SetFilter::Any(items) => Box::new(
+            items
+                .iter()
+                .flat_map(|o| {
+                    linked_ocel.get_e2o_rev(o).map(|(_q, e)| e).filter(|e| {
+                        if following {
+                            e > &reference_event_index
+                        } else {
+                            e < &reference_event_index
+                        }
                     })
-                    .collect::<HashSet<_>>()
-                    .into_iter(),
-            )
-        }
+                })
+                .collect::<HashSet<_>>()
+                .into_iter(),
+        ),
         SetFilter::All(items) => {
             if items.is_empty() {
                 Box::new(Vec::new().into_iter())
             } else {
                 Box::new(
                     linked_ocel.get_e2o_rev(&items[0]).map(|e| e.1).filter(|e| {
-                                 items.iter().skip(1).all(|o| {
-                                    linked_ocel
-                                        .get_e2o_set(e)
-                                        .contains(o)
-                                })
-                        }).copied(),
+                        items
+                            .iter()
+                            .skip(1)
+                            .all(|o| linked_ocel.get_e2o_set(e).contains(o))
+                    }), // .copied()
                 )
             }
         }
     };
     let mut x = initial.filter(|e| {
-        if following && reference_event.time >= linked_ocel.get_ev(e).time {
+        if following
+            && (e < &reference_event_index || reference_event.time >= linked_ocel.get_ev(e).time)
+        {
             return false;
         }
-        if !following && reference_event.time <= linked_ocel.get_ev(e).time {
+        if !following
+            && (e > &reference_event_index || reference_event.time <= linked_ocel.get_ev(e).time)
+        {
             return false;
         }
         for o in objs.iter() {
@@ -508,10 +487,10 @@ fn get_df_or_dp_event_perf<'a>(
             }
         }
         true
-    }).sorted_by_cached_key(|e| linked_ocel.get_ev(e).time);
+    });
     match following {
-        true => x.next(),
-        false => x.last(),
+        true => x.min(),
+        false => x.max(),
     }
 }
 
@@ -523,7 +502,7 @@ enum OCDeclareArcType {
     EF,
     EFREV,
     DF,
-    DFREV
+    DFREV,
 }
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize, PartialOrd, Ord, TS)]
@@ -561,11 +540,7 @@ impl ObjectTypeAssociation {
         }
     }
 
-    pub fn get_for_ev(
-        &self,
-        ev: &EventIndex,
-        linked_ocel: &IndexLinkedOCEL,
-    ) -> Vec<ObjectIndex> {
+    pub fn get_for_ev(&self, ev: &EventIndex, linked_ocel: &IndexLinkedOCEL) -> Vec<ObjectIndex> {
         match self {
             ObjectTypeAssociation::Simple { object_type } => linked_ocel
                 .get_e2o_set(ev)
@@ -610,7 +585,8 @@ impl ObjectTypeAssociation {
                             .filter(|o2| linked_ocel.get_ob(o2).object_type == *second)
                             .collect_vec()
                     }
-                }).copied()
+                })
+                .copied()
                 .collect(),
         }
     }
@@ -657,13 +633,19 @@ impl OCDeclareArcLabel {
     pub fn is_dominated_by(&self, other: &Self) -> bool {
         let all_all = self.all.iter().all(|a| other.all.contains(a));
         if !all_all {
-            return false
+            return false;
         }
-        let all_each = self.each.iter().all(|a| other.each.contains(a) || other.all.contains(a));
+        let all_each = self
+            .each
+            .iter()
+            .all(|a| other.each.contains(a) || other.all.contains(a));
         if !all_each {
-            return false
+            return false;
         }
-        let all_any = self.any.iter().all(|a| other.any.contains(a) || other.each.contains(a) || other.all.contains(a));
+        let all_any = self
+            .any
+            .iter()
+            .all(|a| other.any.contains(a) || other.each.contains(a) || other.all.contains(a));
         all_any
     }
 }
@@ -700,13 +682,11 @@ impl<'a> OCDeclareArcLabel {
                 self.all
                     .iter()
                     .map(|otass| SetFilter::All(otass.get_for_ev(ev, linked_ocel)))
-                    .chain(
-                        if product.is_empty() {
-                            Vec::default()
-                        } else {
-                            vec![SetFilter::All(product)]
-                        },
-                    )
+                    .chain(if product.is_empty() {
+                        Vec::default()
+                    } else {
+                        vec![SetFilter::All(product)]
+                    })
                     .chain(
                         self.any
                             .iter()
@@ -724,7 +704,7 @@ impl<'a> OCDeclareArcLabel {
                                 let x = otass.get_for_ev(ev, linked_ocel);
                                 if x.len() == 1 {
                                     SetFilter::All(x)
-                                }else{
+                                } else {
                                     SetFilter::Any(x)
                                 }
                             }),
@@ -787,6 +767,192 @@ pub fn get_activity_object_involvements(
             // (nums_of_objects_per_type
         })
         .collect()
+}
+
+pub mod perf {
+    use std::sync::atomic::{AtomicI64, AtomicUsize};
+
+    use process_mining::ocel::linked_ocel::{
+        index_linked_ocel::EventIndex, IndexLinkedOCEL, LinkedOCELAccess,
+    };
+    use rayon::prelude::*;
+
+    use crate::{
+        get_df_or_dp_event_perf, get_evs_with_objs_perf, OCDeclareArcLabel, OCDeclareArcType,
+    };
+
+    pub fn get_for_all_evs_perf(
+        from_et: &str,
+        to_et: &str,
+        label: &OCDeclareArcLabel,
+        arc_type: &OCDeclareArcType,
+        counts: &(Option<usize>, Option<usize>),
+        linked_ocel: &IndexLinkedOCEL,
+    ) -> f64 {
+        let evs = linked_ocel.events_per_type.get(from_et).unwrap();
+        let ev_count = evs.len();
+        let violated_evs_count = evs
+            .into_par_iter()
+            // .into_iter()
+            .filter(|ev| get_for_ev_perf(ev, label, to_et, arc_type, counts, linked_ocel))
+            .count();
+        violated_evs_count as f64 / ev_count as f64
+    }
+
+    pub fn get_for_all_evs_perf_thresh(
+        from_et: &str,
+        to_et: &str,
+        label: &OCDeclareArcLabel,
+        arc_type: &OCDeclareArcType,
+        counts: &(Option<usize>, Option<usize>),
+        linked_ocel: &IndexLinkedOCEL,
+        violation_thresh: f64,
+    ) -> bool {
+        let evs = linked_ocel.events_per_type.get(from_et).unwrap();
+        let ev_count = evs.len();
+        let mut min_v = (ev_count as f64 * violation_thresh).floor() as usize + 1;
+        let mut min_s = (ev_count as f64 * (1.0 - violation_thresh)).ceil() as usize;
+        // // Non-Atomic:
+        // for ev in evs {
+        //         let violated = get_for_ev_perf(ev, label, to_et, arc_type, counts, linked_ocel);
+        //         if violated {
+        //             min_v -= 1;
+        //             if min_v == 0 {
+        //                 return false
+        //             }
+        //         } else {
+        //             min_s -= 1;
+        //             if min_s == 0 {
+        //                 return true
+        //             }
+        //         }
+        //     }
+
+        // Atomic:
+        let min_v_atomic = AtomicI64::new(min_v as i64);
+        let min_s_atomic = AtomicI64::new(min_s as i64);
+        evs.into_par_iter()
+            .map(|ev| {
+                let violated = get_for_ev_perf(ev, label, to_et, arc_type, counts, linked_ocel);
+                if violated {
+                    min_v_atomic.fetch_add(-1, std::sync::atomic::Ordering::Relaxed);
+                } else {
+                    min_s_atomic.fetch_add(-1, std::sync::atomic::Ordering::Relaxed);
+                }
+                ev
+            })
+            .take_any_while(|_x| {
+                if min_s_atomic.load(std::sync::atomic::Ordering::Relaxed) <= 0 {
+                    return false;
+                }
+                if min_v_atomic.load(std::sync::atomic::Ordering::Relaxed) <= 0 {
+                    return false;
+                }
+                true
+            })
+            .count();
+        let min_s_atomic = min_s_atomic.into_inner();
+        let min_v_atomic = min_v_atomic.into_inner();
+        // println!("{} and {}",min_s_atomic,min_v_atomic);
+        if min_s_atomic <= 0 {
+            return true;
+        }
+        if min_v_atomic <= 0 {
+            return false;
+        }
+
+        unreachable!()
+
+
+        // println!("{} and {} of {} (min_s: {}, min_v: {})",min_s_atomic,min_v_atomic,ev_count,min_s,min_v);
+        // true
+
+        // Previous:
+        // let violated_evs_count =
+        // evs
+        //     .into_par_iter()
+        //     // .into_iter()
+        //     .filter(|ev| get_for_ev_perf(ev, label, to_et, arc_type, counts, linked_ocel))
+        //     // .take_any(min_v)
+        //     .take_any(min_s)
+        //     .count();
+        // violated_evs_count < min_v
+        // // sat_evs_count >= min_s
+    }
+
+    /// Returns true if violated!
+    pub fn get_for_ev_perf<'a>(
+        ev_index: &EventIndex,
+        label: &OCDeclareArcLabel,
+        to_et: &str,
+        arc_type: &OCDeclareArcType,
+        counts: &(Option<usize>, Option<usize>),
+        linked_ocel: &IndexLinkedOCEL,
+    ) -> bool {
+        let ev = linked_ocel.get_ev(ev_index);
+        label.get_bindings(ev_index, linked_ocel).any(|binding| {
+            let binding = binding;
+            match arc_type {
+                OCDeclareArcType::ASS | OCDeclareArcType::EF | OCDeclareArcType::EFREV => {
+                    let target_ev_iterator = get_evs_with_objs_perf(&binding, linked_ocel, to_et)
+                        .filter(|ev2| {
+                            let ev2 = linked_ocel.get_ev(ev2);
+                            match arc_type {
+                                OCDeclareArcType::ASS => true,
+                                OCDeclareArcType::EF => ev.time < ev2.time,
+                                OCDeclareArcType::EFREV => ev.time > ev2.time,
+                                _ => panic!("DF should not go here."),
+                            }
+                        });
+                    if counts.1.is_none() {
+                        // Only take necessary
+                        // ev_count.
+                        if counts.0.unwrap_or_default()
+                            > target_ev_iterator
+                                .take(counts.0.unwrap_or_default())
+                                .count()
+                        {
+                            // Violated!
+                            return true;
+                        }
+                    } else if let Some(c) = counts.1 {
+                        let count = target_ev_iterator.take(c + 1).count();
+                        if c < count || count < counts.0.unwrap_or_default() {
+                            // Violated
+                            return true;
+                        }
+                    }
+                    false
+                }
+                OCDeclareArcType::DF | OCDeclareArcType::DFREV => {
+                    let df_ev = get_df_or_dp_event_perf(
+                        &binding,
+                        linked_ocel,
+                        ev_index,
+                        ev,
+                        arc_type == &OCDeclareArcType::DF,
+                    );
+                    let count = if df_ev.is_some_and(|e| linked_ocel.get_ev(&e).event_type == to_et)
+                    {
+                        1
+                    } else {
+                        0
+                    };
+                    if let Some(min_c) = counts.0 {
+                        if count < min_c {
+                            return true;
+                        }
+                    }
+                    if let Some(max_c) = counts.1 {
+                        if count > max_c {
+                            return true;
+                        }
+                    }
+                    false
+                }
+            }
+        })
+    }
 }
 
 #[cfg(test)]
@@ -923,12 +1089,12 @@ mod tests {
         // println!("{:?}", x);
     }
 
-
-
     #[test]
     fn hpc_discovery() {
-        let ocel =
-            import_ocel_json_from_path("/home/aarkue/dow/ocel/hpc-ocel-complete-acc-extraction2.json").unwrap();
+        let ocel = import_ocel_json_from_path(
+            "/home/aarkue/dow/ocel/hpc-ocel-complete-acc-extraction2.json",
+        )
+        .unwrap();
 
         let linked_ocel: IndexLinkedOCEL = preprocess_ocel(ocel);
 
@@ -938,22 +1104,23 @@ mod tests {
         println!("Got {} results", res.len());
 
         serde_json::to_writer_pretty(File::create("discovered-hpc.json").unwrap(), &res).unwrap();
-
     }
 
     #[test]
     fn bpic2017_discovery() {
-        let ocel =
-            import_ocel_json_from_path("/home/aarkue/dow/ocel/bpic2017-o2o-workflow-qualifier-index-no-ev-attrs.json").unwrap();
+        let ocel = import_ocel_json_from_path(
+            "/home/aarkue/dow/ocel/bpic2017-o2o-workflow-qualifier-index-no-ev-attrs.json",
+        )
+        .unwrap();
 
         let linked_ocel: IndexLinkedOCEL = preprocess_ocel(ocel);
 
         let now = Instant::now();
-        let res = discover(&linked_ocel, 0.2);
+        let res = discover(&linked_ocel, 0.05);
         println!("Took {:?}", now.elapsed());
         println!("Got {} results", res.len());
 
-        serde_json::to_writer_pretty(File::create("discovered-bpic2017.json").unwrap(), &res).unwrap();
-
+        serde_json::to_writer_pretty(File::create("discovered-bpic2017.json").unwrap(), &res)
+            .unwrap();
     }
 }
