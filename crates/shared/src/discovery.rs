@@ -9,16 +9,20 @@ use process_mining::ocel::linked_ocel::{IndexLinkedOCEL, LinkedOCELAccess};
 use rayon::prelude::*;
 
 use crate::{
-    get_activity_object_involvements, perf, OCDeclareArc, OCDeclareArcLabel, OCDeclareArcType,
-    OCDeclareNode, ObjectTypeAssociation, EXIT_EVENT_PREFIX, INIT_EVENT_PREFIX,
+    get_activity_object_involvements, get_object_to_object_involvements, perf, OCDeclareArc,
+    OCDeclareArcLabel, OCDeclareArcType, OCDeclareNode, ObjectInvolvementCounts,
+    ObjectTypeAssociation, EXIT_EVENT_PREFIX, INIT_EVENT_PREFIX,
 };
 
-const MAX_COUNT_OPT: Option<usize> =  None; //Some(20);
+const MAX_COUNT_OPT: Option<usize> = None; //Some(20);
 pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc> {
     // let now = Instant::now();
     let mut ret = Vec::new();
     // First type of discovery: How many events of a specific type per object of specified type?
-    let act_ob_inv = get_activity_object_involvements(locel);
+    let act_ob_inv: HashMap<String, HashMap<String, ObjectInvolvementCounts>> =
+        get_activity_object_involvements(locel);
+    let ob_ob_inv: HashMap<String, HashMap<String, ObjectInvolvementCounts>> =
+        get_object_to_object_involvements(locel);
     for ot in locel.get_ob_types() {
         // Only consider activities generally involved with objects of a type
         let mut ev_types_per_ob: HashMap<&str, Vec<usize>> = act_ob_inv
@@ -99,7 +103,7 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
             .keys()
             .cartesian_product(locel.events_per_type.keys())
             .par_bridge()
-                .progress_count(locel.events_per_type.len() as u64 * locel.events_per_type.len() as u64)
+            .progress_count(locel.events_per_type.len() as u64 * locel.events_per_type.len() as u64)
             .filter(|(act1, act2)| {
                 if act1.starts_with(INIT_EVENT_PREFIX)
                     || act1.starts_with(EXIT_EVENT_PREFIX)
@@ -113,8 +117,8 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
             .flat_map(|(act1, act2)| {
                 // let now = Instant::now();
                 // let mut arcs = Vec::new();
-                let act1_oi = act_ob_inv.get(act1).unwrap();
-                let act1_ot_set: HashSet<_> = act1_oi.keys().collect();
+                // let act1_oi = act_ob_inv.get(act1).unwrap();
+                // let act1_ot_set: HashSet<_> = act1_oi.keys().collect();
                 // for direction in &[OCDeclareArcType::EF, OCDeclareArcType::EFREV] {
                 // for act2 in locel.get_ev_types() {
                 // if act1.starts_with(INIT_EVENT_PREFIX)
@@ -124,14 +128,16 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                 // {
                 //     continue;
                 // }
-                let act2_oi = act_ob_inv.get(act2).unwrap();
-                let act2_ot_set: HashSet<_> = act2_oi.keys().collect();
+                // let act2_oi = act_ob_inv.get(act2).unwrap();
+                // let act2_ot_set: HashSet<_> = act2_oi.keys().collect();
                 let mut act_arcs = Vec::new();
-                for ot in act2_ot_set.intersection(&act1_ot_set) {
+                for (ot, is_multiple) in
+                    get_direct_or_indirect_object_involvements(act1, act2, &act_ob_inv, &ob_ob_inv)
+                {
                     // ANY?
                     let any_label = OCDeclareArcLabel {
                         each: vec![],
-                        any: vec![ObjectTypeAssociation::new_simple(*ot)],
+                        any: vec![ot],
                         all: vec![],
                     };
                     let sat = perf::get_for_all_evs_perf_thresh(
@@ -146,56 +152,54 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                     if sat {
                         // It IS a viable candidate!
                         // Also test Each/All:
-                        if let Some(oi) = act1_oi.get(ot.as_str()) {
-                            if oi.max > 1 {
-                                let each_label = OCDeclareArcLabel {
-                                    each: any_label.any.clone(),
+                        if is_multiple {
+                            let each_label = OCDeclareArcLabel {
+                                each: any_label.any.clone(),
+                                any: vec![],
+                                all: vec![],
+                            };
+                            // Otherwise, do not need to bother with differentiating Each/All!
+                            let sat = perf::get_for_all_evs_perf_thresh(
+                                act1,
+                                act2,
+                                &each_label,
+                                &direction,
+                                &counts,
+                                locel,
+                                noise_thresh,
+                            );
+                            if sat {
+                                // Each is also valid!
+                                // Next, test ALL:
+                                let all_label = OCDeclareArcLabel {
+                                    each: vec![],
                                     any: vec![],
-                                    all: vec![],
+                                    all: any_label.any.clone(),
                                 };
-                                // Otherwise, do not need to bother with differentiating Each/All!
                                 let sat = perf::get_for_all_evs_perf_thresh(
                                     act1,
                                     act2,
-                                    &each_label,
+                                    &all_label,
                                     &direction,
                                     &counts,
                                     locel,
                                     noise_thresh,
                                 );
                                 if sat {
-                                    // Each is also valid!
-                                    // Next, test ALL:
-                                    let all_label = OCDeclareArcLabel {
-                                        each: vec![],
-                                        any: vec![],
-                                        all: any_label.any.clone(),
-                                    };
-                                    let sat = perf::get_for_all_evs_perf_thresh(
-                                        act1,
-                                        act2,
-                                        &all_label,
-                                        &direction,
-                                        &counts,
-                                        locel,
-                                        noise_thresh,
-                                    );
-                                    if sat {
-                                        // All is also valid!
-                                        act_arcs.push(all_label);
-                                    } else {
-                                        act_arcs.push(each_label);
-                                    }
+                                    // All is also valid!
+                                    act_arcs.push(all_label);
                                 } else {
-                                    act_arcs.push(any_label);
+                                    act_arcs.push(each_label);
                                 }
                             } else {
-                                act_arcs.push(OCDeclareArcLabel {
-                                    each: any_label.any,
-                                    any: vec![],
-                                    all: vec![],
-                                });
+                                act_arcs.push(any_label);
                             }
+                        } else {
+                            act_arcs.push(OCDeclareArcLabel {
+                                each: any_label.any,
+                                any: vec![],
+                                all: vec![],
+                            });
                         }
                     }
                 }
@@ -379,6 +383,50 @@ fn get_stricter_arrows_for_as(
         // }
     }
     ret
+}
+
+/// Returns an iterator over different object type associations
+/// in particular each item (X,b) consists of an ObjectTypeAssociation X and a flag b, indicating if multiple objects are sometimes involved in the source (or through the O2O)
+fn get_direct_or_indirect_object_involvements<'a>(
+    act1: &'a str,
+    act2: &'a str,
+    act_ob_involvement: &'a HashMap<String, HashMap<String, ObjectInvolvementCounts>>,
+    obj_obj_involvement: &'a HashMap<String, HashMap<String, ObjectInvolvementCounts>>,
+) -> Vec<(ObjectTypeAssociation, bool)> {
+    let act1_obs: HashSet<_> = act_ob_involvement.get(act1).unwrap().keys().collect();
+    let act2_obs: HashSet<_> = act_ob_involvement.get(act2).unwrap().keys().collect();
+    return act1_obs
+        .iter()
+        .filter(|ot| act2_obs.contains(*ot))
+        .map(|ot| {
+            (
+                ObjectTypeAssociation::Simple {
+                    object_type: ot.to_string(),
+                },
+                act_ob_involvement.get(act1).unwrap().get(*ot).unwrap().max > 1,
+            )
+        })
+        .chain(act1_obs.iter().flat_map(|ot| {
+            obj_obj_involvement
+                .get(*ot)
+                .into_iter()
+                .flat_map(|ots2| {
+                    ots2.iter()
+                        .filter(|(ot2, _)| act2_obs.contains(ot2))
+                        .map(|(ot2, oi)| {
+                            (
+                                ot,
+                                ot2,
+                                oi.max > 1
+                                    || act_ob_involvement.get(act1).unwrap().get(*ot).unwrap().max
+                                        > 1,
+                            )
+                        })
+                })
+                .map(|(ot1, ot2, multiple)| (ObjectTypeAssociation::new_o2o(*ot1, ot2), multiple))
+                .collect_vec()
+        }))
+        .collect();
 }
 
 #[cfg(test)]
