@@ -265,7 +265,6 @@ export default function App() {
             <ContextMenuItem onClick={(ev) => {
               ev.stopPropagation();
               flowRef.current?.addNodes({ id: uuidv4(), type: "activity", data: { type: "pay order" }, position: flowRef.current.screenToFlowPosition({ x: ev.clientX, y: ev.clientY }) })
-              console.log("Add node")
             }}>Add Node</ContextMenuItem>
           </ContextMenuContent>
         </ContextMenu>
@@ -275,19 +274,9 @@ export default function App() {
           nodeTypes={nodeTypes}
           edges={edges}
           onEdgesChange={onEdgesChange}
-          // onEdgeContextMenu={(ev, edge) => {
-          //   ev.preventDefault();
-          //   const newType = ALL_EDGE_TYPES[(ALL_EDGE_TYPES.indexOf(edge.data!.type) + 1) % ALL_EDGE_TYPES.length];
-          //   flowRef.current?.updateEdge(edge.id, { ...edge, data: { type: newType }, ...getMarkersForEdge(newType) })
-          // }}
-          // onNodesChange={onNodesChange}
           edgeTypes={edgeTypes}
-          // onEdgesChange={onEdgesChange}
           maxZoom={12}
           minZoom={0.3}
-          // defaultEdgeOptions={{
-          //   type: "default",
-          // }}
           onConnect={onConnect}
           onContextMenu={(ev) => {
             if (!ev.isDefaultPrevented() && contextMenuTriggerRef.current) {
@@ -300,7 +289,6 @@ export default function App() {
             ev.preventDefault()
           }}
           onSelectionChange={(sel) => {
-            // console.log(sel);
             const addedEdges: Set<string> = new Set();
             for (const n of sel.nodes) {
               for (const n2 of sel.nodes) {
@@ -312,21 +300,11 @@ export default function App() {
             }
             selectedRef.current = sel as any;
           }}
-          // fitView
           proOptions={{ hideAttribution: true }}
         >
           <Background className='hide-in-image' />
           <Controls className='hide-in-image' />
           <Panel className='flex gap-x-1 hide-in-image'>
-            <Button variant="outline" onClick={() => {
-              flowRef.current?.addNodes({
-                id: uuidv4(),
-                position: { x: 0, y: 0 },
-                dragHandle: '.drag-handle__custom', data: Math.random() > 0.5 ? { type: "pay order", isObject: false } : { type: "orders", isObject: true },
-                type: 'activity',
-              });
-            }}>Add Node</Button>
-
             <Button variant="outline" onClick={() => {
               localStorage.setItem("oc-DECLARE", JSON.stringify(flowRef.current!.toObject()));
             }}>Save</Button>
@@ -458,36 +436,6 @@ export default function App() {
                 <path d="M-15,0 L-13,20 L-10,20 L-12,0 Z" fill="var(--arrow-primary,black)" />
                 <path d="M-10,0 L-8,20 L-5,20 L-7,0 Z" fill="var(--arrow-primary,black)" />
                 <path d="M0,0 L20,9.5 L20,10 L20,10.5 L0,20 Z " fill="var(--arrow-primary,black)" />
-              </marker>
-              <marker
-                className="react-flow__arrowhead"
-                id="single-not-arrow-marker-rev"
-                markerWidth="40"
-                markerHeight="40"
-                viewBox="-80 -80 160 160"
-                orient="auto"
-                refX="0"
-              >
-                <circle cx="0" cy="0" r="10" fill="var(--arrow-primary,black)" />
-                <g transform="rotate(180,0,0) translate(-26, -10)">
-                  <path d="M-15,0 L-13,20 L-10,20 L-12,0 Z" fill="var(--arrow-primary,black)" />
-                  <path d="M-10,0 L-8,20 L-5,20 L-7,0 Z" fill="var(--arrow-primary,black)" />
-                  <path d="M0,0 L20,9.5 L20,10 L20,10.5 L0,20 Z " fill="var(--arrow-primary,black)" />
-                </g>
-              </marker>
-              <marker
-                className="react-flow__arrowhead"
-                id="single-arrow-marker-rev"
-                markerWidth="40"
-                markerHeight="40"
-                viewBox="-80 -80 160 160"
-                orient="auto"
-                refX="0"
-              >
-                <circle cx="0" cy="0" r="10" fill="var(--arrow-primary,black)" />
-                <g transform="rotate(180,0,0) translate(-26, -10)">
-                  <path d="M0,0 L20,9.5 L20,10 L20,10.5 L0,20 Z " fill="var(--arrow-primary,black)" />
-                </g>
               </marker>
             </defs>
           </svg></div></OCELInfoContext.Provider>

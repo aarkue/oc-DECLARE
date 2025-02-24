@@ -1,15 +1,12 @@
 use std::{
     collections::{HashMap, HashSet},
-    sync::Arc,
     time::Instant,
 };
 
-use indicatif::{ParallelProgressIterator, ProgressIterator};
+use indicatif::ParallelProgressIterator;
 use itertools::Itertools;
 use process_mining::ocel::linked_ocel::{IndexLinkedOCEL, LinkedOCELAccess};
-use rayon::iter::{
-    IntoParallelIterator, IntoParallelRefIterator, ParallelBridge, ParallelExtend, ParallelIterator,
-};
+use rayon::prelude::*;
 
 use crate::{
     get_activity_object_involvements, perf, OCDeclareArc, OCDeclareArcLabel, OCDeclareArcType,
@@ -96,13 +93,13 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
     // Third type of discovery: Eventually-follows
     let direction = OCDeclareArcType::ASS;
     let counts = (Some(1), None);
-    ret.extend(
+    ret.par_extend(
         locel
             .events_per_type
             .keys()
             .cartesian_product(locel.events_per_type.keys())
-            // .par_bridge()
-            // .progress_count(locel.events_per_type.len() as u64 * locel.events_per_type.len() as u64)
+            .par_bridge()
+                .progress_count(locel.events_per_type.len() as u64 * locel.events_per_type.len() as u64)
             .filter(|(act1, act2)| {
                 if act1.starts_with(INIT_EVENT_PREFIX)
                     || act1.starts_with(EXIT_EVENT_PREFIX)
@@ -268,9 +265,9 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                 // arcs.extend(
                 let v = act_arcs
                     .clone()
-                    .into_iter()
+                    // .into_iter()
                     // .iter()
-                    // .into_par_iter()
+                    .into_par_iter()
                     .filter(move |arc1| {
                         !act_arcs.iter().any(|arc2| {
                             *arc1 != *arc2 && arc1.is_dominated_by(arc2)

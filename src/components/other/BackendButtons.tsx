@@ -1,17 +1,18 @@
-import { CustomEdge, EdgeType, getMarkersForEdge } from "@/edges/types";
+import { CustomEdge, getMarkersForEdge } from "@/edges/types";
 import { ActivityNode } from "@/nodes/types";
-import { ReactFlowInstance, useEdges, useReactFlow } from "@xyflow/react";
+import { useEdges, useReactFlow } from "@xyflow/react";
 import { useContext, useRef, useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
-import init, { discover_oc_declare_constraints, get_edge_violation_percentage_perf, get_ot_act_involvements, initThreadPool, load_ocel_json, load_ocel_xml, unload_ocel } from "../../../crates/backend-wasm/pkg/backend_wasm";
+import init, { discover_oc_declare_constraints, get_ot_act_involvements, initThreadPool, load_ocel_json, load_ocel_xml, unload_ocel } from "../../../crates/backend-wasm/pkg/backend_wasm";
 import type { OCDeclareArc } from "../../../crates/shared/bindings/OCDeclareArc";
 
+import { applyLayoutToNodes } from "@/lib/automatic-layout";
 import { OCELInfoContext } from "@/lib/ocel-info";
-import { OCDeclareArcType } from "crates/shared/bindings/OCDeclareArcType";
+import { flowEdgeToOCDECLARE, getEdgeViolationPerc, translateArcTypeFromRsToTs } from "@/lib/type-conversions";
 import { OCDeclareNode } from "crates/shared/bindings/OCDeclareNode";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { applyLayoutToNodes } from "@/lib/automatic-layout";
+
 export default function BackendButton() {
     const inputRef = useRef<HTMLInputElement>(null);
     const flow = useReactFlow<ActivityNode, CustomEdge>();
@@ -47,6 +48,7 @@ export default function BackendButton() {
                 unload_ocel();
             } finally {
                 setStatus("initial");
+                setOcelInfo({});
             }
         }} >
             Unload</Button>}
@@ -54,27 +56,10 @@ export default function BackendButton() {
             <><Button onClick={async () => {
                 const beginning = Date.now();
                 (selectedEdges.length > 0 ? selectedEdges : flow.getEdges()).forEach(e => {
-                    const [arc_type, counts] = translateArcInfo(e.data!);
 
-                    const x: OCDeclareArc = {
-                        from: flow.getNode(e.source)!.data.isObject === "init" ? { type: "ObjectInit", object_type: flow.getNode(e.source)!.data.type } : flow.getNode(e.source)!.data.isObject === "exit" ? { type: "ObjectEnd", object_type: flow.getNode(e.source)!.data.type } : { type: "Activity", activity: flow.getNode(e.source)!.data.type },
-                        to: flow.getNode(e.target)!.data.isObject === "init" ? { type: "ObjectInit", object_type: flow.getNode(e.target)!.data.type } : flow.getNode(e.target)!.data.isObject === "exit" ? { type: "ObjectEnd", object_type: flow.getNode(e.target)!.data.type } : { type: "Activity", activity: flow.getNode(e.target)!.data.type },
-                        arc_type,
-                        counts,
-                        label: e.data!.objectTypes
-                    };
-                    // console.log(x)
-                    // console.log(x);
-                    // console.log(JSON.stringify(x));
-                    // const before = Date.now();
-                    const xJson = JSON.stringify(x);
-                    // const res = get_edge_violation_percentage(xJson);
-                    // console.log("Evaluation took " + ((Date.now() - before) / 1000) + "s");
-                    // console.log({ res });
-                    // const violations: [number, number, [number, ViolationInfo[]][]] = JSON.parse(res);
-                    // const violationPercentage = 100 * violations[1] / violations[0];
-                    // console.log(violations[2]);
-                    const violFrac = get_edge_violation_percentage_perf(xJson);
+                    const x = flowEdgeToOCDECLARE(e, flow);
+                    const violFrac = getEdgeViolationPerc(x);
+                    console.log(violFrac)
                     flow.updateEdgeData(e.id, { violationInfo: { violationPercentage: 100 * violFrac } });
                 });
                 console.log("TOTAL Evaluation took " + ((Date.now() - beginning) / 1000) + "s");
@@ -91,18 +76,20 @@ export default function BackendButton() {
             <Button onClick={() => {
                 try {
                     let now = Date.now();
-                    const res = discover_oc_declare_constraints(0.2);
+                    const res = discover_oc_declare_constraints(0.4);
                     console.log("Discovery took " + ((Date.now() - now) / 1000) + "s");
                     const discoverdArcs: OCDeclareArc[] = JSON.parse(res);
                     const nodeNameToIDs: Record<string, string> = {};
                     const edges: CustomEdge[] = [];
                     const nodes: ActivityNode[] = [];
                     for (const arc of discoverdArcs) {
+                        const edgeType = translateArcTypeFromRsToTs(arc.arc_type);
+                        // if (edgeType === "df" || edgeType === "df-rev") {
                         const sourceID = lookupIDOrCreateNode(arc.from, nodeNameToIDs, nodes);
                         const targetID = lookupIDOrCreateNode(arc.to, nodeNameToIDs, nodes);
-                        const edgeType = translateArcTypeFromRsToTs(arc.arc_type);
                         const edgeID = uuidv4();
                         edges.push({ id: edgeID, source: sourceID, target: targetID, data: { type: edgeType, objectTypes: arc.label, cardinality: arc.counts }, ...getMarkersForEdge(edgeType, edgeID) })
+                        // }
                     }
                     applyLayoutToNodes(nodes, edges).then(() => {
                         flow.addNodes(nodes);
@@ -114,25 +101,7 @@ export default function BackendButton() {
                 }
             }}>Discover</Button>}
     </>
-    function translateArcInfo(data: CustomEdge['data']): [OCDeclareArcType, [number | null, number | null]] {
-        switch (data!.type) {
-            case "ef":
-                return ["EF", data?.cardinality ?? [1, null]]
-            case "ef-rev":
-                return ["EFREV", data?.cardinality ?? [1, null]]
-            case "nef":
-                return ["EF", [0, 0]]
-            case "nef-rev":
-                return ["EFREV", [0, 0]]
-            case "ass":
-                return ["ASS", data?.cardinality ?? [1, null]]
-            case "df": return ["DF", data?.cardinality ?? [1, null]]
-            case "df-rev": return ["DFREV", data?.cardinality ?? [1, null]]
-            case "ndf": return ["DF", [0, 0]]
-            case "ndf-rev": return ["DFREV", [0, 0]]
-        };
 
-    }
 }
 
 function lookupIDOrCreateNode(node: OCDeclareNode, nodeIDMap: Record<string, string>, nodes: ActivityNode[]): string {
@@ -159,18 +128,3 @@ function lookupIDOrCreateNode(node: OCDeclareNode, nodeIDMap: Record<string, str
     }
 }
 
-function translateArcTypeFromRsToTs(arcType: OCDeclareArcType): EdgeType {
-    switch (arcType) {
-        case "ASS":
-            return "ass"
-        case "EF":
-            return "ef"
-        case "EFREV":
-            return "ef-rev"
-        case "DF":
-            return "df"
-        case "DFREV":
-            return "df-rev"
-    }
-
-}

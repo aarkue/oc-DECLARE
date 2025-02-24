@@ -10,7 +10,6 @@ use std::{
 use itertools::Itertools;
 pub use process_mining;
 use process_mining::{
-    event_log::Event,
     ocel::{
         linked_ocel::{
             index_linked_ocel::{EventIndex, ObjectIndex},
@@ -24,7 +23,7 @@ use process_mining::{
 use serde::{Deserialize, Serialize};
 const INIT_EVENT_PREFIX: &str = "<init>";
 const EXIT_EVENT_PREFIX: &str = "<exit>";
-pub fn preprocess_ocel(mut ocel: OCEL) -> IndexLinkedOCEL {
+pub fn preprocess_ocel(ocel: OCEL) -> IndexLinkedOCEL {
     let locel: IndexLinkedOCEL = ocel.into();
     let new_evs = locel
         .object_ids_to_index
@@ -1063,7 +1062,9 @@ mod tests {
         //     "/home/aarkue/dow/ocel/bpic2017-o2o-workflow-qualifier.json",
         // )
         // .unwrap();
+        let now = Instant::now();
         let linked_ocel: IndexLinkedOCEL = preprocess_ocel(ocel);
+        println!("Pre-processing took {:?}", now.elapsed());
 
         let now = Instant::now();
         let res = discover(&linked_ocel, 0.2);
@@ -1113,7 +1114,9 @@ mod tests {
         )
         .unwrap();
 
+        let now = Instant::now();
         let linked_ocel: IndexLinkedOCEL = preprocess_ocel(ocel);
+        println!("Pre-processing took {:?}", now.elapsed());
 
         let now = Instant::now();
         let res = discover(&linked_ocel, 0.05);

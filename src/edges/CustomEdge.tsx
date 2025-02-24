@@ -17,19 +17,19 @@ import { getEdgeParams } from './edge-helpers';
 import { getRandomStringColor } from "@/lib/random-colors";
 import { ActivityNode } from '@/nodes/types';
 import { ContextMenuArrow } from '@radix-ui/react-context-menu';
-import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, LucideArrowLeftRight, LucideHash, LucideShapes, LucideXCircle, TrendingUp } from 'lucide-react';
-import React, { CSSProperties, Fragment, ReactNode, useEffect, useMemo, useState } from "react";
+import { AlignStartVertical, ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, LucideArrowLeftRight, LucideHash, LucideShapes, LucideXCircle, TrendingUp } from 'lucide-react';
+import React, { Fragment, useEffect, useMemo, useState } from "react";
+import asSvg from "./icons/ass.svg?url";
+import dfSvg from "./icons/df.svg?url";
+import dpSvg from "./icons/dp.svg?url";
+import efSvg from "./icons/ef.svg?url";
+import epSvg from "./icons/ep.svg?url";
 import { ALL_EDGE_TYPES, CustomEdge as CustomEdgeType, EdgeType, getMarkersForEdge } from './types';
 const DISTANCE_FACTOR = 13;
 const interactionWidth = 20;
-import dfSvg from "./icons/df.svg?url"
-import dpSvg from "./icons/dp.svg?url"
-import asSvg from "./icons/ass.svg?url"
-import efSvg from "./icons/ef.svg?url"
-import epSvg from "./icons/ep.svg?url"
 
 
-const ArrowSVGs : Record<EdgeType,string> = {
+const ArrowSVGs: Record<EdgeType, string> = {
     "ass": asSvg,
     "df": dfSvg,
     "ndf": dfSvg,
@@ -47,7 +47,8 @@ function orZero(n: number) {
     }
     return n;
 }
-export default function CustomEdge({ id, source, target, markerEnd, style, markerStart, selected, data }: EdgeProps<CustomEdgeType> & { data: { type: string } }) {
+export default function CustomEdge(edge: EdgeProps<CustomEdgeType> & { data: { type: string } }) {
+    const { id, source, target, markerEnd, style, selected, data } = edge;
     const sourceNode = useInternalNode(source);
     const targetNode = useInternalNode(target);
 
@@ -168,9 +169,9 @@ export default function CustomEdge({ id, source, target, markerEnd, style, marke
                                     flow.updateEdge(id, { data: { ...data, type: et }, ...getMarkersForEdge(et, id) })
                                 }}>
 
-                                  <span className="w-[3rem]">{et}</span> <span className="inline-block relative">
-                                    {et.includes("n") && <span className={clsx("absolute top-1/2 -translate-y-1/2 tracking-[-1pt] text-xs", !et.includes("rev") && "right-[20%]",et.includes("rev") &&  "right-[0%]")}>//</span>}
-                                    <img src={ArrowSVGs[et]} className="size-5 scale-150 ml-3"/>
+                                    <span className="w-[3rem]">{et}</span> <span className="inline-block relative">
+                                        {et.includes("n") && <span className={clsx("absolute top-1/2 -translate-y-1/2 tracking-[-1pt] text-xs", !et.includes("rev") && "right-[20%]", et.includes("rev") && "right-[0%]")}>//</span>}
+                                        <img src={ArrowSVGs[et]} className="size-5 scale-150 ml-3" />
                                     </span>
                                 </ContextMenuCheckboxItem>)}
                                 <ContextMenuArrow />
@@ -178,6 +179,19 @@ export default function CustomEdge({ id, source, target, markerEnd, style, marke
                             </ContextMenuSubContent>
                         </ContextMenuPortal>
                     </ContextMenuSub>
+                    <OCELInfoContext.Consumer>
+                        {({ ocelInfo }) => Object.keys(ocelInfo).length > 0 && <ContextMenuItem onClick={(ev) => {
+                            ev.stopPropagation();
+                            const x = flowEdgeToOCDECLARE(edge, flow);
+                            const violFrac = getEdgeViolationPerc(x);
+                            console.log(violFrac)
+                            flow.updateEdgeData(id, { violationInfo: { violationPercentage: 100 * violFrac } });
+                        }}>
+                            <AlignStartVertical className='size-4 mr-1' />
+                            Evaluate
+                        </ContextMenuItem>}
+                    </OCELInfoContext.Consumer>
+
                     <ContextMenuSeparator />
                     <ContextMenuItem onClick={(ev) => {
                         ev.stopPropagation();
@@ -229,7 +243,7 @@ export default function CustomEdge({ id, source, target, markerEnd, style, marke
                 {/* <EdgeLabel transform={`translate(-50%, -50%) translate(${modifiedPos.sourceX}px,${modifiedPos.sourceY}px) ${(targetPos === Position.Top) ? "translate(8px,9px)" : targetPos === Position.Left ? "translate(12px,-11px)" : targetPos === Position.Bottom ? "translate(8px,-9px)" : "translate(-11px,-11px)"} `}
                     label={"1"} /> */}
                 <EdgeLabel
-                    transform={`translate(${modifiedPos.targetX}px,${modifiedPos.targetY}px)  translate(-50%, -50%)  rotate(${Math.round(slopeDegreeReal)}deg) translate(-100%,0pt) translate(${(data.type === "nef" ||data.type === "ndf") ? "-16px" : ((data.type === "ef" || data.type === "df") ? "-8px" : "0")},7px)  rotate(${Math.round(slopeDegree - slopeDegreeReal)}deg)`}
+                    transform={`translate(${modifiedPos.targetX}px,${modifiedPos.targetY}px)  translate(-50%, -50%)  rotate(${Math.round(slopeDegreeReal)}deg) translate(-100%,0pt) translate(${(data.type === "nef" || data.type === "ndf") ? "-16px" : ((data.type === "ef" || data.type === "df") ? "-8px" : "0")},7px)  rotate(${Math.round(slopeDegree - slopeDegreeReal)}deg)`}
                     label={
                         <>
                             {data.cardinality && <div className=" p-0.25 text-[6pt] font-medium leading-1.5 rounded-xs">
@@ -320,6 +334,7 @@ function EdgeLabel({ transform, label }: { transform: string; label: string | Re
 
 
 
+import { MinMaxDisplayWithSugar } from "@/components/other/MinMaxSugar";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -329,12 +344,13 @@ import {
     DialogTitle
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { OCELInfoContext } from "@/lib/ocel-info";
+import { flowEdgeToOCDECLARE, getEdgeViolationPerc } from "@/lib/type-conversions";
 import { ObjectTypeAssociation } from "crates/shared/bindings/ObjectTypeAssociation";
 import { OCDeclareArcLabel } from "crates/shared/bindings/OCDeclareArcLabel";
-import { Progress } from "@/components/ui/progress";
-import { MinMaxDisplayWithSugar } from "@/components/other/MinMaxSugar";
 
 function EditEdgeLabelsDialog({ open, initialValue, onClose, colors }: { open: boolean, initialValue: OCDeclareArcLabel, onClose: (newValue?: OCDeclareArcLabel) => unknown, colors?: { type: string, color: string }[] },) {
     const [value, setValue] = useState(initialValue);
