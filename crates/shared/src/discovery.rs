@@ -1,9 +1,9 @@
 use std::{
     collections::{HashMap, HashSet},
-    time::Instant,
+    time::{Duration, Instant},
 };
 
-use indicatif::ParallelProgressIterator;
+use indicatif::{ParallelProgressIterator, ProgressIterator};
 use itertools::Itertools;
 use process_mining::ocel::linked_ocel::{IndexLinkedOCEL, LinkedOCELAccess};
 use rayon::prelude::*;
@@ -16,82 +16,82 @@ use crate::{
 
 const MAX_COUNT_OPT: Option<usize> = None; //Some(20);
 pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc> {
-    // let now = Instant::now();
+    let now = Instant::now();
     let mut ret = Vec::new();
     // First type of discovery: How many events of a specific type per object of specified type?
     let act_ob_inv: HashMap<String, HashMap<String, ObjectInvolvementCounts>> =
         get_activity_object_involvements(locel);
     let ob_ob_inv: HashMap<String, HashMap<String, ObjectInvolvementCounts>> =
         get_object_to_object_involvements(locel);
-    for ot in locel.get_ob_types() {
-        // Only consider activities generally involved with objects of a type
-        let mut ev_types_per_ob: HashMap<&str, Vec<usize>> = act_ob_inv
-            .iter()
-            .filter_map(|(act_name, ob_inv)| {
-                if act_name.starts_with(INIT_EVENT_PREFIX)
-                    || act_name.starts_with(EXIT_EVENT_PREFIX)
-                {
-                    return None;
-                }
-                if let Some(oi) = ob_inv.get(ot) {
-                    return Some((act_name.as_str(), Vec::new()));
-                }
-                None
-            })
-            .collect();
-        for ob in locel.get_obs_of_type(ot) {
-            let ev_types = locel
-                .get_e2o_rev(ob)
-                .map(|(_q, e)| &locel.get_ev(e).event_type)
-                .collect_vec();
-            ev_types_per_ob.iter_mut().for_each(|(et, counts)| {
-                counts.push(ev_types.iter().filter(|et2| *et2 == et).count());
-            });
-        }
-        // Now decide on bounds
-        for (act, counts) in ev_types_per_ob {
-            // Start with mean
-            let mean = counts.iter().sum::<usize>() as f64 / counts.len() as f64;
-            if mean >= 20.0 {
-                // Probably not interesting (i.e., resource related, grows with log)
-                continue;
-            }
-            let mut n_min = mean.round() as usize;
-            let mut n_max = n_min;
-            let min_fitting_len = (counts.len() as f64 * (1.0 - noise_thresh)).ceil() as usize;
-            while counts
-                .iter()
-                .filter(|c| c >= &&n_min && c <= &&n_max)
-                .count()
-                < min_fitting_len
-            {
-                n_min = if n_min <= 0 { n_min } else { n_min - 1 };
-                n_max += 1;
-            }
-            if n_min == 0 {
-                // Oftentimes this is just infrequent behavior
-                continue;
-            }
-            if n_max >= 20 {
-                // Probably not interesting (i.e., resource related, grows with log)
-                continue;
-            }
-            // Got bounds!
-            // println!("[{ot}] {act}: {n_min} - {n_max} (starting from {mean})");
-            ret.push(OCDeclareArc {
-                from: OCDeclareNode::new_ob_init(ot),
-                to: OCDeclareNode::new_act(act),
-                arc_type: OCDeclareArcType::ASS,
-                label: OCDeclareArcLabel {
-                    each: Vec::default(),
-                    any: vec![ObjectTypeAssociation::new_simple(ot)],
-                    all: Vec::default(),
-                },
-                counts: (Some(n_min), Some(n_max)),
-            });
-        }
-    }
-    // println!("Evs per Object Type took {:.?}",now.elapsed());
+    // for ot in locel.get_ob_types() {
+    //     // Only consider activities generally involved with objects of a type
+    //     let mut ev_types_per_ob: HashMap<&str, Vec<usize>> = act_ob_inv
+    //         .iter()
+    //         .filter_map(|(act_name, ob_inv)| {
+    //             if act_name.starts_with(INIT_EVENT_PREFIX)
+    //                 || act_name.starts_with(EXIT_EVENT_PREFIX)
+    //             {
+    //                 return None;
+    //             }
+    //             if let Some(oi) = ob_inv.get(ot) {
+    //                 return Some((act_name.as_str(), Vec::new()));
+    //             }
+    //             None
+    //         })
+    //         .collect();
+    //     for ob in locel.get_obs_of_type(ot) {
+    //         let ev_types = locel
+    //             .get_e2o_rev(ob)
+    //             .map(|(_q, e)| &locel.get_ev(e).event_type)
+    //             .collect_vec();
+    //         ev_types_per_ob.iter_mut().for_each(|(et, counts)| {
+    //             counts.push(ev_types.iter().filter(|et2| *et2 == et).count());
+    //         });
+    //     }
+    //     // Now decide on bounds
+    //     for (act, counts) in ev_types_per_ob {
+    //         // Start with mean
+    //         let mean = counts.iter().sum::<usize>() as f64 / counts.len() as f64;
+    //         if mean >= 20.0 {
+    //             // Probably not interesting (i.e., resource related, grows with log)
+    //             continue;
+    //         }
+    //         let mut n_min = mean.round() as usize;
+    //         let mut n_max = n_min;
+    //         let min_fitting_len = (counts.len() as f64 * (1.0 - noise_thresh)).ceil() as usize;
+    //         while counts
+    //             .iter()
+    //             .filter(|c| c >= &&n_min && c <= &&n_max)
+    //             .count()
+    //             < min_fitting_len
+    //         {
+    //             n_min = if n_min <= 0 { n_min } else { n_min - 1 };
+    //             n_max += 1;
+    //         }
+    //         if n_min == 0 {
+    //             // Oftentimes this is just infrequent behavior
+    //             continue;
+    //         }
+    //         if n_max >= 20 {
+    //             // Probably not interesting (i.e., resource related, grows with log)
+    //             continue;
+    //         }
+    //         // Got bounds!
+    //         // println!("[{ot}] {act}: {n_min} - {n_max} (starting from {mean})");
+    //         ret.push(OCDeclareArc {
+    //             from: OCDeclareNode::new_ob_init(ot),
+    //             to: OCDeclareNode::new_act(act),
+    //             arc_type: OCDeclareArcType::ASS,
+    //             label: OCDeclareArcLabel {
+    //                 each: Vec::default(),
+    //                 any: vec![ObjectTypeAssociation::new_simple(ot)],
+    //                 all: Vec::default(),
+    //             },
+    //             counts: (Some(n_min), Some(n_max)),
+    //         });
+    //     }
+    // }
+
     // Second type of discovery: How many objects of object type per event of specified activity/event type?
 
     // Third type of discovery: Eventually-follows
@@ -105,6 +105,7 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
             .par_bridge()
             .progress_count(locel.events_per_type.len() as u64 * locel.events_per_type.len() as u64)
             .filter(|(act1, act2)| {
+                // return *act1 == "place order" && *act2 == "confirm order";
                 if act1.starts_with(INIT_EVENT_PREFIX)
                     || act1.starts_with(EXIT_EVENT_PREFIX)
                     || act2.starts_with(INIT_EVENT_PREFIX)
@@ -187,9 +188,25 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                                 );
                                 if sat {
                                     // All is also valid!
+                                    // act_arcs.push(each_label);
+                                    // act_arcs.push(any_label);
                                     act_arcs.push(all_label);
                                 } else {
-                                    act_arcs.push(each_label);
+                                    // Each should only be preferred if type is not resource-like  
+                                    let sat = perf::get_for_all_evs_perf_thresh(
+                                        act1,
+                                        act2,
+                                        &each_label,
+                                        &direction,
+                                        &(Some(1), Some(20)),
+                                        locel,
+                                        noise_thresh,
+                                    );
+                                    if sat {
+                                        act_arcs.push(each_label);
+                                    } else {
+                                        act_arcs.push(any_label);
+                                    }
                                 }
                             } else {
                                 act_arcs.push(any_label);
@@ -214,51 +231,117 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                 // }
                 // let now = Instant::now();
                 let mut changed = true;
+                let mut old = Vec::new();
                 while changed {
-                    let mut to_remove = HashSet::new();
-                    let mut to_add = HashSet::new();
-
-                    for arc1_i in 0..act_arcs.len() {
-                        for arc2_i in (arc1_i + 1)..act_arcs.len() {
+                    // let mut to_remove = HashSet::new();
+                    // let mut to_add = HashSet::new();
+                    // println!("New iteration: |act_arcs| = {}", act_arcs.len());
+                    let x = 0..act_arcs.len();
+                    let new_res: HashSet<_> = x
+                        .flat_map(|arc1_i| {
+                            ((arc1_i + 1)..act_arcs.len()).map(move |arc2_i| (arc1_i, arc2_i))
+                        })
+                        .par_bridge()
+                        .filter_map(|(arc1_i, arc2_i)| {
                             let arc1 = &act_arcs[arc1_i];
                             let arc2 = &act_arcs[arc2_i];
-                            // if arc1.is_dominated_by(arc2) || arc2.is_dominated_by(arc1){
-                            //     continue;
-                            // }
-                            let new_arc_label = arc1.combine(arc2);
-                            if !act_arcs.contains(&new_arc_label) {
-                                let sat = perf::get_for_all_evs_perf_thresh(
-                                    act1,
-                                    act2,
-                                    &new_arc_label,
-                                    &direction,
-                                    &counts,
-                                    locel,
-                                    noise_thresh,
-                                );
-                                if sat {
-                                    // It IS a viable candidate!
-                                    to_add.insert(new_arc_label);
-                                    to_remove.insert(arc1_i);
-                                    to_remove.insert(arc2_i);
-                                }
+                            if arc1.is_dominated_by(arc2) || arc2.is_dominated_by(arc1) {
+                                return None;
                             }
-                        }
-                    }
-                    changed = !to_add.is_empty();
-                    act_arcs = act_arcs
-                        .into_iter()
-                        .enumerate()
-                        .filter_map(|(index, _arc)| {
-                            if to_remove.contains(&index) {
-                                None
+                            let new_arc_label = arc1.combine(arc2);
+
+                            // if !act_arcs.contains(&new_arc_label) {
+                            let sat = perf::get_for_all_evs_perf_thresh(
+                                act1,
+                                act2,
+                                &new_arc_label,
+                                &direction,
+                                &counts,
+                                locel,
+                                noise_thresh,
+                            );
+                            if sat {
+                                return Some(new_arc_label);
                             } else {
-                                Some(_arc)
+                                return None;
                             }
                         })
-                        .chain(to_add)
                         .collect();
+
+                    changed = !new_res.is_empty();
+                    old.extend(act_arcs.into_iter());
+                    act_arcs = new_res.into_iter().collect();
+
+                    // for arc1_i in 0..act_arcs.len() {
+                    //     for arc2_i in (arc1_i + 1)..act_arcs.len() {
+                    //         let arc1 = &act_arcs[arc1_i];
+                    //         let arc2 = &act_arcs[arc2_i];
+                    //         if arc1.is_dominated_by(arc2) || arc2.is_dominated_by(arc1) {
+                    //             continue;
+                    //         }
+                    //         // let this_is_it = arc1.each.len() == 1
+                    //         //     && arc1.each.contains(&ObjectTypeAssociation::Simple {
+                    //         //         object_type: "orders".to_string(),
+                    //         //     })
+                    //         //     && arc2.each.len() == 1
+                    //         //     && arc2.any.contains(&ObjectTypeAssociation::O2O {
+                    //         //         first: "customers".to_string(),
+                    //         //         second: "employees".to_string(),
+                    //         //         reversed: false,
+                    //         //     });
+                    //         let new_arc_label = arc1.combine(arc2);
+
+                    //         // if !act_arcs.contains(&new_arc_label) {
+                    //         // let n = Instant::now();
+                    //         let sat = perf::get_for_all_evs_perf_thresh(
+                    //             act1,
+                    //             act2,
+                    //             &new_arc_label,
+                    //             &direction,
+                    //             &counts,
+                    //             locel,
+                    //             noise_thresh,
+                    //         );
+                    //         // if this_is_it {
+                    //         //     println!(
+                    //         //         "Trying to combine {:?} and {:?} yielded {:?}",
+                    //         //         arc1, arc2, sat
+                    //         //     );
+                    //         // }
+
+                    //         // let score = perf::get_for_all_evs_perf(
+                    //         //     act1,
+                    //         //     act2,
+                    //         //     &new_arc_label,
+                    //         //     &direction,
+                    //         //     &counts,
+                    //         //     locel,);
+                    //         // println!("Trying to combine {:?} and {:?} into {:?}, sat?: {sat}, score: {score:.2}",arc1,arc2,new_arc_label);
+                    //         if sat {
+                    //             // It IS a viable candidate!
+                    //             to_add.insert(new_arc_label);
+                    //             to_remove.insert(arc1_i);
+                    //             to_remove.insert(arc2_i);
+                    //         }
+                    //         // }
+                    //     }
+                    // }
+                    // changed = !to_add.is_empty();
+                    // act_arcs = act_arcs
+                    //     .into_iter()
+                    //     .enumerate()
+                    //     .filter_map(|(index, arc)| {
+                    //         if to_remove.contains(&index) {
+                    //             None
+                    //         } else {
+                    //             Some(arc)
+                    //         }
+                    //     })
+                    //     // .filter(|a| to_add.iter().any(|b| a.is_dominated_by(b)))
+                    //     .chain(to_add.clone())
+                    //     .collect();
                 }
+                act_arcs = old;
                 // println!(
                 //     "Combining for {} -> {} [Took {:.2?}]",
                 //     act1,
@@ -311,6 +394,8 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                 //     v.len(),
                 //     now.elapsed()
                 // );
+                // println!("Finishing {} -> {} took {:.2?}", act1, act2, now.elapsed());
+                // println!("{} -> {} took {:.2?}",act1,act2,now.elapsed());
                 v
                 // );
 
@@ -413,6 +498,7 @@ fn get_direct_or_indirect_object_involvements<'a>(
                 .flat_map(|ots2| {
                     ots2.iter()
                         .filter(|(ot2, _)| act2_obs.contains(ot2))
+                        // .filter(|(ot2, _)| *ot == "customers" && *ot2 == "employees")
                         .map(|(ot2, oi)| {
                             (
                                 ot,
@@ -426,20 +512,58 @@ fn get_direct_or_indirect_object_involvements<'a>(
                 .map(|(ot1, ot2, multiple)| (ObjectTypeAssociation::new_o2o(*ot1, ot2), multiple))
                 .collect_vec()
         }))
+        // // TODO: Fix multiplicity?! Probably better to construct reverse o2o relation counts directly!
+        // .chain(act2_obs.iter().flat_map(|ot| {
+        //     obj_obj_involvement
+        //         .get(*ot)
+        //         .into_iter()
+        //         .flat_map(|ots2| {
+        //             ots2.iter()
+        //                 .filter(|(ot2, _)| act1_obs.contains(ot2))
+        //                 // .filter(|(ot2, _)| *ot == "customers" && *ot2 == "employees")
+        //                 .map(|(ot2, oi)| {
+        //                     (
+        //                         ot,
+        //                         ot2,
+        //                         oi.max > 1
+        //                             || act_ob_involvement.get(act1).unwrap().get(*ot).unwrap().max
+        //                                 > 1,
+        //                     )
+        //                 })
+        //         })
+        //         .map(|(ot1, ot2, multiple)| (ObjectTypeAssociation::new_o2o_rev(ot2, &ot1), multiple))
+        //         .collect_vec()
+        // }))
         .collect();
 }
 
 #[cfg(test)]
 mod test {
+    use std::collections::HashMap;
+
     use process_mining::{import_ocel_xml_file, ocel::linked_ocel::IndexLinkedOCEL};
+
+    use crate::{
+        discovery::get_direct_or_indirect_object_involvements, get_activity_object_involvements,
+        get_object_to_object_involvements, ObjectInvolvementCounts,
+    };
 
     use super::discover;
 
     #[test]
-    fn test_discovery_order_management() {
+    fn test_obj_involvements() {
         let ocel = import_ocel_xml_file("/home/aarkue/dow/ocel/order-management.xml");
         let locel: IndexLinkedOCEL = ocel.into();
-        let res = discover(&locel, 0.2);
+        let act_ob_inv: HashMap<String, HashMap<String, ObjectInvolvementCounts>> =
+            get_activity_object_involvements(&locel);
+        let ob_ob_inv: HashMap<String, HashMap<String, ObjectInvolvementCounts>> =
+            get_object_to_object_involvements(&locel);
+        let res = get_direct_or_indirect_object_involvements(
+            "place order",
+            "pick item",
+            &act_ob_inv,
+            &ob_ob_inv,
+        );
         println!("{:?}", res);
     }
 }

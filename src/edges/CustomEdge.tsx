@@ -478,9 +478,10 @@ function ShowObjectTypeAssociation({ t, colors }: { t: ObjectTypeAssociation, co
 
     </span>
         {/* ~ */}
-        {t.reversed && <ChevronLeft className="inline-block size-[7pt] -mb-[1px] -mx-0.5" />}
+        {t.reversed && "<" } 
+        {/* <ChevronLeft className="inline-block size-[7pt] -mb-[1px] -mx-0.5" /> */}
 
-        {!t.reversed && <ChevronRight className="inline-block size-[7pt] -mb-[1px] -mx-0.5" />}
+        {!t.reversed && ">"}
         <span style={{ color: colors?.find(x => x.type === t.second)?.color }}>
             {t.second}
         </span>

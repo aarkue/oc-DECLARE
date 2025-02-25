@@ -31,6 +31,8 @@ import { OCELInfo, OCELInfoContext } from './lib/ocel-info';
 import { OCDeclareArcLabel } from 'crates/shared/bindings/OCDeclareArcLabel';
 import { applyLayoutToNodes } from './lib/automatic-layout';
 import { v4 as uuidv4 } from 'uuid';
+import { Input } from './components/ui/input';
+import { addArcsToFlow } from './lib/type-conversions';
 
 function loadData() {
   try {
@@ -125,7 +127,7 @@ export default function App() {
     console.log(isSelectionEmpty);
     if (isSelectionEmpty) {
       setTimeout(() => {
-      flowRef.current?.fitView({ duration: 200, padding: 0.2 });
+        flowRef.current?.fitView({ duration: 200, padding: 0.2 });
       });
     }
   }, []);
@@ -305,7 +307,7 @@ export default function App() {
           <Background className='hide-in-image' />
           <Controls className='hide-in-image' />
           <Panel className='flex gap-x-1 hide-in-image'>
-            <Button variant="outline" onClick={() => {
+            {/* <Button variant="outline" onClick={() => {
               localStorage.setItem("oc-DECLARE", JSON.stringify(flowRef.current!.toObject()));
             }}>Save</Button>
 
@@ -317,7 +319,24 @@ export default function App() {
                 setEdges(flow.edges || []);
                 flowRef.current.setViewport({ x, y, zoom });
               }
-            }}>Restore</Button>
+            }}>Restore</Button> */}
+            <Input type="file" className="max-w-[7rem]" onChange={async (ev) => {
+              if (ev.currentTarget.files && ev.currentTarget.files.length >= 1) {
+                const file = ev.currentTarget.files[0];
+                const jsonText = await file.text();
+                const json = JSON.parse(jsonText);
+                addArcsToFlow(json, flowRef.current!)
+              }
+
+            }} />
+            {/* const flow = loadData();
+              if (flow && flowRef.current) {
+                const { x = 0, y = 0, zoom = 1 } = flow.viewport;
+                flowRef.current.setNodes(flow.nodes || []);
+                setEdges(flow.edges || []);
+                flowRef.current.setViewport({ x, y, zoom });
+              }
+            }}>Load JSON</Button> */}
             <Button variant="outline" onClick={(ev) => {
               const button = ev.currentTarget;
               button.disabled = true;
@@ -336,7 +355,7 @@ export default function App() {
                       return node.classList === undefined ||
                         !node.classList.contains("hide-in-image")
                     }
-                  }).catch(e => console.error("Failed to get image:",e))
+                  }).catch(e => console.error("Failed to get image:", e))
                     .then(async (dataURLOrBlob) => {
                       let blob = dataURLOrBlob;
                       if (typeof blob === 'string') {

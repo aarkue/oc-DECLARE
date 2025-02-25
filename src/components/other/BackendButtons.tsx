@@ -8,7 +8,7 @@ import type { OCDeclareArc } from "../../../crates/shared/bindings/OCDeclareArc"
 
 import { applyLayoutToNodes } from "@/lib/automatic-layout";
 import { OCELInfoContext } from "@/lib/ocel-info";
-import { flowEdgeToOCDECLARE, getEdgeViolationPerc, translateArcTypeFromRsToTs } from "@/lib/type-conversions";
+import { addArcsToFlow, flowEdgeToOCDECLARE, getEdgeViolationPerc, translateArcTypeFromRsToTs } from "@/lib/type-conversions";
 import { OCDeclareNode } from "crates/shared/bindings/OCDeclareNode";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -73,28 +73,13 @@ export default function BackendButton() {
         }}>Reset</Button>
 
         {status === "ocel-loaded" &&
-            <Button onClick={() => {
+            <Button onClick={async () => {
                 try {
                     let now = Date.now();
                     const res = discover_oc_declare_constraints(0.4);
                     console.log("Discovery took " + ((Date.now() - now) / 1000) + "s");
                     const discoverdArcs: OCDeclareArc[] = JSON.parse(res);
-                    const nodeNameToIDs: Record<string, string> = {};
-                    const edges: CustomEdge[] = [];
-                    const nodes: ActivityNode[] = [];
-                    for (const arc of discoverdArcs) {
-                        const edgeType = translateArcTypeFromRsToTs(arc.arc_type);
-                        // if (edgeType === "df" || edgeType === "df-rev") {
-                        const sourceID = lookupIDOrCreateNode(arc.from, nodeNameToIDs, nodes);
-                        const targetID = lookupIDOrCreateNode(arc.to, nodeNameToIDs, nodes);
-                        const edgeID = uuidv4();
-                        edges.push({ id: edgeID, source: sourceID, target: targetID, data: { type: edgeType, objectTypes: arc.label, cardinality: arc.counts }, ...getMarkersForEdge(edgeType, edgeID) })
-                        // }
-                    }
-                    applyLayoutToNodes(nodes, edges).then(() => {
-                        flow.addNodes(nodes);
-                        flow.addEdges(edges);
-                    })
+                    addArcsToFlow(discoverdArcs,flow);
                     console.log(discoverdArcs);
                 } catch (e) {
                     console.error(e);
@@ -103,28 +88,3 @@ export default function BackendButton() {
     </>
 
 }
-
-function lookupIDOrCreateNode(node: OCDeclareNode, nodeIDMap: Record<string, string>, nodes: ActivityNode[]): string {
-    let nodeName = node.type === "Activity" ? node.activity : (node.type === "ObjectInit" ? "<init> " + node.object_type : "<exit> " + node.object_type);
-    let isObject: ActivityNode['data']['isObject'] = undefined;
-    if (node.type === "Activity") {
-        if (node.activity.includes("<init> ")) {
-            isObject = "init";
-        } else if (node.activity.includes("<exit> ")) {
-            isObject = "exit";
-        }
-    } else if (node.type === "ObjectInit") {
-        isObject = "init"
-    } else {
-        isObject = "exit"
-    }
-    if (true || isObject || nodeIDMap[nodeName] == undefined) {
-        const id = uuidv4();
-        nodes.push({ id: id, type: "activity", position: { x: 0, y: 0 }, data: { isObject, type: node.type === "Activity" ? node.activity.replace("<init> ", "").replace("<exit> ", "") : node.object_type } })
-        nodeIDMap[nodeName] = id;
-        return id;
-    } else {
-        return nodeIDMap[nodeName];
-    }
-}
-

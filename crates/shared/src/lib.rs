@@ -768,7 +768,6 @@ pub fn get_activity_object_involvements(
         .collect()
 }
 
-
 pub fn get_object_to_object_involvements(
     locel: &IndexLinkedOCEL,
 ) -> HashMap<String, HashMap<String, ObjectInvolvementCounts>> {
@@ -849,23 +848,29 @@ pub mod perf {
     ) -> bool {
         let evs = linked_ocel.events_per_type.get(from_et).unwrap();
         let ev_count = evs.len();
-        let mut min_v = (ev_count as f64 * violation_thresh).floor() as usize + 1;
         let mut min_s = (ev_count as f64 * (1.0 - violation_thresh)).ceil() as usize;
+        let mut min_v = (ev_count as f64 * violation_thresh).floor() as usize + 1;
         // // Non-Atomic:
         // for ev in evs {
-        //         let violated = get_for_ev_perf(ev, label, to_et, arc_type, counts, linked_ocel);
-        //         if violated {
-        //             min_v -= 1;
-        //             if min_v == 0 {
-        //                 return false
-        //             }
-        //         } else {
-        //             min_s -= 1;
-        //             if min_s == 0 {
-        //                 return true
-        //             }
+        //     let violated = get_for_ev_perf(ev, label, to_et, arc_type, counts, linked_ocel);
+        //     if violated {
+        //         min_v -= 1;
+        //         if min_v == 0 {
+        //             return false;
+        //         }
+        //     } else {
+        //         min_s -= 1;
+        //         if min_s == 0 {
+        //             return true;
         //         }
         //     }
+        // }
+        // if min_s <= 0 {
+        //     return true;
+        // }
+        // if min_v <= 0 {
+        //     return false;
+        // }
 
         // Atomic:
         let min_v_atomic = AtomicI64::new(min_v as i64);
@@ -902,7 +907,6 @@ pub mod perf {
 
         unreachable!()
 
-
         // println!("{} and {} of {} (min_s: {}, min_v: {})",min_s_atomic,min_v_atomic,ev_count,min_s,min_v);
         // true
 
@@ -937,10 +941,12 @@ pub mod perf {
                         .filter(|ev2| {
                             let ev2 = linked_ocel.get_ev(ev2);
                             match arc_type {
+                                // OCDeclareArcType::EF => ev_index < ev2,
+                                // OCDeclareArcType::EFREV => ev_index > ev2,
                                 OCDeclareArcType::ASS => true,
                                 OCDeclareArcType::EF => ev.time < ev2.time,
                                 OCDeclareArcType::EFREV => ev.time > ev2.time,
-                                _ => panic!("DF should not go here."),
+                                _ => unreachable!("DF should not go here."),
                             }
                         });
                     if counts.1.is_none() {
