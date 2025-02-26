@@ -1,27 +1,27 @@
-use std::{
-    collections::{HashMap, HashSet},
-    time::{Duration, Instant},
-};
+use std::collections::{HashMap, HashSet};
 
-use indicatif::{ParallelProgressIterator, ProgressIterator};
+use indicatif::ParallelProgressIterator;
 use itertools::Itertools;
-use process_mining::ocel::linked_ocel::{IndexLinkedOCEL, LinkedOCELAccess};
+use process_mining::ocel::linked_ocel::IndexLinkedOCEL;
 use rayon::prelude::*;
 
 use crate::{
-    get_activity_object_involvements, get_object_to_object_involvements, get_rev_object_to_object_involvements, perf, OCDeclareArc, OCDeclareArcLabel, OCDeclareArcType, OCDeclareNode, ObjectInvolvementCounts, ObjectTypeAssociation, EXIT_EVENT_PREFIX, INIT_EVENT_PREFIX
+    get_activity_object_involvements, get_object_to_object_involvements,
+    get_rev_object_to_object_involvements, perf, OCDeclareArc, OCDeclareArcLabel, OCDeclareArcType,
+    OCDeclareNode, ObjectInvolvementCounts, ObjectTypeAssociation, EXIT_EVENT_PREFIX,
+    INIT_EVENT_PREFIX,
 };
 
 const MAX_COUNT_OPT: Option<usize> = None; //Some(20);
 pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc> {
-    // let now = Instant::now();
     let mut ret = Vec::new();
-    // First type of discovery: How many events of a specific type per object of specified type?
     let act_ob_inv: HashMap<String, HashMap<String, ObjectInvolvementCounts>> =
         get_activity_object_involvements(locel);
     let ob_ob_inv: HashMap<String, HashMap<String, ObjectInvolvementCounts>> =
         get_object_to_object_involvements(locel);
     let ob_ob_rev_inv = get_rev_object_to_object_involvements(locel);
+
+    // First type of discovery: How many events of a specific type per object of specified type?
     // for ot in locel.get_ob_types() {
     //     // Only consider activities generally involved with objects of a type
     //     let mut ev_types_per_ob: HashMap<&str, Vec<usize>> = act_ob_inv
@@ -92,6 +92,7 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
     // }
 
     // Second type of discovery: How many objects of object type per event of specified activity/event type?
+    // TODO
 
     // Third type of discovery: Eventually-follows
     let direction = OCDeclareArcType::ASS;
@@ -112,28 +113,18 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                 {
                     return false;
                 }
+                // return act1 != act2
                 true
             })
             .flat_map(|(act1, act2)| {
-                let now = Instant::now();
-                // let mut arcs = Vec::new();
-                // let act1_oi = act_ob_inv.get(act1).unwrap();
-                // let act1_ot_set: HashSet<_> = act1_oi.keys().collect();
-                // for direction in &[OCDeclareArcType::EF, OCDeclareArcType::EFREV] {
-                // for act2 in locel.get_ev_types() {
-                // if act1.starts_with(INIT_EVENT_PREFIX)
-                //     || act1.starts_with(EXIT_EVENT_PREFIX)
-                //     || act2.starts_with(INIT_EVENT_PREFIX)
-                //     || act2.starts_with(EXIT_EVENT_PREFIX)
-                // {
-                //     continue;
-                // }
-                // let act2_oi = act_ob_inv.get(act2).unwrap();
-                // let act2_ot_set: HashSet<_> = act2_oi.keys().collect();
                 let mut act_arcs = Vec::new();
-                for (ot, is_multiple) in
-                    get_direct_or_indirect_object_involvements(act1, act2, &act_ob_inv, &ob_ob_inv,&ob_ob_rev_inv)
-                {
+                for (ot, is_multiple) in get_direct_or_indirect_object_involvements(
+                    act1,
+                    act2,
+                    &act_ob_inv,
+                    &ob_ob_inv,
+                    &ob_ob_rev_inv,
+                ) {
                     // ANY?
                     let any_label = OCDeclareArcLabel {
                         each: vec![],
@@ -187,25 +178,25 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                                 );
                                 if sat {
                                     // All is also valid!
-                                    // act_arcs.push(each_label);
-                                    // act_arcs.push(any_label);
+                                    act_arcs.push(each_label);
+                                    act_arcs.push(any_label);
                                     act_arcs.push(all_label);
                                 } else {
-                                    // Each should only be preferred if type is not resource-like  
-                                    let sat = perf::get_for_all_evs_perf_thresh(
-                                        act1,
-                                        act2,
-                                        &each_label,
-                                        &direction,
-                                        &(Some(1), Some(20)),
-                                        locel,
-                                        noise_thresh,
-                                    );
-                                    if sat {
-                                        act_arcs.push(each_label);
-                                    } else {
-                                        act_arcs.push(any_label);
-                                    }
+                                    // Each should only be preferred if type is not resource-like
+                                    // let sat = perf::get_for_all_evs_perf_thresh(
+                                    //     act1,
+                                    //     act2,
+                                    //     &each_label,
+                                    //     &direction,
+                                    //     &(Some(1), Some(20)),
+                                    //     locel,
+                                    //     noise_thresh,
+                                    // );
+                                    // if sat {
+                                    act_arcs.push(each_label);
+                                    // } else {
+                                    act_arcs.push(any_label);
+                                    // }
                                 }
                             } else {
                                 act_arcs.push(any_label);
@@ -219,23 +210,9 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                         }
                     }
                 }
-                // if now.elapsed().as_secs_f32() > 2.0 {
-                //     println!("{:?}",act_arcs);
-                // println!(
-                //     "Before combining for {} -> {} [Took {:.2?}]",
-                //     act1,
-                //     act2,
-                //     now.elapsed()
-                // );
-                // }
-                // let now = Instant::now();
-                println!("{} -> {}: {}",act1,act2,act_arcs.len());
                 let mut changed = true;
                 let mut old = HashSet::new();
                 while changed {
-                    // let mut to_remove = HashSet::new();
-                    // let mut to_add = HashSet::new();
-                    // println!("New iteration for {} -> {}: |act_arcs| = {}", act1,act2,act_arcs.len());
                     let x = 0..act_arcs.len();
                     let new_res: HashSet<_> = x
                         .flat_map(|arc1_i| {
@@ -248,9 +225,15 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                             if arc1.is_dominated_by(arc2) || arc2.is_dominated_by(arc1) {
                                 return None;
                             }
+                            // if !check_compatability(arc1,arc2) {
+                            //     return None
+                            // }
                             let new_arc_label = arc1.combine(arc2);
-
-                            // if !act_arcs.contains(&new_arc_label) {
+                            if act_arcs.contains(&new_arc_label)
+                                || act_arcs.iter().any(|a| new_arc_label.is_dominated_by(a))
+                            {
+                                return None;
+                            }
                             let sat = perf::get_for_all_evs_perf_thresh(
                                 act1,
                                 act2,
@@ -261,163 +244,47 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                                 noise_thresh,
                             );
                             if sat {
-                                return Some(new_arc_label);
+                                Some(new_arc_label)
                             } else {
-                                return None;
+                                None
                             }
                         })
                         .collect();
 
                     changed = !new_res.is_empty();
                     old.extend(act_arcs.into_iter());
-                    act_arcs = new_res.iter().filter(|a| !new_res.iter().any(|a2| *a != a2 && a.is_dominated_by(a2))).cloned().collect();
-
-                    // for arc1_i in 0..act_arcs.len() {
-                    //     for arc2_i in (arc1_i + 1)..act_arcs.len() {
-                    //         let arc1 = &act_arcs[arc1_i];
-                    //         let arc2 = &act_arcs[arc2_i];
-                    //         if arc1.is_dominated_by(arc2) || arc2.is_dominated_by(arc1) {
-                    //             continue;
-                    //         }
-                    //         // let this_is_it = arc1.each.len() == 1
-                    //         //     && arc1.each.contains(&ObjectTypeAssociation::Simple {
-                    //         //         object_type: "orders".to_string(),
-                    //         //     })
-                    //         //     && arc2.each.len() == 1
-                    //         //     && arc2.any.contains(&ObjectTypeAssociation::O2O {
-                    //         //         first: "customers".to_string(),
-                    //         //         second: "employees".to_string(),
-                    //         //         reversed: false,
-                    //         //     });
-                    //         let new_arc_label = arc1.combine(arc2);
-
-                    //         // if !act_arcs.contains(&new_arc_label) {
-                    //         // let n = Instant::now();
-                    //         let sat = perf::get_for_all_evs_perf_thresh(
-                    //             act1,
-                    //             act2,
-                    //             &new_arc_label,
-                    //             &direction,
-                    //             &counts,
-                    //             locel,
-                    //             noise_thresh,
-                    //         );
-                    //         // if this_is_it {
-                    //         //     println!(
-                    //         //         "Trying to combine {:?} and {:?} yielded {:?}",
-                    //         //         arc1, arc2, sat
-                    //         //     );
-                    //         // }
-
-                    //         // let score = perf::get_for_all_evs_perf(
-                    //         //     act1,
-                    //         //     act2,
-                    //         //     &new_arc_label,
-                    //         //     &direction,
-                    //         //     &counts,
-                    //         //     locel,);
-                    //         // println!("Trying to combine {:?} and {:?} into {:?}, sat?: {sat}, score: {score:.2}",arc1,arc2,new_arc_label);
-                    //         if sat {
-                    //             // It IS a viable candidate!
-                    //             to_add.insert(new_arc_label);
-                    //             to_remove.insert(arc1_i);
-                    //             to_remove.insert(arc2_i);
-                    //         }
-                    //         // }
-                    //     }
-                    // }
-                    // changed = !to_add.is_empty();
-                    // act_arcs = act_arcs
-                    //     .into_iter()
-                    //     .enumerate()
-                    //     .filter_map(|(index, arc)| {
-                    //         if to_remove.contains(&index) {
-                    //             None
-                    //         } else {
-                    //             Some(arc)
-                    //         }
-                    //     })
-                    //     // .filter(|a| to_add.iter().any(|b| a.is_dominated_by(b)))
-                    //     .chain(to_add.clone())
-                    //     .collect();
+                    act_arcs = new_res
+                        .iter()
+                        .filter(|a| !new_res.iter().any(|a2| *a != a2 && a.is_dominated_by(a2)))
+                        .cloned()
+                        .collect();
                 }
-                act_arcs = old.into_iter().collect();
-                // println!(
-                //     "Combining for {} -> {} [Took {:.2?}]",
-                //     act1,
-                //     act2,
-                //     now.elapsed()
-                // );
-                // let now = Instant::now();
-                // arcs.extend(
-                let v = act_arcs
+                let v = old
                     .clone()
-                    // .into_iter()
-                    // .iter()
                     .into_par_iter()
                     .filter(move |arc1| {
-                        !act_arcs.iter().any(|arc2| {
-                            *arc1 != *arc2 && arc1.is_dominated_by(arc2)
-                            // && !arc2.is_dominated_by(&arc1)
-                        })
+                        !old.iter()
+                            .any(|arc2| *arc1 != *arc2 && arc1.is_dominated_by(arc2))
                     })
                     // .into_iter()
                     .flat_map(move |label| {
-                        let arc = OCDeclareArc {
+                        let mut arc = OCDeclareArc {
                             from: OCDeclareNode::new_act(act1.clone()),
                             to: OCDeclareNode::new_act(act2.clone()),
                             arc_type: OCDeclareArcType::ASS,
-                            label: label,
-                            counts: (Some(1), MAX_COUNT_OPT),
+                            label,
+                            counts: (Some(1), Some(20)),
                         };
-                        // vec![arc]
-                        get_stricter_arrows_for_as(arc, noise_thresh, locel)
-                        // if arc.get_for_all_evs_perf(locel) <= noise_thresh {
-                        //     Some(arc)
-                        // } else {
-                        //     arc.counts.1 = MAX_COUNT_OPT;
-                        //     if arc.get_for_all_evs_perf(locel) <= noise_thresh {
-                        //         arc.counts.1 = None;
-                        //         Some(arc)
-                        //     } else {
-                        //         None
-                        //     }
-                        // }
+                        if arc.get_for_all_evs_perf_thresh(locel, noise_thresh) {
+                            arc.counts.1 = None;
+                            get_stricter_arrows_for_as(arc, noise_thresh, locel)
+                        }else{
+                            vec![]
+                        }
                     });
-                // .collect_vec();
-
-                // println!(
-                //     "Creating v for {} -> {}, |act_arcs|={}, |v|={} [Took {:.2?}]",
-                //     act1,
-                //     act2,
-                //     act_arcs.len(),
-                //     v.len(),
-                //     now.elapsed()
-                // );
-                // println!("Finishing {} -> {} took {:.2?}", act1, act2, now.elapsed());
-                // println!("{} -> {} took {:.2?}",act1,act2,now.elapsed());
                 v
-                // );
-
-                // if now.elapsed().as_secs_f32() > 2.0 {
-                // println!("After combining: [{:.2?}]",now.elapsed());
-                // }
-                // }
-                // }
-
-                // arcs
             }),
     );
-    // Also test if the discovered (EF / EF-rev) constraints hold if we set min = max = 1
-    // Also include directly-follows constraints:
-    // Collect all EF constraints that hold (i.e., also the dominated/superseeded ones)
-    // For each of them check if DF also holds
-    // Collect DF constraints, remove dominated ones
-    // Remove EF constraints dominated by DF constraints (i.e., those where the sets are the same)
-
-    // Fourth type of discovery: NOT Eventually Follows
-    // There we also have monotonicity properties, but different ones!
-    // In particular, A --T-//-> B implies A --T,T'--//-> B and so on
 
     ret
 }
@@ -459,12 +326,10 @@ fn get_stricter_arrows_for_as(
             }
         }
     }
-    if ret.is_empty() {
-        if a.from != a.to {
-            a.arc_type = OCDeclareArcType::ASS;
-            // if a.get_for_all_evs_perf(locel) <= noise_thresh {
+    if ret.is_empty() && a.from != a.to {
+        a.arc_type = OCDeclareArcType::ASS;
+        // if a.get_for_all_evs_perf_thresh(locel, noise_thresh) {
             ret.push(a);
-        }
         // }
     }
     ret
@@ -481,7 +346,7 @@ fn get_direct_or_indirect_object_involvements<'a>(
 ) -> Vec<(ObjectTypeAssociation, bool)> {
     let act1_obs: HashSet<_> = act_ob_involvement.get(act1).unwrap().keys().collect();
     let act2_obs: HashSet<_> = act_ob_involvement.get(act2).unwrap().keys().collect();
-    return act1_obs
+    act1_obs
         .iter()
         .filter(|ot| act2_obs.contains(*ot))
         .map(|ot| {
@@ -513,28 +378,45 @@ fn get_direct_or_indirect_object_involvements<'a>(
                 .map(|(ot1, ot2, multiple)| (ObjectTypeAssociation::new_o2o(*ot1, ot2), multiple))
                 .collect_vec()
         }))
-        .chain(act1_obs.iter().flat_map(|ot| {
-            rev_obj_obj_involvement
-                .get(*ot)
-                .into_iter()
-                .flat_map(|ots2| {
-                    ots2.iter()
-                        .filter(|(ot2, _)| act2_obs.contains(ot2))
-                        .map(|(ot2, oi)| {
-                            (
-                                ot,
-                                ot2,
-                                oi.max > 1
-                                    || act_ob_involvement.get(act1).unwrap().get(*ot).unwrap().max
-                                        > 1,
-                            )
-                        })
-                })
-                .map(|(ot1, ot2, multiple)| (ObjectTypeAssociation::new_o2o_rev(*ot1, ot2), multiple))
-                .collect_vec()
-        }))
-        .collect();
+        // .chain(act1_obs.iter().flat_map(|ot| {
+        //     rev_obj_obj_involvement
+        //         .get(*ot)
+        //         .into_iter()
+        //         .flat_map(|ots2| {
+        //             ots2.iter()
+        //                 .filter(|(ot2, _)| act2_obs.contains(ot2))
+        //                 .map(|(ot2, oi)| {
+        //                     (
+        //                         ot,
+        //                         ot2,
+        //                         oi.max > 1
+        //                             || act_ob_involvement.get(act1).unwrap().get(*ot).unwrap().max
+        //                                 > 1,
+        //                     )
+        //                 })
+        //         })
+        //         .map(|(ot1, ot2, multiple)| {
+        //             (ObjectTypeAssociation::new_o2o_rev(*ot1, ot2), multiple)
+        //         })
+        //         .collect_vec()
+        // }))
+        .collect()
 }
+
+// fn check_compatability(l1: &OCDeclareArcLabel, l2: &OCDeclareArcLabel) -> bool {
+//     let out1: HashSet<_> = get_out_types(&l1.all).chain(get_out_types(&l1.any)).chain(get_out_types(&l1.each)).collect();
+//     let out2: HashSet<_> = get_out_types(&l2.all).chain(get_out_types(&l2.any)).chain(get_out_types(&l2.each)).collect();
+//     out1.is_disjoint(&out2)
+// }
+
+// fn get_out_types<'a>(ras: &'a Vec<ObjectTypeAssociation>) -> impl Iterator<Item = &'a String> {
+//     ras.iter().map(|oas| {
+//         match oas {
+//             ObjectTypeAssociation::Simple { object_type } => object_type,
+//             ObjectTypeAssociation::O2O { first, second, reversed } => second,
+//         }
+//     })
+// }
 
 #[cfg(test)]
 mod test {
@@ -543,10 +425,10 @@ mod test {
     use process_mining::{import_ocel_xml_file, ocel::linked_ocel::IndexLinkedOCEL};
 
     use crate::{
-        discovery::get_direct_or_indirect_object_involvements, get_activity_object_involvements, get_object_to_object_involvements, get_rev_object_to_object_involvements, ObjectInvolvementCounts
+        discovery::get_direct_or_indirect_object_involvements, get_activity_object_involvements,
+        get_object_to_object_involvements, get_rev_object_to_object_involvements,
+        ObjectInvolvementCounts,
     };
-
-    use super::discover;
 
     #[test]
     fn test_obj_involvements() {
@@ -556,14 +438,14 @@ mod test {
             get_activity_object_involvements(&locel);
         let ob_ob_inv: HashMap<String, HashMap<String, ObjectInvolvementCounts>> =
             get_object_to_object_involvements(&locel);
-            let ob_ob_inv_rev: HashMap<String, HashMap<String, ObjectInvolvementCounts>> =
-                get_rev_object_to_object_involvements(&locel);
+        let ob_ob_inv_rev: HashMap<String, HashMap<String, ObjectInvolvementCounts>> =
+            get_rev_object_to_object_involvements(&locel);
         let res = get_direct_or_indirect_object_involvements(
             "place order",
             "pick item",
             &act_ob_inv,
             &ob_ob_inv,
-            &ob_ob_inv_rev
+            &ob_ob_inv_rev,
         );
         println!("{:?}", res);
     }

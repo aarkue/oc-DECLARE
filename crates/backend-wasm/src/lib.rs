@@ -99,6 +99,27 @@ pub fn get_all_edge_violation_percentage(edge_json: String) -> Result<Vec<String
 }
 
 
+#[wasm_bindgen]
+pub fn get_all_edge_violation_percentage_perf(edge_json: String) -> Result<Vec<f64>,String> {
+    let locel_guard =
+         WASM_MEMORY_THINGY.read().unwrap();
+         if let Some(locel) = locel_guard.as_ref() {
+        let edge_json : Vec<OCDeclareArc> = serde_json::from_str(&edge_json).unwrap();
+        let res = edge_json.iter().map(|edge| {
+        //    let edge: OCDeclareArc = serde_json::from_str(json).unwrap();
+        let viol_frac = edge.get_for_all_evs_perf(locel);
+        viol_frac
+        }).collect();
+        Ok(res)
+        // let edge: OCDeclareArc = serde_json::from_str(&edge_json).unwrap();
+
+        // return serde_json::to_string(&all_res).unwrap();
+    } else {
+        Err(String::from("Failed"))
+    }
+}
+
+
 
 #[wasm_bindgen]
 pub fn get_ot_act_involvements() -> String {

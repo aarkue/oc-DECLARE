@@ -35,9 +35,9 @@ pub fn preprocess_ocel(ocel: OCEL) -> IndexLinkedOCEL {
                 .map(|(_q, e)| locel.get_ev(e).time)
                 .sorted();
             let first_ev = iter.clone().next();
-            let first_ev_time = first_ev.map(|ev| ev).unwrap_or_default();
+            let first_ev_time = first_ev.unwrap_or_default();
             let last_ev = iter.clone().last();
-            let last_ev_time = last_ev.map(|ev| ev).unwrap_or_default();
+            let last_ev_time = last_ev.unwrap_or_default();
             vec![
                 OCELEvent {
                     id: format!("{}_{}_{}", INIT_EVENT_PREFIX, ob.object_type, ob.id),
@@ -468,7 +468,7 @@ fn get_df_or_dp_event_perf<'a>(
             }
         }
     };
-    let mut x = initial.filter(|e| {
+    let x = initial.filter(|e| {
         if following
             && (e < &reference_event_index || reference_event.time >= linked_ocel.get_ev(e).time)
         {
@@ -496,7 +496,7 @@ fn get_df_or_dp_event_perf<'a>(
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
 // #[serde(tag = "type")]
-enum OCDeclareArcType {
+pub enum OCDeclareArcType {
     ASS,
     EF,
     EFREV,
@@ -593,12 +593,22 @@ impl ObjectTypeAssociation {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default, Hash, TS)]
 #[ts(export)]
-struct OCDeclareArcLabel {
+pub struct OCDeclareArcLabel {
     each: Vec<ObjectTypeAssociation>,
     any: Vec<ObjectTypeAssociation>,
     all: Vec<ObjectTypeAssociation>,
 }
 
+fn get_out_types<'a>(ras: &'a HashSet<ObjectTypeAssociation>) -> impl Iterator<Item = &'a String> {
+    ras.iter().filter_map(|oas| match oas {
+        ObjectTypeAssociation::Simple { object_type } => Some(object_type),
+        ObjectTypeAssociation::O2O {
+            first,
+            second,
+            reversed,
+        } => None,
+    })
+}
 impl OCDeclareArcLabel {
     pub fn combine(&self, other: &Self) -> Self {
         let all = self
@@ -621,11 +631,48 @@ impl OCDeclareArcLabel {
             .filter(|e| !all.contains(e) && !each.contains(e))
             .cloned()
             .collect::<HashSet<_>>();
-
+        // let first_obj_types: HashSet<_> = get_out_types(&all)
+        //     .chain(get_out_types(&any))
+        //     .chain(get_out_types(&each))
+        //     .cloned()
+        //     .collect();
         Self {
-            each: each.into_iter().sorted().collect(),
-            all: all.into_iter().sorted().collect(),
-            any: any.into_iter().sorted().collect(),
+            each: each
+                .into_iter()
+                // .filter(|t| match t {
+                //     ObjectTypeAssociation::O2O {
+                //         first: _,
+                //         second,
+                //         reversed: _,
+                //     } => !first_obj_types.contains(second),
+                //     ObjectTypeAssociation::Simple { object_type: _ } => true,
+                // })
+                .sorted()
+                .collect(),
+            all: all
+                .into_iter()
+                // .filter(|t| match t {
+                //     ObjectTypeAssociation::O2O {
+                //         first: _,
+                //         second,
+                //         reversed: _,
+                //     } => !first_obj_types.contains(second),
+                //     ObjectTypeAssociation::Simple { object_type: _ } => true,
+                // })
+                .sorted()
+                .collect(),
+            any: any
+                .into_iter()
+                // .filter(|t| match t {
+                //     ObjectTypeAssociation::O2O {
+                //         first: _,
+                //         second,
+                //         reversed: _,
+                //     } => !first_obj_types.contains(second),
+                //     ObjectTypeAssociation::Simple { object_type: _ } => true,
+                // })
+                .sorted()
+                .collect(),
         }
     }
 
@@ -807,7 +854,6 @@ pub fn get_object_to_object_involvements(
         .collect()
 }
 
-
 pub fn get_rev_object_to_object_involvements(
     locel: &IndexLinkedOCEL,
 ) -> HashMap<String, HashMap<String, ObjectInvolvementCounts>> {
@@ -847,9 +893,8 @@ pub fn get_rev_object_to_object_involvements(
         .collect()
 }
 
-
 pub mod perf {
-    use std::sync::atomic::{AtomicI64, AtomicUsize};
+    use std::sync::atomic::AtomicI32;
 
     use process_mining::ocel::linked_ocel::{
         index_linked_ocel::EventIndex, IndexLinkedOCEL, LinkedOCELAccess,
@@ -889,8 +934,8 @@ pub mod perf {
     ) -> bool {
         let evs = linked_ocel.events_per_type.get(from_et).unwrap();
         let ev_count = evs.len();
-        let mut min_s = (ev_count as f64 * (1.0 - violation_thresh)).ceil() as usize;
-        let mut min_v = (ev_count as f64 * violation_thresh).floor() as usize + 1;
+        let min_s = (ev_count as f64 * (1.0 - violation_thresh)).ceil() as usize;
+        let min_v = (ev_count as f64 * violation_thresh).floor() as usize + 1;
         // // Non-Atomic:
         // for ev in evs {
         //     let violated = get_for_ev_perf(ev, label, to_et, arc_type, counts, linked_ocel);
@@ -914,8 +959,8 @@ pub mod perf {
         // }
 
         // Atomic:
-        let min_v_atomic = AtomicI64::new(min_v as i64);
-        let min_s_atomic = AtomicI64::new(min_s as i64);
+        let min_v_atomic = AtomicI32::new(min_v as i32);
+        let min_s_atomic = AtomicI32::new(min_s as i32);
         evs.into_par_iter()
             .map(|ev| {
                 let violated = get_for_ev_perf(ev, label, to_et, arc_type, counts, linked_ocel);
@@ -1018,7 +1063,7 @@ pub mod perf {
                         ev,
                         arc_type == &OCDeclareArcType::DF,
                     );
-                    let count = if df_ev.is_some_and(|e| linked_ocel.get_ev(&e).event_type == to_et)
+                    let count = if df_ev.is_some_and(|e| linked_ocel.get_ev(e).event_type == to_et)
                     {
                         1
                     } else {

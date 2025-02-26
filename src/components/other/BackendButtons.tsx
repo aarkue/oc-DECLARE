@@ -1,15 +1,12 @@
-import { CustomEdge, getMarkersForEdge } from "@/edges/types";
+import { CustomEdge } from "@/edges/types";
 import { ActivityNode } from "@/nodes/types";
 import { useEdges, useReactFlow } from "@xyflow/react";
 import { useContext, useRef, useState } from "react";
-import { v4 as uuidv4 } from 'uuid';
-import init, { discover_oc_declare_constraints, get_ot_act_involvements, initThreadPool, load_ocel_json, load_ocel_xml, unload_ocel } from "../../../crates/backend-wasm/pkg/backend_wasm";
+import init, { discover_oc_declare_constraints, get_all_edge_violation_percentage_perf, get_ot_act_involvements, initThreadPool, load_ocel_json, load_ocel_xml, unload_ocel } from "../../../crates/backend-wasm/pkg/backend_wasm";
 import type { OCDeclareArc } from "../../../crates/shared/bindings/OCDeclareArc";
 
-import { applyLayoutToNodes } from "@/lib/automatic-layout";
 import { OCELInfoContext } from "@/lib/ocel-info";
-import { addArcsToFlow, flowEdgeToOCDECLARE, getEdgeViolationPerc, translateArcTypeFromRsToTs } from "@/lib/type-conversions";
-import { OCDeclareNode } from "crates/shared/bindings/OCDeclareNode";
+import { addArcsToFlow, flowEdgeToOCDECLARE } from "@/lib/type-conversions";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 
@@ -55,13 +52,18 @@ export default function BackendButton() {
         {status === "ocel-loaded" &&
             <><Button onClick={async () => {
                 const beginning = Date.now();
-                (selectedEdges.length > 0 ? selectedEdges : flow.getEdges()).forEach(e => {
+                const edges = (selectedEdges.length > 0 ? selectedEdges : flow.getEdges());
+                const edgeJSON = JSON.stringify(edges.map(e => flowEdgeToOCDECLARE(e, flow)));
+                const violationFracs = get_all_edge_violation_percentage_perf(edgeJSON);
+                for (let i = 0; i < edges.length; i++) {
+                    flow.updateEdgeData(edges[i].id, { violationInfo: { violationPercentage: 100 * violationFracs[i] } });
 
-                    const x = flowEdgeToOCDECLARE(e, flow);
-                    const violFrac = getEdgeViolationPerc(x);
-                    console.log(violFrac)
-                    flow.updateEdgeData(e.id, { violationInfo: { violationPercentage: 100 * violFrac } });
-                });
+                }
+                // edges.forEach(e => {
+                //     const x = flowEdgeToOCDECLARE(e, flow);
+                //     const violFrac = getEdgeViolationPerc(x);
+                //     console.log(violFrac)
+                // });
                 console.log("TOTAL Evaluation took " + ((Date.now() - beginning) / 1000) + "s");
             }}>
                 Evaluate {selectedEdges.length === 0 ? "All" : ""}
@@ -79,7 +81,7 @@ export default function BackendButton() {
                     const res = discover_oc_declare_constraints(0.4);
                     console.log("Discovery took " + ((Date.now() - now) / 1000) + "s");
                     const discoverdArcs: OCDeclareArc[] = JSON.parse(res);
-                    addArcsToFlow(discoverdArcs,flow);
+                    addArcsToFlow(discoverdArcs, flow);
                     console.log(discoverdArcs);
                 } catch (e) {
                     console.error(e);

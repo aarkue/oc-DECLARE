@@ -17,7 +17,7 @@ import { getEdgeParams } from './edge-helpers';
 import { getRandomStringColor } from "@/lib/random-colors";
 import { ActivityNode } from '@/nodes/types';
 import { ContextMenuArrow } from '@radix-ui/react-context-menu';
-import { AlignStartVertical, ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, LucideArrowLeftRight, LucideHash, LucideShapes, LucideXCircle, TrendingUp } from 'lucide-react';
+import { AlignStartVertical, ArrowLeft, ArrowRight, LucideArrowLeftRight, LucideHash, LucideShapes, LucideXCircle, TrendingUp } from 'lucide-react';
 import React, { Fragment, useEffect, useMemo, useState } from "react";
 import asSvg from "./icons/ass.svg?url";
 import dfSvg from "./icons/df.svg?url";
@@ -282,9 +282,9 @@ export default function CustomEdge(edge: EdgeProps<CustomEdgeType> & { data: { t
                 <marker
                     className="react-flow__arrowhead"
                     id={`start-${id}`}
-                    markerWidth="160"
-                    markerHeight="160"
-                    viewBox="-320 -320 620 620"
+                    markerWidth="240"
+                    markerHeight="240"
+                    viewBox="-480 -480 930 930"
                     orient="auto"
                     refX="0"
                     refY="0"
