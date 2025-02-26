@@ -807,6 +807,47 @@ pub fn get_object_to_object_involvements(
         .collect()
 }
 
+
+pub fn get_rev_object_to_object_involvements(
+    locel: &IndexLinkedOCEL,
+) -> HashMap<String, HashMap<String, ObjectInvolvementCounts>> {
+    locel
+        .get_ob_types()
+        .map(|ot| {
+            let mut nums_of_objects_per_type: HashMap<String, ObjectInvolvementCounts> = locel
+                .get_ob_types()
+                .map(|ot| (ot.to_string(), ObjectInvolvementCounts::default()))
+                .collect();
+            for ob in locel.get_obs_of_type(ot) {
+                let mut num_of_objects_for_ob: HashMap<&str, usize> = HashMap::new();
+                for (_q, oi) in locel.get_o2o_rev(ob) {
+                    let o = locel.get_ob(oi);
+                    *num_of_objects_for_ob.entry(&o.object_type).or_default() += 1;
+                }
+                for (ot, count) in num_of_objects_for_ob {
+                    let num_ob_per_type = nums_of_objects_per_type.get_mut(ot).unwrap();
+
+                    if count < num_ob_per_type.min {
+                        num_ob_per_type.min = count
+                    }
+                    if count > num_ob_per_type.max {
+                        num_ob_per_type.max = count;
+                    }
+                }
+            }
+            (
+                ot.to_string(),
+                nums_of_objects_per_type
+                    .into_iter()
+                    .filter(|(_x, y)| y.max > 0)
+                    .collect(),
+            )
+            // (nums_of_objects_per_type
+        })
+        .collect()
+}
+
+
 pub mod perf {
     use std::sync::atomic::{AtomicI64, AtomicUsize};
 
