@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use indicatif::ParallelProgressIterator;
+use indicatif::{ParallelProgressIterator, ProgressIterator};
 use itertools::Itertools;
 use process_mining::ocel::linked_ocel::IndexLinkedOCEL;
 use rayon::prelude::*;
@@ -113,18 +113,18 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                 {
                     return false;
                 }
-                // return act1 != act2
                 true
             })
             .flat_map(|(act1, act2)| {
                 let mut act_arcs = Vec::new();
-                for (ot, is_multiple) in get_direct_or_indirect_object_involvements(
+                let obj_invs = get_direct_or_indirect_object_involvements(
                     act1,
                     act2,
                     &act_ob_inv,
                     &ob_ob_inv,
                     &ob_ob_rev_inv,
-                ) {
+                );
+                for (ot, is_multiple) in obj_invs {
                     // ANY?
                     let any_label = OCDeclareArcLabel {
                         each: vec![],
@@ -178,25 +178,12 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                                 );
                                 if sat {
                                     // All is also valid!
-                                    act_arcs.push(each_label);
-                                    act_arcs.push(any_label);
                                     act_arcs.push(all_label);
-                                } else {
-                                    // Each should only be preferred if type is not resource-like
-                                    // let sat = perf::get_for_all_evs_perf_thresh(
-                                    //     act1,
-                                    //     act2,
-                                    //     &each_label,
-                                    //     &direction,
-                                    //     &(Some(1), Some(20)),
-                                    //     locel,
-                                    //     noise_thresh,
-                                    // );
-                                    // if sat {
                                     act_arcs.push(each_label);
-                                    // } else {
                                     act_arcs.push(any_label);
-                                    // }
+                                } else {
+                                    act_arcs.push(each_label);
+                                    act_arcs.push(any_label);
                                 }
                             } else {
                                 act_arcs.push(any_label);
@@ -211,8 +198,13 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                     }
                 }
                 let mut changed = true;
-                let mut old = HashSet::new();
+                let mut old: HashSet<_> = act_arcs
+                    .iter()
+                    .cloned()
+                    .collect();
+                let mut iteration = 1;
                 while changed {
+                    println!("{}->{}, |act_arcs|={}",act1,act2,act_arcs.len());
                     let x = 0..act_arcs.len();
                     let new_res: HashSet<_> = x
                         .flat_map(|arc1_i| {
@@ -225,13 +217,11 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                             if arc1.is_dominated_by(arc2) || arc2.is_dominated_by(arc1) {
                                 return None;
                             }
-                            // if !check_compatability(arc1,arc2) {
-                            //     return None
-                            // }
                             let new_arc_label = arc1.combine(arc2);
-                            if act_arcs.contains(&new_arc_label)
-                                || act_arcs.iter().any(|a| new_arc_label.is_dominated_by(a))
-                            {
+                            let new_n = new_arc_label.all.len()
+                                + new_arc_label.any.len()
+                                + new_arc_label.each.len();
+                            if new_n != iteration + 1 {
                                 return None;
                             }
                             let sat = perf::get_for_all_evs_perf_thresh(
@@ -252,15 +242,20 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                         .collect();
 
                     changed = !new_res.is_empty();
-                    old.extend(act_arcs.into_iter());
+                    old.retain(|a: &OCDeclareArcLabel| {
+                        !new_res.iter().any(|a2| a != a2 && a.is_dominated_by(a2))
+                    });
+                    old.extend(new_res.clone().into_iter());
                     act_arcs = new_res
                         .iter()
                         .filter(|a| !new_res.iter().any(|a2| *a != a2 && a.is_dominated_by(a2)))
                         .cloned()
                         .collect();
+                    iteration += 1;
                 }
                 let v = old
                     .clone()
+                    // .into_iter()
                     .into_par_iter()
                     .filter(move |arc1| {
                         !old.iter()
@@ -277,8 +272,8 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                         };
                         if arc.get_for_all_evs_perf_thresh(locel, noise_thresh) {
                             arc.counts.1 = None;
-                            get_stricter_arrows_for_as(arc, noise_thresh, locel)
-                        }else{
+                        get_stricter_arrows_for_as(arc, noise_thresh, locel)
+                        } else {
                             vec![]
                         }
                     });
@@ -357,27 +352,27 @@ fn get_direct_or_indirect_object_involvements<'a>(
                 act_ob_involvement.get(act1).unwrap().get(*ot).unwrap().max > 1,
             )
         })
-        .chain(act1_obs.iter().flat_map(|ot| {
-            obj_obj_involvement
-                .get(*ot)
-                .into_iter()
-                .flat_map(|ots2| {
-                    ots2.iter()
-                        .filter(|(ot2, _)| act2_obs.contains(ot2))
-                        // .filter(|(ot2, _)| *ot == "customers" && *ot2 == "employees")
-                        .map(|(ot2, oi)| {
-                            (
-                                ot,
-                                ot2,
-                                oi.max > 1
-                                    || act_ob_involvement.get(act1).unwrap().get(*ot).unwrap().max
-                                        > 1,
-                            )
-                        })
-                })
-                .map(|(ot1, ot2, multiple)| (ObjectTypeAssociation::new_o2o(*ot1, ot2), multiple))
-                .collect_vec()
-        }))
+        // .chain(act1_obs.iter().flat_map(|ot| {
+        //     obj_obj_involvement
+        //         .get(*ot)
+        //         .into_iter()
+        //         .flat_map(|ots2| {
+        //             ots2.iter()
+        //                 .filter(|(ot2, _)| act2_obs.contains(ot2))
+        //                 // .filter(|(ot2, _)| *ot == "customers" && *ot2 == "employees")
+        //                 .map(|(ot2, oi)| {
+        //                     (
+        //                         ot,
+        //                         ot2,
+        //                         oi.max > 1
+        //                             || act_ob_involvement.get(act1).unwrap().get(*ot).unwrap().max
+        //                                 > 1,
+        //                     )
+        //                 })
+        //         })
+        //         .map(|(ot1, ot2, multiple)| (ObjectTypeAssociation::new_o2o(*ot1, ot2), multiple))
+        //         .collect_vec()
+        // }))
         // .chain(act1_obs.iter().flat_map(|ot| {
         //     rev_obj_obj_involvement
         //         .get(*ot)
@@ -403,20 +398,46 @@ fn get_direct_or_indirect_object_involvements<'a>(
         .collect()
 }
 
+fn test_for_resource(l: &OCDeclareArcLabel, obj_inv: &Vec<(ObjectTypeAssociation, bool)>) -> bool {
+    let out1: HashSet<_> = get_out_types(&l.all)
+        .chain(get_out_types(&l.any))
+        .chain(get_out_types(&l.each))
+        .collect();
+    let link: HashSet<_> = obj_inv
+        .iter()
+        .map(|(oi, _)| match oi {
+            ObjectTypeAssociation::Simple { object_type } => object_type,
+            ObjectTypeAssociation::O2O {
+                first,
+                second,
+                reversed,
+            } => second,
+        })
+        .collect();
+    let resource_types: HashSet<_> = ["products", "employees", "customers"].into_iter().collect();
+    let non_resource_possible = link.iter().any(|t| !resource_types.contains(t.as_str()));
+    if non_resource_possible {
+        let non_resource_in_arc = out1.iter().any(|t| !resource_types.contains(t.as_str()));
+        return non_resource_in_arc;
+    }
+    true
+}
 // fn check_compatability(l1: &OCDeclareArcLabel, l2: &OCDeclareArcLabel) -> bool {
 //     let out1: HashSet<_> = get_out_types(&l1.all).chain(get_out_types(&l1.any)).chain(get_out_types(&l1.each)).collect();
 //     let out2: HashSet<_> = get_out_types(&l2.all).chain(get_out_types(&l2.any)).chain(get_out_types(&l2.each)).collect();
 //     out1.is_disjoint(&out2)
 // }
 
-// fn get_out_types<'a>(ras: &'a Vec<ObjectTypeAssociation>) -> impl Iterator<Item = &'a String> {
-//     ras.iter().map(|oas| {
-//         match oas {
-//             ObjectTypeAssociation::Simple { object_type } => object_type,
-//             ObjectTypeAssociation::O2O { first, second, reversed } => second,
-//         }
-//     })
-// }
+fn get_out_types<'a>(ras: &'a Vec<ObjectTypeAssociation>) -> impl Iterator<Item = &'a String> {
+    ras.iter().map(|oas| match oas {
+        ObjectTypeAssociation::Simple { object_type } => object_type,
+        ObjectTypeAssociation::O2O {
+            first,
+            second,
+            reversed,
+        } => second,
+    })
+}
 
 #[cfg(test)]
 mod test {
