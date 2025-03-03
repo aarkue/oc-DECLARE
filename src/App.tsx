@@ -17,23 +17,23 @@ import {
   ContextMenuTrigger
 } from "@/components/ui/context-menu";
 import '@xyflow/react/dist/style.css';
+import { OCDeclareArcLabel } from 'crates/shared/bindings/OCDeclareArcLabel';
 import { toBlob, toSvg } from 'html-to-image';
-import { AlignStartVerticalIcon, ClipboardCopy, ClipboardPaste, ImageIcon, LayoutIcon } from 'lucide-react';
+import { AlignStartVerticalIcon, ClipboardCopy, ClipboardPaste, ImageIcon } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
-import { edgeTypes } from './edges';
-import { CustomEdge, EdgeType, getMarkersForEdge } from './edges/types';
-import { downloadBlob } from './lib/download-blob';
-import { initialNodes, nodeTypes } from './nodes';
-import { ActivityNode } from './nodes/types';
+import { v4 as uuidv4 } from 'uuid';
 import BackendButton from './components/other/BackendButtons';
 import { Button } from './components/ui/button';
-import { OCELInfo, OCELInfoContext } from './lib/ocel-info';
-import { OCDeclareArcLabel } from 'crates/shared/bindings/OCDeclareArcLabel';
-import { applyLayoutToNodes } from './lib/automatic-layout';
-import { v4 as uuidv4 } from 'uuid';
 import { Input } from './components/ui/input';
-import { addArcsToFlow } from './lib/type-conversions';
 import { Label } from './components/ui/label';
+import { edgeTypes } from './edges';
+import { CustomEdge, EdgeType, getMarkersForEdge } from './edges/types';
+import { applyLayoutToNodes } from './lib/automatic-layout';
+import { downloadBlob } from './lib/download-blob';
+import { OCELInfo, OCELInfoContext } from './lib/ocel-info';
+import { addArcsToFlow } from './lib/type-conversions';
+import { initialNodes, nodeTypes } from './nodes';
+import { ActivityNode } from './nodes/types';
 
 function loadData() {
   try {
