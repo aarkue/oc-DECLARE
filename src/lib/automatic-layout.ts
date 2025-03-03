@@ -45,7 +45,7 @@ export function useLayoutedElements<N extends Record<string, unknown>>() {
 };
 
 // Apply layout in place
-export async function applyLayoutToNodes<N extends Record<string, unknown>, E extends Record<string, unknown>>(
+export async function applyLayoutToNodes<N extends Record<string, unknown>>(
     nodes: Node<N>[],
     edges: CustomEdge[],
     options: Partial<LayoutOptions> = {},
@@ -54,7 +54,7 @@ export async function applyLayoutToNodes<N extends Record<string, unknown>, E ex
     const graph = {
         id: "root",
         layoutOptions,
-        children: nodes.map((n, i) => {
+        children: nodes.map((n) => {
             // const targetPorts = [
             //   { id: n.id + "-target", properties: { side: "NORTH" } },
             // ];

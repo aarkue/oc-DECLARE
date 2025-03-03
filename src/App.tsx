@@ -307,7 +307,7 @@ export default function App() {
           <Background className='hide-in-image' />
           <Controls className='hide-in-image' />
           <Panel className='flex gap-x-1 hide-in-image'>
-            {/* <Button variant="outline" onClick={() => {
+            <Button variant="outline" onClick={() => {
               localStorage.setItem("oc-DECLARE", JSON.stringify(flowRef.current!.toObject()));
             }}>Save</Button>
 
@@ -319,7 +319,7 @@ export default function App() {
                 setEdges(flow.edges || []);
                 flowRef.current.setViewport({ x, y, zoom });
               }
-            }}>Restore</Button> */}
+            }}>Restore</Button>
             <Input type="file" className="max-w-[7rem]" onChange={async (ev) => {
               if (ev.currentTarget.files && ev.currentTarget.files.length >= 1) {
                 const file = ev.currentTarget.files[0];

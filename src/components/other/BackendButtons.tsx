@@ -2,7 +2,6 @@ import { CustomEdge } from "@/edges/types";
 import { ActivityNode } from "@/nodes/types";
 import { useEdges, useReactFlow } from "@xyflow/react";
 import { useContext, useEffect, useRef, useState } from "react";
-import init, { discover_oc_declare_constraints, get_all_edge_violation_percentage_perf, get_ot_act_involvements, initThreadPool, load_ocel_json, load_ocel_xml, unload_ocel } from "../../../crates/backend-wasm/pkg/backend_wasm";
 import type { OCDeclareArc } from "../../../crates/shared/bindings/OCDeclareArc";
 
 import { OCELInfo, OCELInfoContext } from "@/lib/ocel-info";
@@ -10,7 +9,7 @@ import { addArcsToFlow, flowEdgeToOCDECLARE } from "@/lib/type-conversions";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 
-import WASMWorker from "../../lib/worker?worker"
+import WASMWorker from "../../lib/worker?worker";
 const worker = new WASMWorker();
 export default function BackendButton() {
     const inputRef = useRef<HTMLInputElement>(null);
@@ -48,12 +47,12 @@ export default function BackendButton() {
         {status === "initial" && <Input type="file" ref={inputRef} className="max-w-[7rem]" />}
         {status === "initial" && <Button onClick={async () => {
             if (inputRef.current?.files?.length) {
-                await init();
-                try {
-                    await await initThreadPool(Math.max(1, Math.round(0.25 * navigator.hardwareConcurrency)));
-                } catch (e) {
-                    console.log("Thread pool error: ", e);
-                }
+                // await init();
+                // try {
+                //     await await initThreadPool(Math.max(1, Math.round(0.25 * navigator.hardwareConcurrency)));
+                // } catch (e) {
+                //     console.log("Thread pool error: ", e);
+                // }
                 const file = inputRef.current?.files[0];
                 worker.postMessage({ type: "load-ocel", file });
                 // // const y = await file.bytes()

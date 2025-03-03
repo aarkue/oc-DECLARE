@@ -1239,6 +1239,43 @@ mod tests {
         serde_json::to_writer_pretty(File::create("discovered-hpc.json").unwrap(), &res).unwrap();
     }
 
+
+    #[test]
+    fn p2p_discovery() {
+        let ocel = import_ocel_json_from_path(
+            "/home/aarkue/dow/ocel/ocel2-p2p.json",
+        )
+        .unwrap();
+
+        let linked_ocel: IndexLinkedOCEL = preprocess_ocel(ocel);
+
+        let now = Instant::now();
+        let res = discover(&linked_ocel, 0.2);
+        println!("Took {:?}", now.elapsed());
+        println!("Got {} results", res.len());
+
+        serde_json::to_writer_pretty(File::create("discovered-p2p.json").unwrap(), &res).unwrap();
+    }
+
+
+    #[test]
+    fn logistics_discovery() {
+        let ocel = import_ocel_json_from_path(
+            "/home/aarkue/dow/ocel/ContainerLogistics.json",
+        )
+        .unwrap();
+
+        let linked_ocel: IndexLinkedOCEL = preprocess_ocel(ocel);
+
+        let now = Instant::now();
+        let res = discover(&linked_ocel, 0.2);
+        println!("Took {:?}", now.elapsed());
+        println!("Got {} results", res.len());
+
+        serde_json::to_writer_pretty(File::create("discovered-logistics.json").unwrap(), &res).unwrap();
+    }
+
+
     #[test]
     fn bpic2017_discovery() {
         let ocel = import_ocel_json_from_path(

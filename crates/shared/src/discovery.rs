@@ -103,7 +103,7 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
             .keys()
             .cartesian_product(locel.events_per_type.keys())
             .par_bridge()
-            .progress_count(locel.events_per_type.len() as u64 * locel.events_per_type.len() as u64)
+            // .progress_count(locel.events_per_type.len() as u64 * locel.events_per_type.len() as u64)
             .filter(|(act1, act2)| {
                 // return *act1 == "place order" && *act2 == "confirm order";
                 if act1.starts_with(INIT_EVENT_PREFIX)
@@ -204,7 +204,7 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                     .collect();
                 let mut iteration = 1;
                 while changed {
-                    println!("{}->{}, |act_arcs|={}",act1,act2,act_arcs.len());
+                    // println!("{}->{}, |act_arcs|={}",act1,act2,act_arcs.len());
                     let x = 0..act_arcs.len();
                     let new_res: HashSet<_> = x
                         .flat_map(|arc1_i| {
@@ -261,7 +261,6 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                         !old.iter()
                             .any(|arc2| *arc1 != *arc2 && arc1.is_dominated_by(arc2))
                     })
-                    // .into_iter()
                     .flat_map(move |label| {
                         let mut arc = OCDeclareArc {
                             from: OCDeclareNode::new_act(act1.clone()),
