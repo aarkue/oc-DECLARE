@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/context-menu";
 import '@xyflow/react/dist/style.css';
 import { toBlob, toSvg } from 'html-to-image';
-import { ClipboardCopy, ClipboardPaste } from 'lucide-react';
+import { AlignStartVerticalIcon, ClipboardCopy, ClipboardPaste, ImageIcon, LayoutIcon } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import { edgeTypes } from './edges';
 import { CustomEdge, EdgeType, getMarkersForEdge } from './edges/types';
@@ -33,6 +33,7 @@ import { applyLayoutToNodes } from './lib/automatic-layout';
 import { v4 as uuidv4 } from 'uuid';
 import { Input } from './components/ui/input';
 import { addArcsToFlow } from './lib/type-conversions';
+import { Label } from './components/ui/label';
 
 function loadData() {
   try {
@@ -307,28 +308,41 @@ export default function App() {
           <Background className='hide-in-image' />
           <Controls className='hide-in-image' />
           <Panel className='flex gap-x-1 hide-in-image'>
-            <Button variant="outline" onClick={() => {
-              localStorage.setItem("oc-DECLARE", JSON.stringify(flowRef.current!.toObject()));
-            }}>Save</Button>
+            <div>
 
-            <Button variant="outline" onClick={() => {
-              const flow = loadData();
-              if (flow && flowRef.current) {
-                const { x = 0, y = 0, zoom = 1 } = flow.viewport;
-                flowRef.current.setNodes(flow.nodes || []);
-                setEdges(flow.edges || []);
-                flowRef.current.setViewport({ x, y, zoom });
-              }
-            }}>Restore</Button>
-            <Input type="file" className="max-w-[7rem]" onChange={async (ev) => {
-              if (ev.currentTarget.files && ev.currentTarget.files.length >= 1) {
-                const file = ev.currentTarget.files[0];
-                const jsonText = await file.text();
-                const json = JSON.parse(jsonText);
-                addArcsToFlow(json, flowRef.current!)
-              }
+              <Button variant="outline" onClick={() => {
+                localStorage.setItem("oc-DECLARE", JSON.stringify(flowRef.current!.toObject()));
+              }}>Save</Button>
 
-            }} />
+              <Button variant="outline" onClick={() => {
+                const flow = loadData();
+                if (flow && flowRef.current) {
+                  const { x = 0, y = 0, zoom = 1 } = flow.viewport;
+                  flowRef.current.setNodes(flow.nodes || []);
+                  setEdges(flow.edges || []);
+                  flowRef.current.setViewport({ x, y, zoom });
+                }
+              }}>Restore</Button>
+              <br />
+                <details  className='flex flex-col items-center gap-y-1.5 bg-white border rounded p-0.5 m-0.5 pl-4'>
+                  <summary>
+
+                    <Label>
+                      Load Save
+                    </Label>
+                  </summary>
+
+                  <Input type="file" className="max-w-[7rem]" onChange={async (ev) => {
+                    if (ev.currentTarget.files && ev.currentTarget.files.length >= 1) {
+                      const file = ev.currentTarget.files[0];
+                      const jsonText = await file.text();
+                      const json = JSON.parse(jsonText);
+                      addArcsToFlow(json, flowRef.current!)
+                    }
+
+                  }} />
+                </details>
+            </div>
             {/* const flow = loadData();
               if (flow && flowRef.current) {
                 const { x = 0, y = 0, zoom = 1 } = flow.viewport;
@@ -337,7 +351,9 @@ export default function App() {
                 flowRef.current.setViewport({ x, y, zoom });
               }
             }}>Load JSON</Button> */}
-            <Button variant="outline" onClick={(ev) => {
+            <Button title="Delete all" onClick={() => {flowRef.current?.setNodes([]); flowRef.current?.setEdges([]); }} variant="destructive">Delete all</Button>
+           
+            <Button variant="outline" title="Download Image" onClick={(ev) => {
               const button = ev.currentTarget;
               button.disabled = true;
               const scaleFactor = 2.0;
@@ -366,9 +382,9 @@ export default function App() {
                       button.disabled = false);
                 })
               })
-            }}>Download Image</Button>
+            }}><ImageIcon/></Button>
+            <Button title="Auto Layout" onClick={() => autoLayout()} variant="outline"><AlignStartVerticalIcon/></Button>
             <BackendButton />
-            <Button onClick={() => autoLayout()}>Layout</Button>
           </Panel>
         </ReactFlow><svg width="0" height="0">
             <defs>
