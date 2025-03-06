@@ -12,8 +12,18 @@ use crate::{
     INIT_EVENT_PREFIX,
 };
 
-const MAX_COUNT_OPT: Option<usize> = None; //Some(20);
-pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc> {
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum O2OMode {
+    None,
+    Direct,
+    Indirect,
+    Bidirectional,
+}
+pub fn discover(
+    locel: &IndexLinkedOCEL,
+    noise_thresh: f64,
+    o2o_mode: O2OMode,
+) -> Vec<OCDeclareArc> {
     let mut ret = Vec::new();
     let act_ob_inv: HashMap<String, HashMap<String, ObjectInvolvementCounts>> =
         get_activity_object_involvements(locel);
@@ -103,7 +113,7 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
             .keys()
             .cartesian_product(locel.events_per_type.keys())
             .par_bridge()
-            // .progress_count(locel.events_per_type.len() as u64 * locel.events_per_type.len() as u64)
+            .progress_count(locel.events_per_type.len() as u64 * locel.events_per_type.len() as u64)
             .filter(|(act1, act2)| {
                 // return *act1 == "place order" && *act2 == "confirm order";
                 if act1.starts_with(INIT_EVENT_PREFIX)
@@ -123,6 +133,7 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                     &act_ob_inv,
                     &ob_ob_inv,
                     &ob_ob_rev_inv,
+                    o2o_mode
                 );
                 for (ot, is_multiple) in obj_invs {
                     // ANY?
@@ -198,10 +209,7 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                     }
                 }
                 let mut changed = true;
-                let mut old: HashSet<_> = act_arcs
-                    .iter()
-                    .cloned()
-                    .collect();
+                let mut old: HashSet<_> = act_arcs.iter().cloned().collect();
                 let mut iteration = 1;
                 while changed {
                     // println!("{}->{}, |act_arcs|={}",act1,act2,act_arcs.len());
@@ -271,7 +279,7 @@ pub fn discover(locel: &IndexLinkedOCEL, noise_thresh: f64) -> Vec<OCDeclareArc>
                         };
                         if arc.get_for_all_evs_perf_thresh(locel, noise_thresh) {
                             arc.counts.1 = None;
-                        get_stricter_arrows_for_as(arc, noise_thresh, locel)
+                            get_stricter_arrows_for_as(arc, noise_thresh, locel)
                         } else {
                             vec![]
                         }
@@ -323,7 +331,7 @@ fn get_stricter_arrows_for_as(
     if ret.is_empty() && a.from != a.to {
         a.arc_type = OCDeclareArcType::ASS;
         // if a.get_for_all_evs_perf_thresh(locel, noise_thresh) {
-            ret.push(a);
+        ret.push(a);
         // }
     }
     ret
@@ -337,10 +345,11 @@ fn get_direct_or_indirect_object_involvements<'a>(
     act_ob_involvement: &'a HashMap<String, HashMap<String, ObjectInvolvementCounts>>,
     obj_obj_involvement: &'a HashMap<String, HashMap<String, ObjectInvolvementCounts>>,
     rev_obj_obj_involvement: &'a HashMap<String, HashMap<String, ObjectInvolvementCounts>>,
+    o2o_mode: O2OMode,
 ) -> Vec<(ObjectTypeAssociation, bool)> {
     let act1_obs: HashSet<_> = act_ob_involvement.get(act1).unwrap().keys().collect();
     let act2_obs: HashSet<_> = act_ob_involvement.get(act2).unwrap().keys().collect();
-    act1_obs
+    let mut res = act1_obs
         .iter()
         .filter(|ot| act2_obs.contains(*ot))
         .map(|ot| {
@@ -351,50 +360,55 @@ fn get_direct_or_indirect_object_involvements<'a>(
                 act_ob_involvement.get(act1).unwrap().get(*ot).unwrap().max > 1,
             )
         })
-        // .chain(act1_obs.iter().flat_map(|ot| {
-        //     obj_obj_involvement
-        //         .get(*ot)
-        //         .into_iter()
-        //         .flat_map(|ots2| {
-        //             ots2.iter()
-        //                 .filter(|(ot2, _)| act2_obs.contains(ot2))
-        //                 // .filter(|(ot2, _)| *ot == "customers" && *ot2 == "employees")
-        //                 .map(|(ot2, oi)| {
-        //                     (
-        //                         ot,
-        //                         ot2,
-        //                         oi.max > 1
-        //                             || act_ob_involvement.get(act1).unwrap().get(*ot).unwrap().max
-        //                                 > 1,
-        //                     )
-        //                 })
-        //         })
-        //         .map(|(ot1, ot2, multiple)| (ObjectTypeAssociation::new_o2o(*ot1, ot2), multiple))
-        //         .collect_vec()
-        // }))
-        // .chain(act1_obs.iter().flat_map(|ot| {
-        //     rev_obj_obj_involvement
-        //         .get(*ot)
-        //         .into_iter()
-        //         .flat_map(|ots2| {
-        //             ots2.iter()
-        //                 .filter(|(ot2, _)| act2_obs.contains(ot2))
-        //                 .map(|(ot2, oi)| {
-        //                     (
-        //                         ot,
-        //                         ot2,
-        //                         oi.max > 1
-        //                             || act_ob_involvement.get(act1).unwrap().get(*ot).unwrap().max
-        //                                 > 1,
-        //                     )
-        //                 })
-        //         })
-        //         .map(|(ot1, ot2, multiple)| {
-        //             (ObjectTypeAssociation::new_o2o_rev(*ot1, ot2), multiple)
-        //         })
-        //         .collect_vec()
-        // }))
-        .collect()
+        .collect_vec();
+    if o2o_mode == O2OMode::Direct || o2o_mode == O2OMode::Bidirectional {
+        res.extend(act1_obs.iter().flat_map(|ot| {
+            obj_obj_involvement
+                .get(*ot)
+                .into_iter()
+                .flat_map(|ots2| {
+                    ots2.iter()
+                        .filter(|(ot2, _)| act2_obs.contains(ot2))
+                        // .filter(|(ot2, _)| *ot == "customers" && *ot2 == "employees")
+                        .map(|(ot2, oi)| {
+                            (
+                                ot,
+                                ot2,
+                                oi.max > 1
+                                    || act_ob_involvement.get(act1).unwrap().get(*ot).unwrap().max
+                                        > 1,
+                            )
+                        })
+                })
+                .map(|(ot1, ot2, multiple)| (ObjectTypeAssociation::new_o2o(*ot1, ot2), multiple))
+                .collect_vec()
+        }));
+    }
+    if o2o_mode == O2OMode::Indirect || o2o_mode == O2OMode::Bidirectional {
+        res.extend(act1_obs.iter().flat_map(|ot| {
+            rev_obj_obj_involvement
+                .get(*ot)
+                .into_iter()
+                .flat_map(|ots2| {
+                    ots2.iter()
+                        .filter(|(ot2, _)| act2_obs.contains(ot2))
+                        .map(|(ot2, oi)| {
+                            (
+                                ot,
+                                ot2,
+                                oi.max > 1
+                                    || act_ob_involvement.get(act1).unwrap().get(*ot).unwrap().max
+                                        > 1,
+                            )
+                        })
+                })
+                .map(|(ot1, ot2, multiple)| {
+                    (ObjectTypeAssociation::new_o2o_rev(*ot1, ot2), multiple)
+                })
+                .collect_vec()
+        }));
+    }
+    res
 }
 
 fn test_for_resource(l: &OCDeclareArcLabel, obj_inv: &Vec<(ObjectTypeAssociation, bool)>) -> bool {
@@ -445,7 +459,7 @@ mod test {
     use process_mining::{import_ocel_xml_file, ocel::linked_ocel::IndexLinkedOCEL};
 
     use crate::{
-        discovery::get_direct_or_indirect_object_involvements, get_activity_object_involvements,
+        discovery::{get_direct_or_indirect_object_involvements, O2OMode}, get_activity_object_involvements,
         get_object_to_object_involvements, get_rev_object_to_object_involvements,
         ObjectInvolvementCounts,
     };
@@ -466,6 +480,7 @@ mod test {
             &act_ob_inv,
             &ob_ob_inv,
             &ob_ob_inv_rev,
+            O2OMode::Bidirectional
         );
         println!("{:?}", res);
     }

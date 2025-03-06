@@ -26,8 +26,7 @@ const EXIT_EVENT_PREFIX: &str = "<exit>";
 pub fn preprocess_ocel(ocel: OCEL) -> IndexLinkedOCEL {
     let locel: IndexLinkedOCEL = ocel.into();
     let new_evs = locel
-        .object_ids_to_index
-        .values()
+        .get_all_obs_ref()
         .flat_map(|obi| {
             let ob = locel.get_ob(obi);
             let iter = locel
@@ -1025,13 +1024,13 @@ pub mod perf {
                 OCDeclareArcType::ASS | OCDeclareArcType::EF | OCDeclareArcType::EFREV => {
                     let target_ev_iterator = get_evs_with_objs_perf(&binding, linked_ocel, to_et)
                         .filter(|ev2| {
-                            let ev2 = linked_ocel.get_ev(ev2);
+                            // let ev2 = linked_ocel.get_ev(ev2);
                             match arc_type {
-                                // OCDeclareArcType::EF => ev_index < ev2,
-                                // OCDeclareArcType::EFREV => ev_index > ev2,
+                                OCDeclareArcType::EF => ev_index < ev2,
+                                OCDeclareArcType::EFREV => ev_index > ev2,
                                 OCDeclareArcType::ASS => true,
-                                OCDeclareArcType::EF => ev.time < ev2.time,
-                                OCDeclareArcType::EFREV => ev.time > ev2.time,
+                                // OCDeclareArcType::EF => ev.time < ev2.time,
+                                // OCDeclareArcType::EFREV => ev.time > ev2.time,
                                 _ => unreachable!("DF should not go here."),
                             }
                         });
@@ -1092,7 +1091,7 @@ mod tests {
 
     use process_mining::import_ocel_json_from_path;
 
-    use crate::discovery::discover;
+    use crate::discovery::{discover, O2OMode};
 
     use super::*;
 
@@ -1199,7 +1198,7 @@ mod tests {
         println!("Pre-processing took {:?}", now.elapsed());
 
         let now = Instant::now();
-        let res = discover(&linked_ocel, 0.2);
+        let res = discover(&linked_ocel, 0.2,O2OMode::Direct);
         println!("Took {:?}", now.elapsed());
         println!("Got {} results", res.len());
 
@@ -1232,7 +1231,7 @@ mod tests {
         let linked_ocel: IndexLinkedOCEL = preprocess_ocel(ocel);
 
         let now = Instant::now();
-        let res = discover(&linked_ocel, 0.2);
+        let res = discover(&linked_ocel, 0.2,O2OMode::Direct);
         println!("Took {:?}", now.elapsed());
         println!("Got {} results", res.len());
 
@@ -1250,7 +1249,7 @@ mod tests {
         let linked_ocel: IndexLinkedOCEL = preprocess_ocel(ocel);
 
         let now = Instant::now();
-        let res = discover(&linked_ocel, 0.2);
+        let res = discover(&linked_ocel, 0.2,O2OMode::Direct);
         println!("Took {:?}", now.elapsed());
         println!("Got {} results", res.len());
 
@@ -1268,7 +1267,7 @@ mod tests {
         let linked_ocel: IndexLinkedOCEL = preprocess_ocel(ocel);
 
         let now = Instant::now();
-        let res = discover(&linked_ocel, 0.2);
+        let res = discover(&linked_ocel, 0.2,O2OMode::Direct);
         println!("Took {:?}", now.elapsed());
         println!("Got {} results", res.len());
 
@@ -1288,7 +1287,7 @@ mod tests {
         println!("Pre-processing took {:?}", now.elapsed());
 
         let now = Instant::now();
-        let res = discover(&linked_ocel, 0.05);
+        let res = discover(&linked_ocel, 0.2,O2OMode::Direct);
         println!("Took {:?}", now.elapsed());
         println!("Got {} results", res.len());
 

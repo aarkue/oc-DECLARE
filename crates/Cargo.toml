@@ -3,5 +3,5 @@ resolver = "2"
 
 members = [
 	"shared",
-    "backend-wasm",
+    "backend-wasm", "evaluation",
 ]
