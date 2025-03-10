@@ -4,9 +4,12 @@ pub use wasm_bindgen_rayon::init_thread_pool;
 use std::sync::RwLock;
 
 use shared::{
-    discovery::{discover, O2OMode}, get_activity_object_involvements, preprocess_ocel, process_mining::{
+    discovery::{discover, O2OMode},
+    get_activity_object_involvements, preprocess_ocel,
+    process_mining::{
         import_ocel_json_from_slice, import_ocel_xml_slice, ocel::linked_ocel::IndexLinkedOCEL,
-    }, OCDeclareArc
+    },
+    OCDeclareArc,
 };
 use wasm_bindgen::prelude::*;
 
@@ -50,9 +53,7 @@ pub fn unload_ocel() {
 
 #[wasm_bindgen]
 pub fn get_edge_violation_percentage(edge_json: String) -> String {
-
-    let locel_guard =
-         WASM_MEMORY_THINGY.read().unwrap();
+    let locel_guard = WASM_MEMORY_THINGY.read().unwrap();
     if let Some(locel) = locel_guard.as_ref() {
         let edge: OCDeclareArc = serde_json::from_str(&edge_json).unwrap();
         let all_res = edge.get_for_all_evs(locel);
@@ -64,9 +65,8 @@ pub fn get_edge_violation_percentage(edge_json: String) -> String {
 }
 
 #[wasm_bindgen]
-pub fn get_edge_violation_percentage_perf(edge_json: String) -> Result<f64,String> {
-    let locel_guard =
-         WASM_MEMORY_THINGY.read().unwrap();
+pub fn get_edge_violation_percentage_perf(edge_json: String) -> Result<f64, String> {
+    let locel_guard = WASM_MEMORY_THINGY.read().unwrap();
     if let Some(locel) = locel_guard.as_ref() {
         let edge: OCDeclareArc = serde_json::from_str(&edge_json).unwrap();
         let viol_frac = edge.get_for_all_evs_perf(locel);
@@ -77,18 +77,19 @@ pub fn get_edge_violation_percentage_perf(edge_json: String) -> Result<f64,Strin
     }
 }
 
-
 #[wasm_bindgen]
-pub fn get_all_edge_violation_percentage(edge_json: String) -> Result<Vec<String>,String> {
-    let locel_guard =
-         WASM_MEMORY_THINGY.read().unwrap();
-         if let Some(locel) = locel_guard.as_ref() {
-        let edge_json : Vec<OCDeclareArc> = serde_json::from_str(&edge_json).unwrap();
-        let res = edge_json.iter().map(|edge| {
-        //    let edge: OCDeclareArc = serde_json::from_str(json).unwrap();
-           let all_res = edge.get_for_all_evs(locel);
-           serde_json::to_string(&all_res).unwrap()
-        }).collect();
+pub fn get_all_edge_violation_percentage(edge_json: String) -> Result<Vec<String>, String> {
+    let locel_guard = WASM_MEMORY_THINGY.read().unwrap();
+    if let Some(locel) = locel_guard.as_ref() {
+        let edge_json: Vec<OCDeclareArc> = serde_json::from_str(&edge_json).unwrap();
+        let res = edge_json
+            .iter()
+            .map(|edge| {
+                //    let edge: OCDeclareArc = serde_json::from_str(json).unwrap();
+                let all_res = edge.get_for_all_evs(locel);
+                serde_json::to_string(&all_res).unwrap()
+            })
+            .collect();
         Ok(res)
         // let edge: OCDeclareArc = serde_json::from_str(&edge_json).unwrap();
 
@@ -98,18 +99,19 @@ pub fn get_all_edge_violation_percentage(edge_json: String) -> Result<Vec<String
     }
 }
 
-
 #[wasm_bindgen]
-pub fn get_all_edge_violation_percentage_perf(edge_json: String) -> Result<Vec<f64>,String> {
-    let locel_guard =
-         WASM_MEMORY_THINGY.read().unwrap();
-         if let Some(locel) = locel_guard.as_ref() {
-        let edge_json : Vec<OCDeclareArc> = serde_json::from_str(&edge_json).unwrap();
-        let res = edge_json.iter().map(|edge| {
-        //    let edge: OCDeclareArc = serde_json::from_str(json).unwrap();
-        let viol_frac = edge.get_for_all_evs_perf(locel);
-        viol_frac
-        }).collect();
+pub fn get_all_edge_violation_percentage_perf(edge_json: String) -> Result<Vec<f64>, String> {
+    let locel_guard = WASM_MEMORY_THINGY.read().unwrap();
+    if let Some(locel) = locel_guard.as_ref() {
+        let edge_json: Vec<OCDeclareArc> = serde_json::from_str(&edge_json).unwrap();
+        let res = edge_json
+            .iter()
+            .map(|edge| {
+                //    let edge: OCDeclareArc = serde_json::from_str(json).unwrap();
+                let viol_frac = edge.get_for_all_evs_perf(locel);
+                viol_frac
+            })
+            .collect();
         Ok(res)
         // let edge: OCDeclareArc = serde_json::from_str(&edge_json).unwrap();
 
@@ -118,32 +120,25 @@ pub fn get_all_edge_violation_percentage_perf(edge_json: String) -> Result<Vec<f
         Err(String::from("Failed"))
     }
 }
-
-
 
 #[wasm_bindgen]
 pub fn get_ot_act_involvements() -> String {
-    let locel_guard =
-         WASM_MEMORY_THINGY.read().unwrap();
+    let locel_guard = WASM_MEMORY_THINGY.read().unwrap();
     if let Some(locel) = locel_guard.as_ref() {
-       let ot_act_involvement = get_activity_object_involvements(locel);
+        let ot_act_involvement = get_activity_object_involvements(locel);
         serde_json::to_string(&ot_act_involvement).unwrap()
     } else {
         String::from("Failed")
     }
 }
 
-
-
 #[wasm_bindgen]
-pub fn discover_oc_declare_constraints(noise_thresh: f64) -> Result<String,String> {
-    let locel_guard =
-         WASM_MEMORY_THINGY.read().unwrap();
+pub fn discover_oc_declare_constraints(noise_thresh: f64) -> Result<String, String> {
+    let locel_guard = WASM_MEMORY_THINGY.read().unwrap();
     if let Some(locel) = locel_guard.as_ref() {
-       let discovered_arcs = discover(locel,noise_thresh,O2OMode::None);
+        let discovered_arcs = discover(locel, noise_thresh, O2OMode::None);
         Ok(serde_json::to_string(&discovered_arcs).unwrap())
     } else {
         Err(String::from("Failed"))
     }
 }
-

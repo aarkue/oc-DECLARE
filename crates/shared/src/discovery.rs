@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use indicatif::{ParallelProgressIterator, ProgressIterator};
+use indicatif::ParallelProgressIterator;
 use itertools::Itertools;
 use process_mining::ocel::linked_ocel::IndexLinkedOCEL;
 use rayon::prelude::*;
@@ -115,7 +115,6 @@ pub fn discover(
             .par_bridge()
             .progress_count(locel.events_per_type.len() as u64 * locel.events_per_type.len() as u64)
             .filter(|(act1, act2)| {
-                // return *act1 == "place order" && *act2 == "confirm order";
                 if act1.starts_with(INIT_EVENT_PREFIX)
                     || act1.starts_with(EXIT_EVENT_PREFIX)
                     || act2.starts_with(INIT_EVENT_PREFIX)
@@ -133,7 +132,7 @@ pub fn discover(
                     &act_ob_inv,
                     &ob_ob_inv,
                     &ob_ob_rev_inv,
-                    o2o_mode
+                    o2o_mode,
                 );
                 for (ot, is_multiple) in obj_invs {
                     // ANY?
@@ -271,8 +270,8 @@ pub fn discover(
                     })
                     .flat_map(move |label| {
                         let mut arc = OCDeclareArc {
-                            from: OCDeclareNode::new_act(act1.clone()),
-                            to: OCDeclareNode::new_act(act2.clone()),
+                            from: OCDeclareNode::new(act1.clone()),
+                            to: OCDeclareNode::new(act2.clone()),
                             arc_type: OCDeclareArcType::ASS,
                             label,
                             counts: (Some(1), Some(20)),
@@ -354,9 +353,7 @@ fn get_direct_or_indirect_object_involvements<'a>(
         .filter(|ot| act2_obs.contains(*ot))
         .map(|ot| {
             (
-                ObjectTypeAssociation::Simple {
-                    object_type: ot.to_string(),
-                },
+                ObjectTypeAssociation::new_simple(*ot),
                 act_ob_involvement.get(act1).unwrap().get(*ot).unwrap().max > 1,
             )
         })
@@ -411,77 +408,43 @@ fn get_direct_or_indirect_object_involvements<'a>(
     res
 }
 
-fn test_for_resource(l: &OCDeclareArcLabel, obj_inv: &Vec<(ObjectTypeAssociation, bool)>) -> bool {
-    let out1: HashSet<_> = get_out_types(&l.all)
-        .chain(get_out_types(&l.any))
-        .chain(get_out_types(&l.each))
-        .collect();
-    let link: HashSet<_> = obj_inv
-        .iter()
-        .map(|(oi, _)| match oi {
-            ObjectTypeAssociation::Simple { object_type } => object_type,
-            ObjectTypeAssociation::O2O {
-                first,
-                second,
-                reversed,
-            } => second,
-        })
-        .collect();
-    let resource_types: HashSet<_> = ["products", "employees", "customers"].into_iter().collect();
-    let non_resource_possible = link.iter().any(|t| !resource_types.contains(t.as_str()));
-    if non_resource_possible {
-        let non_resource_in_arc = out1.iter().any(|t| !resource_types.contains(t.as_str()));
-        return non_resource_in_arc;
-    }
-    true
-}
+// fn test_for_resource(l: &OCDeclareArcLabel, obj_inv: &Vec<(ObjectTypeAssociation, bool)>) -> bool {
+//     let out1: HashSet<_> = get_out_types(&l.all)
+//         .chain(get_out_types(&l.any))
+//         .chain(get_out_types(&l.each))
+//         .collect();
+//     let link: HashSet<_> = obj_inv
+//         .iter()
+//         .map(|(oi, _)| match oi {
+//             ObjectTypeAssociation::Simple { object_type } => object_type,
+//             ObjectTypeAssociation::O2O {
+//                 first,
+//                 second,
+//                 reversed,
+//             } => second,
+//         })
+//         .collect();
+//     let resource_types: HashSet<_> = ["products", "employees", "customers"].into_iter().collect();
+//     let non_resource_possible = link.iter().any(|t| !resource_types.contains(t.as_str()));
+//     if non_resource_possible {
+//         let non_resource_in_arc = out1.iter().any(|t| !resource_types.contains(t.as_str()));
+//         return non_resource_in_arc;
+//     }
+//     true
+// }
 // fn check_compatability(l1: &OCDeclareArcLabel, l2: &OCDeclareArcLabel) -> bool {
 //     let out1: HashSet<_> = get_out_types(&l1.all).chain(get_out_types(&l1.any)).chain(get_out_types(&l1.each)).collect();
 //     let out2: HashSet<_> = get_out_types(&l2.all).chain(get_out_types(&l2.any)).chain(get_out_types(&l2.each)).collect();
 //     out1.is_disjoint(&out2)
 // }
 
-fn get_out_types<'a>(ras: &'a Vec<ObjectTypeAssociation>) -> impl Iterator<Item = &'a String> {
-    ras.iter().map(|oas| match oas {
-        ObjectTypeAssociation::Simple { object_type } => object_type,
-        ObjectTypeAssociation::O2O {
-            first,
-            second,
-            reversed,
-        } => second,
-    })
-}
-
-#[cfg(test)]
-mod test {
-    use std::collections::HashMap;
-
-    use process_mining::{import_ocel_xml_file, ocel::linked_ocel::IndexLinkedOCEL};
-
-    use crate::{
-        discovery::{get_direct_or_indirect_object_involvements, O2OMode}, get_activity_object_involvements,
-        get_object_to_object_involvements, get_rev_object_to_object_involvements,
-        ObjectInvolvementCounts,
-    };
-
-    #[test]
-    fn test_obj_involvements() {
-        let ocel = import_ocel_xml_file("/home/aarkue/dow/ocel/order-management.xml");
-        let locel: IndexLinkedOCEL = ocel.into();
-        let act_ob_inv: HashMap<String, HashMap<String, ObjectInvolvementCounts>> =
-            get_activity_object_involvements(&locel);
-        let ob_ob_inv: HashMap<String, HashMap<String, ObjectInvolvementCounts>> =
-            get_object_to_object_involvements(&locel);
-        let ob_ob_inv_rev: HashMap<String, HashMap<String, ObjectInvolvementCounts>> =
-            get_rev_object_to_object_involvements(&locel);
-        let res = get_direct_or_indirect_object_involvements(
-            "place order",
-            "pick item",
-            &act_ob_inv,
-            &ob_ob_inv,
-            &ob_ob_inv_rev,
-            O2OMode::Bidirectional
-        );
-        println!("{:?}", res);
-    }
-}
+// fn get_out_types<'a>(ras: &'a Vec<ObjectTypeAssociation>) -> impl Iterator<Item = &'a String> {
+//     ras.iter().map(|oas| match oas {
+//         ObjectTypeAssociation::Simple { object_type } => object_type,
+//         ObjectTypeAssociation::O2O {
+//             first,
+//             second,
+//             reversed,
+//         } => second,
+//     })
+// }

@@ -492,7 +492,8 @@ dependencies = [
 
 [[package]]
 name = "process_mining"
-version = "0.3.24"
+version = "0.3.25"
+source = "git+https://github.com/aarkue/rust4pm#1765e9ca8327380b18b61549268732e6fb6bcf95"
 dependencies = [
  "chrono",
  "flate2",

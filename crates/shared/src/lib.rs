@@ -1,7 +1,6 @@
 pub mod discovery;
 
 use std::{
-    borrow::Cow,
     collections::{HashMap, HashSet},
     hash::Hash,
     usize,
@@ -81,41 +80,21 @@ pub fn preprocess_ocel(ocel: OCEL) -> IndexLinkedOCEL {
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
-#[serde(tag = "type")]
-enum OCDeclareNode {
-    Activity { activity: String },
-    ObjectInit { object_type: String },
-    ObjectEnd { object_type: String },
-}
+struct OCDeclareNode(String);
 
-impl<'a> From<&'a OCDeclareNode> for Cow<'a, String> {
+impl<'a> From<&'a OCDeclareNode> for &'a String {
     fn from(val: &'a OCDeclareNode) -> Self {
-        match val {
-            OCDeclareNode::Activity { activity } => Cow::Borrowed(activity),
-            OCDeclareNode::ObjectInit { object_type } => {
-                Cow::Owned(format!("<init> {object_type}"))
-            }
-            OCDeclareNode::ObjectEnd { object_type } => Cow::Owned(format!("<exit> {object_type}")),
-        }
+        &val.0
     }
 }
 
 impl OCDeclareNode {
-    pub fn new_act<T: Into<String>>(act: T) -> Self {
-        Self::Activity {
-            activity: act.into(),
-        }
+    pub fn new<T: Into<String>>(act: T) -> Self {
+        Self(act.into())
     }
 
-    pub fn new_ob_init<T: Into<String>>(ob_type: T) -> Self {
-        Self::ObjectInit {
-            object_type: ob_type.into(),
-        }
-    }
-    pub fn new_ob_end<T: Into<String>>(ob_type: T) -> Self {
-        Self::ObjectEnd {
-            object_type: ob_type.into(),
-        }
+    pub fn as_str(&self) -> &str {
+        self.0.as_str()
     }
 }
 
@@ -164,7 +143,7 @@ impl OCDeclareArc {
         linked_ocel: &IndexLinkedOCEL,
     ) -> (usize, usize, Vec<(usize, Vec<ViolationInfo>)>) {
         let inner_res: Vec<_> = linked_ocel
-            .get_evs_of_type(Into::<Cow<_>>::into(&self.from).as_str())
+            .get_evs_of_type(self.from.as_str())
             // .get(Into::<Cow<_>>::into(&self.from).as_str())
             // .unwrap()
             // .par_bridge()
@@ -177,11 +156,9 @@ impl OCDeclareArc {
     }
 
     pub fn get_for_all_evs_perf(&self, linked_ocel: &IndexLinkedOCEL) -> f64 {
-        let from = Into::<Cow<_>>::into(&self.from);
-        let to = Into::<Cow<_>>::into(&self.to);
         perf::get_for_all_evs_perf(
-            from.as_str(),
-            to.as_str(),
+            self.from.as_str(),
+            self.to.as_str(),
             &self.label,
             &self.arc_type,
             &self.counts,
@@ -194,11 +171,9 @@ impl OCDeclareArc {
         linked_ocel: &IndexLinkedOCEL,
         noise_thresh: f64,
     ) -> bool {
-        let from = Into::<Cow<_>>::into(&self.from);
-        let to = Into::<Cow<_>>::into(&self.to);
         perf::get_for_all_evs_perf_thresh(
-            from.as_str(),
-            to.as_str(),
+            self.from.as_str(),
+            self.to.as_str(),
             &self.label,
             &self.arc_type,
             &self.counts,
@@ -218,8 +193,7 @@ impl OCDeclareArc {
             .get_bindings(ev_index, linked_ocel)
             .map(|binding| {
                 let binding = binding; //.collect_vec();
-                let to = Into::<Cow<_>>::into(&self.to);
-                let evs = get_evs_with_objs(&binding, linked_ocel, to.as_str())
+                let evs = get_evs_with_objs(&binding, linked_ocel, self.to.as_str())
                     .into_iter()
                     .filter(|ev2| {
                         let ev2 = linked_ocel.get_ev(ev2);
@@ -598,16 +572,16 @@ pub struct OCDeclareArcLabel {
     all: Vec<ObjectTypeAssociation>,
 }
 
-fn get_out_types<'a>(ras: &'a HashSet<ObjectTypeAssociation>) -> impl Iterator<Item = &'a String> {
-    ras.iter().filter_map(|oas| match oas {
-        ObjectTypeAssociation::Simple { object_type } => Some(object_type),
-        ObjectTypeAssociation::O2O {
-            first,
-            second,
-            reversed,
-        } => None,
-    })
-}
+// fn get_out_types<'a>(ras: &'a HashSet<ObjectTypeAssociation>) -> impl Iterator<Item = &'a String> {
+//     ras.iter().filter_map(|oas| match oas {
+//         ObjectTypeAssociation::Simple { object_type } => Some(object_type),
+//         ObjectTypeAssociation::O2O {
+//             first,
+//             second,
+//             reversed,
+//         } => None,
+//     })
+// }
 impl OCDeclareArcLabel {
     pub fn combine(&self, other: &Self) -> Self {
         let all = self
@@ -697,7 +671,7 @@ impl OCDeclareArcLabel {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "type")]
-enum SetFilter<T: Eq + Hash> {
+pub enum SetFilter<T: Eq + Hash> {
     Any(Vec<T>),
     All(Vec<T>),
 }
@@ -711,14 +685,12 @@ impl<T: Eq + Hash> SetFilter<T> {
     }
 }
 
-impl<'a> OCDeclareArcLabel {
-    pub fn get_bindings(
+impl<'b> OCDeclareArcLabel {
+    pub fn get_bindings<'a>(
         &'a self,
         ev: &'a EventIndex,
         linked_ocel: &'a IndexLinkedOCEL,
-    ) -> impl Iterator<Item = Vec<SetFilter<ObjectIndex>>> + use<'a, '_>
-//  impl Iterator<Item = impl Iterator<Item = SetFilter<ObjectIndex>>>
-    {
+    ) -> impl Iterator<Item = Vec<SetFilter<ObjectIndex>>> + use<'a, 'b> {
         self.each
             .iter()
             .map(|otass| otass.get_for_ev(ev, linked_ocel))
@@ -739,11 +711,9 @@ impl<'a> OCDeclareArcLabel {
                                 ObjectTypeAssociation::Simple { object_type } => {
                                     -(linked_ocel.get_obs_of_type(object_type).count() as i32)
                                 }
-                                ObjectTypeAssociation::O2O {
-                                    first,
-                                    second,
-                                    reversed,
-                                } => -(linked_ocel.get_obs_of_type(second).count() as i32),
+                                ObjectTypeAssociation::O2O { second, .. } => {
+                                    -(linked_ocel.get_obs_of_type(second).count() as i32)
+                                }
                             })
                             .map(|otass| {
                                 let x = otass.get_for_ev(ev, linked_ocel);
@@ -1082,216 +1052,5 @@ pub mod perf {
                 }
             }
         })
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use std::{fs::File, time::Instant};
-
-    use process_mining::import_ocel_json_from_path;
-
-    use crate::discovery::{discover, O2OMode};
-
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let ocel =
-            import_ocel_json_from_path("/home/aarkue/dow/ocel/order-management.json").unwrap();
-        // let ocel = import_ocel_json_from_path(
-        //     "/home/aarkue/dow/ocel/bpic2017-o2o-workflow-qualifier.json",
-        // )
-        // .unwrap();
-        let linked_ocel: IndexLinkedOCEL = preprocess_ocel(ocel);
-        let x = OCDeclareArc {
-            from: OCDeclareNode::new_act("item out of stock"),
-            to: OCDeclareNode::new_act("reorder item"),
-            arc_type: OCDeclareArcType::EF,
-            label: OCDeclareArcLabel {
-                each: vec![ObjectTypeAssociation::new_simple("items")],
-                // all: vec![ObjectTypeAssociation::new_simple("orders")],
-                any: vec![ObjectTypeAssociation::new_simple("employees")],
-                ..Default::default()
-            },
-            counts: (Some(1), None),
-        };
-
-        let x: OCDeclareArc = serde_json::from_str(r#"{"from":{"type":"Activity","activity":"payment reminder"},"to":{"type":"Activity","activity":"item out of stock"},"arc_type":"EFREV","counts":[0,0],"label":{"each":[{"type":"O2O","first":"orders","second":"items","reversed":false}],"any":[],"all":[]}}"#).unwrap();
-
-        // let x = OCDeclareArc {
-        //     from: OCDeclareNode::new_act("A_Accepted"),
-        //     to: OCDeclareNode::new_act("O_Created"),
-        //     arc_type: OCDeclareArcType::EF,
-        //     label: OCDeclareArcLabel {
-        //         any: vec![ObjectTypeAssociation::new_o2o("Application", "Offer"),ObjectTypeAssociation::new_simple("Case_R")],
-        //         ..Default::default()
-        //     },
-        // };
-        let now = Instant::now();
-        let (total, violated, all_res) = x.get_for_all_evs(&linked_ocel);
-        println!("Took {:?}", now.elapsed());
-        println!(
-            "{violated} / {total}:  {:.?}",
-            violated as f64 / total as f64
-        );
-        // println!("{:?}", all_res.iter().take(10).collect_vec());
-
-        // let count: usize = all_res.iter().flatten().sum();
-
-        // let at_least_one: usize = all_res.iter().flatten().filter(|r| **r >= 1).count();
-
-        // println!("Len: {}", all_res.len());
-        // println!("Count: {count}");
-        // println!("At least one: {}", at_least_one);
-        // println!(
-        //     "Violation percentage: {:.2}%",
-        //     100.0 * (1.0 - (at_least_one as f32 / all_res.len() as f32))
-        // )
-        // println!("{}", serde_json::to_string_pretty(&x).unwrap());
-
-        // println!("{:?}", x);
-    }
-
-    #[test]
-    fn any_performance() {
-        let ocel =
-            import_ocel_json_from_path("/home/aarkue/dow/ocel/order-management.json").unwrap();
-        // let ocel = import_ocel_json_from_path(
-        //     "/home/aarkue/dow/ocel/bpic2017-o2o-workflow-qualifier.json",
-        // )
-        // .unwrap();
-        let linked_ocel: IndexLinkedOCEL = preprocess_ocel(ocel);
-        let x = OCDeclareArc {
-            from: OCDeclareNode::new_act("confirm order"),
-            to: OCDeclareNode::new_act("send package"),
-            arc_type: OCDeclareArcType::EF,
-            label: OCDeclareArcLabel {
-                // each: vec![ObjectTypeAssociation::new_simple("items")],
-                // all: vec![ObjectTypeAssociation::new_simple("orders")],
-                any: vec![ObjectTypeAssociation::new_simple("products")],
-                ..Default::default()
-            },
-            counts: (Some(1), None),
-        };
-
-        let now = Instant::now();
-        let violated_frac = x.get_for_all_evs_perf(&linked_ocel);
-        println!("Took {:?}", now.elapsed());
-        // println!(
-        //     "{violated} / {total}:  {:.?}",
-        //     violated as f64 / total as f64
-        // );
-        println!("{:.?}", violated_frac);
-    }
-
-    #[test]
-    fn order_discovery() {
-        let ocel =
-            import_ocel_json_from_path("/home/aarkue/dow/ocel/order-management.json").unwrap();
-        // let ocel = import_ocel_json_from_path(
-        //     "/home/aarkue/dow/ocel/bpic2017-o2o-workflow-qualifier.json",
-        // )
-        // .unwrap();
-        let now = Instant::now();
-        let linked_ocel: IndexLinkedOCEL = preprocess_ocel(ocel);
-        println!("Pre-processing took {:?}", now.elapsed());
-
-        let now = Instant::now();
-        let res = discover(&linked_ocel, 0.2,O2OMode::Direct);
-        println!("Took {:?}", now.elapsed());
-        println!("Got {} results", res.len());
-
-        serde_json::to_writer_pretty(File::create("discovered.json").unwrap(), &res).unwrap();
-        // println!("{:?}", all_res.iter().take(10).collect_vec());
-
-        // let count: usize = all_res.iter().flatten().sum();
-
-        // let at_least_one: usize = all_res.iter().flatten().filter(|r| **r >= 1).count();
-
-        // println!("Len: {}", all_res.len());
-        // println!("Count: {count}");
-        // println!("At least one: {}", at_least_one);
-        // println!(
-        //     "Violation percentage: {:.2}%",
-        //     100.0 * (1.0 - (at_least_one as f32 / all_res.len() as f32))
-        // )
-        // println!("{}", serde_json::to_string_pretty(&x).unwrap());
-
-        // println!("{:?}", x);
-    }
-
-    #[test]
-    fn hpc_discovery() {
-        let ocel = import_ocel_json_from_path(
-            "/home/aarkue/dow/ocel/hpc-ocel-complete-acc-extraction2.json",
-        )
-        .unwrap();
-
-        let linked_ocel: IndexLinkedOCEL = preprocess_ocel(ocel);
-
-        let now = Instant::now();
-        let res = discover(&linked_ocel, 0.2,O2OMode::Direct);
-        println!("Took {:?}", now.elapsed());
-        println!("Got {} results", res.len());
-
-        serde_json::to_writer_pretty(File::create("discovered-hpc.json").unwrap(), &res).unwrap();
-    }
-
-
-    #[test]
-    fn p2p_discovery() {
-        let ocel = import_ocel_json_from_path(
-            "/home/aarkue/dow/ocel/ocel2-p2p.json",
-        )
-        .unwrap();
-
-        let linked_ocel: IndexLinkedOCEL = preprocess_ocel(ocel);
-
-        let now = Instant::now();
-        let res = discover(&linked_ocel, 0.2,O2OMode::Direct);
-        println!("Took {:?}", now.elapsed());
-        println!("Got {} results", res.len());
-
-        serde_json::to_writer_pretty(File::create("discovered-p2p.json").unwrap(), &res).unwrap();
-    }
-
-
-    #[test]
-    fn logistics_discovery() {
-        let ocel = import_ocel_json_from_path(
-            "/home/aarkue/dow/ocel/ContainerLogistics.json",
-        )
-        .unwrap();
-
-        let linked_ocel: IndexLinkedOCEL = preprocess_ocel(ocel);
-
-        let now = Instant::now();
-        let res = discover(&linked_ocel, 0.2,O2OMode::Direct);
-        println!("Took {:?}", now.elapsed());
-        println!("Got {} results", res.len());
-
-        serde_json::to_writer_pretty(File::create("discovered-logistics.json").unwrap(), &res).unwrap();
-    }
-
-
-    #[test]
-    fn bpic2017_discovery() {
-        let ocel = import_ocel_json_from_path(
-            "/home/aarkue/dow/ocel/bpic2017-o2o-workflow-qualifier-index-no-ev-attrs.json",
-        )
-        .unwrap();
-
-        let now = Instant::now();
-        let linked_ocel: IndexLinkedOCEL = preprocess_ocel(ocel);
-        println!("Pre-processing took {:?}", now.elapsed());
-
-        let now = Instant::now();
-        let res = discover(&linked_ocel, 0.2,O2OMode::Direct);
-        println!("Took {:?}", now.elapsed());
-        println!("Got {} results", res.len());
-
-        serde_json::to_writer_pretty(File::create("discovered-bpic2017.json").unwrap(), &res)
-            .unwrap();
     }
 }

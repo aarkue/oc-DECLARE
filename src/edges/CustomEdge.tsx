@@ -81,7 +81,7 @@ export default function CustomEdge(edge: EdgeProps<CustomEdgeType> & { data: { t
         if (ot.type === "Simple") {
             return [ot.object_type]
         } else {
-            return ot.reversed ? [ot.second, ot.first] : [ot.first, ot.second]
+            return [ot.first, ot.second]
         }
     }) ?? [])].map(t => ({ type: t, color: getRandomStringColor(t) })), [data?.objectTypes]);
     // const objectTypeColors = useMemo(() => {
@@ -226,7 +226,7 @@ export default function CustomEdge(edge: EdgeProps<CustomEdgeType> & { data: { t
             </ContextMenu>
             <EdgeLabelRenderer>
                 <EdgeLabel transform={`translate(${modifiedPos.targetX}px,${modifiedPos.targetY}px)  translate(-50%, -50%)  rotate(${Math.round(slopeDegreeReal)}deg) translate(-50%,0)  translate(-8pt,-7pt) ${Math.abs(slopeDegreeReal) >= 90 ? "scale(-1,-1)" : ""}`} label={<span className="text-gray-500 font-medium">
-                    <div className="gap-x-1 flex text-[7pt]">
+                    <div className="gap-x-1 flex !text-[8.5pt]">
                         {/* <ShowAllObjectTypeAssociationsOfType type="each" associations={data.objectTypes.each} colors={allInvolvedObjectTypesWithColor} /> */}
                         <ShowAllObjectTypeAssociationsOfType type="all" associations={data.objectTypes.all} colors={allInvolvedObjectTypesWithColor} />
                         <ShowAllObjectTypeAssociationsOfType type="any" associations={data.objectTypes.any} colors={allInvolvedObjectTypesWithColor} />
@@ -306,7 +306,7 @@ export default function CustomEdge(edge: EdgeProps<CustomEdgeType> & { data: { t
                         <path d="M-10,0 L-8,20 L-5,20 L-7,0 Z" fill="var(--arrow-primary,black)" />
                         <path d="M0,0 L20,9.5 L20,10 L20,10.5 L0,20 Z " fill="var(--arrow-primary,black)" />
                     </g>}
-                    {data.objectTypes.each.length > 0 && <text className="font-medium" transform={Math.abs(slopeDegreeReal) > 90 ? `scale(-1,-1) translate(-${35 + eachText.length * 9},0)` : "scale(1,1)"} fill={`url(#${gradientID}-start)`} dx="14" dy="-8">{Math.abs(slopeDegreeReal) <= 90 && "∀"} {eachText} {Math.abs(slopeDegreeReal) > 90 && "∀"}</text>
+                    {data.objectTypes.each.length > 0 && <text className="font-medium  !text-[14pt]" transform={Math.abs(slopeDegreeReal) > 90 ? `scale(-1,-1) translate(-${36 + eachText.length * 9},0)` : "scale(1,1)"} fill={`url(#${gradientID}-start)`} dx="14" dy="-9">{Math.abs(slopeDegreeReal) <= 90 && "∀"} {eachText} {Math.abs(slopeDegreeReal) > 90 && "∀"}</text>
                     }
                     <circle cx="0" cy="0" r="10" fill={`url(#${gradientID}-start)`} strokeWidth="2" stroke="var(--arrow-primary,black)" />
                 </marker>
@@ -457,7 +457,7 @@ function ShowAllObjectTypeAssociationsOfType({ type, associations, colors }: { t
     }
     return <span>
         {type !== "each" &&
-            <><span className="font-light">{type.toUpperCase()}(</span></>
+            <><span className="font-medium">{type.toUpperCase()}(</span></>
         }
         {associations.map((t, i) => <Fragment key={i}>
             <ShowObjectTypeAssociation t={t} colors={colors} />
