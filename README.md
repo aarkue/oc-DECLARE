@@ -11,6 +11,14 @@ There is an interactive **web demo** of OC-DECLARE available at **https://oc-dec
 It can be used directly in your browser and without installing anything. Note, that the web version is slower and less scalable than running the approach natively. However, it is great for experimenting or quickly trying out the OC-DECLARE implementation.
 
 
+## Screenshots
+![image](https://github.com/user-attachments/assets/f60a609b-61cd-4dd6-bb94-454eb08349cf)
+
+![image](https://github.com/user-attachments/assets/8e15555a-a19c-4fd4-b5af-cd16f4b52ef1)
+
+![image](https://github.com/user-attachments/assets/33f5990a-c896-4297-99ef-54f8c705c02f)
+
+
 ---
 
 For the evaluation datasets and raw results see the `evaluation-results/` subfolder. It contains a `raw-results` folder containing all discovered results and execution times (see below for a description).
