@@ -2,7 +2,7 @@
   "name": "backend-wasm",
   "type": "module",
   "collaborators": [
-    "aarkue <git@aarkue.eu>"
+    "anonym <git@example.com>"
   ],
   "version": "0.1.0",
   "files": [
