@@ -12,11 +12,11 @@ It can be used directly in your browser and without installing anything. Note, t
 
 
 ## Screenshots
-![image](https://github.com/user-attachments/assets/f60a609b-61cd-4dd6-bb94-454eb08349cf)
+![Image showing the basic user interface](1.png)
 
-![image](https://github.com/user-attachments/assets/8e15555a-a19c-4fd4-b5af-cd16f4b52ef1)
+![Image showing the available functions after importing an OCEL](2.png)
 
-![image](https://github.com/user-attachments/assets/33f5990a-c896-4297-99ef-54f8c705c02f)
+![Image showing auto-discovered constraints](3.png)
 
 
 ---
