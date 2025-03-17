@@ -1,0 +1,4661 @@
+[
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "W_Call incomplete files"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Validate application"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Workflow"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Complete"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Call after offers"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        },
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Workflow",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Complete"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Call after offers"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        },
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Workflow",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "O_Created"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Refused"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "O_Sent (online only)"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Created"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        },
+        {
+          "type": "Simple",
+          "object_type": "Offer"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "O_Sent (online only)"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Denied"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "O_Sent (online only)"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Create Offer"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        },
+        {
+          "type": "Simple",
+          "object_type": "Offer"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "O_Cancelled"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Create Offer"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Offer"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Submitted"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Sent (mail and online)"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Submitted"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Complete application"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        },
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Workflow",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Cancelled"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Complete"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Cancelled"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Created"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Validating"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Sent (mail and online)"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Validating"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Accepted"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Validating"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Complete application"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Workflow",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Validating"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Concept"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Validating"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Created"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Validating"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Call after offers"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Workflow",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Complete"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Concept"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Complete"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Created"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        },
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Concept"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Create Application"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        },
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Concept"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Create Offer"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "W_Shortened completion "
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Call after offers"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Workflow"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "W_Shortened completion "
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Refused"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "W_Shortened completion "
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Refused"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "O_Created"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Sent (mail and online)"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        },
+        {
+          "type": "Simple",
+          "object_type": "Offer"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Create Application"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Complete"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Create Application"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Complete application"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        },
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Workflow",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Accepted"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Complete"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        },
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Accepted"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Complete application"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        },
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Workflow",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Cancelled"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Sent (mail and online)"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Cancelled"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Call after offers"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        },
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Workflow",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "W_Complete application"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Call after offers"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Workflow"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Concept"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Sent (mail and online)"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Concept"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Complete"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Concept"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Complete application"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        },
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Workflow",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Denied"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Sent (mail and online)"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Denied"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Cancelled"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Denied"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Validating"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Denied"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Complete"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Denied"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Returned"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Denied"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Complete application"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Workflow",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Denied"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Concept"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Denied"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Created"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Denied"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Sent (online only)"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Denied"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Accepted"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Denied"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Create Offer"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Denied"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Refused"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        },
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "O_Create Offer"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Sent (mail and online)"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        },
+        {
+          "type": "Simple",
+          "object_type": "Offer"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Cancelled"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Create Application"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Cancelled"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Cancelled"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        },
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "O_Returned"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Created"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Offer"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "O_Returned"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Create Offer"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Offer"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Pending"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Concept"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Pending"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Created"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Pending"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Call after offers"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Workflow",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Pending"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Create Application"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Pending"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Validate application"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Workflow",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "W_Handle leads"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Call after offers"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Workflow"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "O_Cancelled"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Sent (mail and online)"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Offer"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "O_Cancelled"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Created"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Offer"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Accepted"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Concept"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Accepted"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Created"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Accepted"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Created"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "O_Create Offer"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Refused"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "O_Refused"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Sent (mail and online)"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Offer"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "O_Refused"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Cancelled"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "O_Refused"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Created"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Offer"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "O_Refused"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Sent (online only)"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "O_Refused"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Create Offer"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Offer"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "O_Sent (mail and online)"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Denied"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Cancelled"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Concept"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Cancelled"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Accepted"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Cancelled"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Create Offer"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "W_Assess potential fraud"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Complete application"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Workflow"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "W_Assess potential fraud"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Call after offers"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Workflow"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "W_Assess potential fraud"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Validate application"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Workflow"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Validating"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Accepted"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "W_Call incomplete files"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Call after offers"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Workflow"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Complete"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Create Application"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Complete"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Accepted"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        },
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Complete"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Refused"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "O_Accepted"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Sent (mail and online)"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Offer"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "O_Accepted"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Returned"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Offer"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "O_Accepted"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Created"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Offer"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "O_Accepted"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Create Offer"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Offer"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Incomplete"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Sent (mail and online)"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Incomplete"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Validating"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Incomplete"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Call incomplete files"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        },
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Workflow",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Incomplete"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Call incomplete files"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        },
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Workflow",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Pending"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Complete application"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Workflow",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Submitted"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Complete"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Submitted"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Concept"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        },
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Submitted"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Created"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Submitted"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Call after offers"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Workflow",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Submitted"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Create Application"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        },
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Submitted"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Handle leads"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        },
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Workflow",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Cancelled"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Complete application"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Workflow",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Complete"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Sent (mail and online)"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Complete"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Sent (mail and online)"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Complete"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Denied"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Complete"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Create Offer"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        },
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Concept"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Created"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Concept"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Accepted"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "W_Personal Loan collection"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Complete application"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Workflow"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "W_Personal Loan collection"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Call after offers"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Workflow"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "W_Personal Loan collection"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Validate application"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Workflow"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "W_Shortened completion "
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Incomplete"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "W_Shortened completion "
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Complete application"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Workflow"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "W_Shortened completion "
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Handle leads"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Workflow"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "W_Shortened completion "
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Denied"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "W_Shortened completion "
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Denied"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "O_Sent (mail and online)"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Created"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        },
+        {
+          "type": "Simple",
+          "object_type": "Offer"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Validating"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Create Offer"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "W_Call incomplete files"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Complete application"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Workflow"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Complete"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Complete application"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        },
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Workflow",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "O_Sent (online only)"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Refused"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "W_Call after offers"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Complete application"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Workflow"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "W_Validate application"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Complete application"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Workflow"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Pending"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Sent (mail and online)"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Pending"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Validating"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Pending"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Accepted"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Accepted"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Create Application"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Accepted"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Denied"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Accepted"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Create Offer"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Accepted"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Create Offer"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "O_Sent (mail and online)"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Create Offer"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        },
+        {
+          "type": "Simple",
+          "object_type": "Offer"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Incomplete"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Complete"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Incomplete"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Accepted"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Incomplete"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Returned"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Incomplete"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Complete application"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Workflow",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Incomplete"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Concept"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Incomplete"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Created"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Incomplete"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Call after offers"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Workflow",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Incomplete"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Create Application"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Incomplete"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Validate application"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        },
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Workflow",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "W_Validate application"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Call after offers"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Workflow"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Pending"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Accepted"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Pending"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Create Offer"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "W_Handle leads"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Complete application"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        },
+        {
+          "type": "Simple",
+          "object_type": "Workflow"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Accepted"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Refused"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "O_Create Offer"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Created"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        },
+        {
+          "type": "Simple",
+          "object_type": "Offer"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Validating"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Complete"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Validating"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Incomplete"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Validating"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Returned"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Validating"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Create Application"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Validating"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Validate application"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        },
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Workflow",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Validating"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Validate application"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        },
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Workflow",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "O_Created"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Denied"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "O_Created"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Create Offer"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        },
+        {
+          "type": "Simple",
+          "object_type": "Offer"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Accepted"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Call after offers"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        },
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Workflow",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "O_Sent (mail and online)"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Refused"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Validating"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Pending"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Incomplete"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Pending"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Incomplete"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Accepted"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Incomplete"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Create Offer"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "O_Returned"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Sent (mail and online)"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Offer"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Concept"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Call after offers"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Workflow",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Create Application"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Sent (mail and online)"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Create Application"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Concept"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        },
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Create Application"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Created"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Create Application"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Call after offers"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Workflow",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Create Application"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Accepted"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Create Application"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Create Offer"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Pending"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Complete"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Pending"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Returned"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Submitted"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Accepted"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Submitted"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Create Offer"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Accepted"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Sent (mail and online)"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Accepted"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "O_Sent (mail and online)"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Offer",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Denied"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Call after offers"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Workflow",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Denied"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Create Application"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Application"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "A_Denied"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "W_Validate application"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        },
+        {
+          "type": "O2O",
+          "first": "Application",
+          "second": "Workflow",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "O_Create Offer"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "A_Denied"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Case_R"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  }
+]

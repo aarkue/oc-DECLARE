@@ -1,0 +1,4179 @@
+[
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Load Truck"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Pick Up Empty Container"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Truck",
+          "second": "Container",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Drive to Terminal"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Reschedule Container"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Truck",
+          "second": "Container",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Weigh"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Place in Stock"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "Simple",
+          "object_type": "Forklift"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Weigh"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Collect Goods"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Handling Unit",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Weigh"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Load to Vehicle"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Weigh"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Weigh"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Create Transport Document"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Weigh"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Drive to Terminal"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Weigh"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Pick Up Empty Container"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Reschedule Container"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Load Truck"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Handling Unit",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Reschedule Container"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Bring to Loading Bay"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Reschedule Container"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Order Empty Containers"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "Simple",
+          "object_type": "Transport Document"
+        },
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Reschedule Container"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Book Vehicles"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Vehicle"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Transport Document",
+          "second": "Vehicle",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Reschedule Container"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Book Vehicles"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Transport Document",
+          "second": "Vehicle",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Reschedule Container"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Book Vehicles"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Transport Document"
+        },
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Transport Document",
+          "second": "Vehicle",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Reschedule Container"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Collect Goods"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Handling Unit",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Reschedule Container"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Load to Vehicle"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "Simple",
+          "object_type": "Vehicle"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Transport Document",
+          "second": "Vehicle",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Reschedule Container"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Transport Document",
+          "second": "Vehicle",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Reschedule Container"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "Simple",
+          "object_type": "Transport Document"
+        },
+        {
+          "type": "Simple",
+          "object_type": "Vehicle"
+        },
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Transport Document",
+          "second": "Vehicle",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Reschedule Container"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Create Transport Document"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Transport Document"
+        },
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Reschedule Container"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Drive to Terminal"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Reschedule Container"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Pick Up Empty Container"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Reschedule Container"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Weigh"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Load Truck"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Create Transport Document"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Bring to Loading Bay"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Load Truck"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Handling Unit",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Bring to Loading Bay"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Order Empty Containers"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Bring to Loading Bay"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Book Vehicles"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Bring to Loading Bay"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Place in Stock"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Bring to Loading Bay"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Collect Goods"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Handling Unit",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Book Vehicles"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Vehicle"
+        },
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "Transport Document"
+        },
+        {
+          "type": "O2O",
+          "first": "Transport Document",
+          "second": "Vehicle",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Book Vehicles"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Vehicle"
+        },
+        {
+          "type": "O2O",
+          "first": "Transport Document",
+          "second": "Vehicle",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "Transport Document"
+        },
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Book Vehicles"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Transport Document"
+        },
+        {
+          "type": "Simple",
+          "object_type": "Vehicle"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "Transport Document",
+          "second": "Vehicle",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Drive to Terminal"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Order Empty Containers"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Truck",
+          "second": "Container",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Drive to Terminal"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Order Empty Containers"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Truck",
+          "second": "Container",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Load Truck"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Weigh"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Truck",
+          "second": "Container",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Drive to Terminal"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Collect Goods"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Handling Unit",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Drive to Terminal"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Weigh"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Truck",
+          "second": "Container",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Load Truck"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Book Vehicles"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Load Truck"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Reschedule Container"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Truck",
+          "second": "Container",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Place in Stock"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Collect Goods"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Handling Unit",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Drive to Terminal"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Weigh"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Create Transport Document"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Order Empty Containers"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Transport Document"
+        },
+        {
+          "type": "O2O",
+          "first": "Customer Order",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Create Transport Document"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Transport Document"
+        },
+        {
+          "type": "O2O",
+          "first": "Customer Order",
+          "second": "Transport Document",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "Transport Document",
+          "second": "Vehicle",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Create Transport Document"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Register Customer Order"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Customer Order"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Drive to Terminal"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Load Truck"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "Simple",
+          "object_type": "Truck"
+        },
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Handling Unit",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Truck",
+          "second": "Container",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Load Truck"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Bring to Loading Bay"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Truck",
+          "second": "Container",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Bring to Loading Bay"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Create Transport Document"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Load to Vehicle"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "Simple",
+          "object_type": "Vehicle"
+        },
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Bring to Loading Bay"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Order Empty Containers"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "Simple",
+          "object_type": "Transport Document"
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Order Empty Containers"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Transport Document"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Order Empty Containers"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "Transport Document"
+        },
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Load to Vehicle"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "Simple",
+          "object_type": "Vehicle"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Transport Document",
+          "second": "Vehicle",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Create Transport Document"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "Transport Document"
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Create Transport Document"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Transport Document"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Pick Up Empty Container"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Register Customer Order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Order Empty Containers"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Customer Order",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Register Customer Order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Book Vehicles"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Customer Order",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Register Customer Order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Customer Order",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Register Customer Order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Create Transport Document"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Customer Order"
+        },
+        {
+          "type": "O2O",
+          "first": "Customer Order",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Create Transport Document"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Book Vehicles"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Transport Document"
+        },
+        {
+          "type": "O2O",
+          "first": "Customer Order",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": [
+        {
+          "type": "O2O",
+          "first": "Transport Document",
+          "second": "Vehicle",
+          "reversed": false
+        }
+      ]
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Drive to Terminal"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Bring to Loading Bay"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Truck",
+          "second": "Container",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Drive to Terminal"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Book Vehicles"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Drive to Terminal"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Load to Vehicle"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Truck",
+          "second": "Container",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Pick Up Empty Container"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Load Truck"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Handling Unit",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Load Truck"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Drive to Terminal"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "Simple",
+          "object_type": "Truck"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Truck",
+          "second": "Container",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Drive to Terminal"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Truck",
+          "second": "Container",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Load Truck"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Truck",
+          "second": "Container",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Load Truck"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Order Empty Containers"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Truck",
+          "second": "Container",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Load Truck"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Order Empty Containers"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Truck",
+          "second": "Container",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Pick Up Empty Container"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Bring to Loading Bay"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Pick Up Empty Container"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Book Vehicles"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Pick Up Empty Container"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Place in Stock"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Pick Up Empty Container"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Collect Goods"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Handling Unit",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Load Truck"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Load to Vehicle"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Truck",
+          "second": "Container",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Drive to Terminal"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Pick Up Empty Container"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Truck",
+          "second": "Container",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Load Truck"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Collect Goods"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Handling Unit",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Load Truck"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Collect Goods"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Handling Unit"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Handling Unit",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Bring to Loading Bay"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Load to Vehicle"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "Simple",
+          "object_type": "Forklift"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Bring to Loading Bay"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Bring to Loading Bay"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Drive to Terminal"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Bring to Loading Bay"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Pick Up Empty Container"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Bring to Loading Bay"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Weigh"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Order Empty Containers"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Load Truck"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Handling Unit",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Order Empty Containers"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Load Truck"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Handling Unit",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Order Empty Containers"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Bring to Loading Bay"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Order Empty Containers"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Book Vehicles"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Transport Document"
+        }
+      ],
+      "any": [],
+      "all": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "Transport Document",
+          "second": "Vehicle",
+          "reversed": false
+        }
+      ]
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Order Empty Containers"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Place in Stock"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Order Empty Containers"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Collect Goods"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Handling Unit",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Order Empty Containers"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Load to Vehicle"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Transport Document",
+          "second": "Vehicle",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Order Empty Containers"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Load to Vehicle"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Transport Document",
+          "second": "Vehicle",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Order Empty Containers"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "Simple",
+          "object_type": "Transport Document"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Transport Document",
+          "second": "Vehicle",
+          "reversed": false
+        }
+      ],
+      "all": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ]
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Order Empty Containers"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Transport Document"
+        },
+        {
+          "type": "O2O",
+          "first": "Transport Document",
+          "second": "Vehicle",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "all": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ]
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Order Empty Containers"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Create Transport Document"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Transport Document"
+        }
+      ],
+      "any": [],
+      "all": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ]
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Order Empty Containers"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Drive to Terminal"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Order Empty Containers"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Pick Up Empty Container"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Order Empty Containers"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Weigh"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Book Vehicles"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Order Empty Containers"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Transport Document"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Book Vehicles"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Transport Document"
+        },
+        {
+          "type": "Simple",
+          "object_type": "Vehicle"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Transport Document",
+          "second": "Vehicle",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Book Vehicles"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Transport Document"
+        },
+        {
+          "type": "O2O",
+          "first": "Transport Document",
+          "second": "Vehicle",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "Vehicle"
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Book Vehicles"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Create Transport Document"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Transport Document"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Place in Stock"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Load Truck"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Handling Unit",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Place in Stock"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Bring to Loading Bay"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Place in Stock"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Order Empty Containers"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Place in Stock"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Book Vehicles"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Place in Stock"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Collect Goods"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Handling Unit",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Place in Stock"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Load to Vehicle"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Place in Stock"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Place in Stock"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Create Transport Document"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Place in Stock"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Drive to Terminal"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Place in Stock"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Pick Up Empty Container"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Place in Stock"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Weigh"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "Simple",
+          "object_type": "Forklift"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Collect Goods"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Load Truck"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Handling Unit"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Load to Vehicle"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Load Truck"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Handling Unit",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Load to Vehicle"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Bring to Loading Bay"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "Simple",
+          "object_type": "Forklift"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Load to Vehicle"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Order Empty Containers"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Load to Vehicle"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Book Vehicles"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Vehicle"
+        },
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Load to Vehicle"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Place in Stock"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Load to Vehicle"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Collect Goods"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Handling Unit",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Load to Vehicle"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Create Transport Document"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Load to Vehicle"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Drive to Terminal"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Load to Vehicle"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Pick Up Empty Container"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Load to Vehicle"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Weigh"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Load Truck"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Handling Unit",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Load Truck"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Handling Unit",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Drive to Terminal"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Place in Stock"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Truck",
+          "second": "Container",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Pick Up Empty Container"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Create Transport Document"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Pick Up Empty Container"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Drive to Terminal"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Pick Up Empty Container"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Weigh"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Weigh"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Load Truck"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Handling Unit",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Weigh"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Bring to Loading Bay"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Weigh"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Order Empty Containers"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Weigh"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Book Vehicles"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Load Truck"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Place in Stock"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "Truck",
+          "second": "Container",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Drive to Terminal"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Create Transport Document"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Pick Up Empty Container"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Order Empty Containers"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Pick Up Empty Container"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Load to Vehicle"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "Pick Up Empty Container"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "Depart"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "Container"
+        },
+        {
+          "type": "O2O",
+          "first": "Container",
+          "second": "Transport Document",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  }
+]

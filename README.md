@@ -7,10 +7,14 @@ This repository contains the following parts:
 3. Evaluation Setup used to evaluate OC-DECLARE
 4. Evaluation Dataset and Results for OC-DECLARE
 
-There is a **web demo** of OC-DECLARE available at **https://oc-declare.vercel.app/**.
-It can be used directly in your browser and without installing anything. Note, that the web version is slower and less scalable than running the approach natively. However, it is great for experimenting or quickly trying out the OC-DECLARE approach.
+There is an interactive **web demo** of OC-DECLARE available at **https://oc-declare.vercel.app/**.
+It can be used directly in your browser and without installing anything. Note, that the web version is slower and less scalable than running the approach natively. However, it is great for experimenting or quickly trying out the OC-DECLARE implementation.
 
-For the evaluation datasets and raw results see the `evaluation-results/` subfolder.
+
+---
+
+For the evaluation datasets and raw results see the `evaluation-results/` subfolder. It contains a `raw-results` folder containing all discovered results and execution times (see below for a description).
+Additionally, the `evaluation-results/datasets/datasets.zip` can be extracted to get all the OCEL 2.0 files used for evaluation.
 
 
 ## Details
@@ -18,7 +22,7 @@ For the evaluation datasets and raw results see the `evaluation-results/` subfol
 The backend of the OC-DECLARE approach is implemented in the Rust programming language.
 See https://www.rust-lang.org/tools/install for instructions on how to install Rust on your machine.
 
-## Backend & Evaluation Setup
+### Backend & Evaluation Setup
 Conformance Checking and Discovery for OC-DECLARE is implemented in the `shared` crate (`crates/shared`).
 The functions `get_for_all_evs_perf` (for conformance checking) and `discover` (for discovery) are probably the most interesting ones.
 The shared backend code can be compiled by running `cargo build --release` in the `shared` directory.
@@ -29,7 +33,7 @@ The evaluation pipeline will then run through all configurations and place the r
 For each configuration (OCEL file and O2O direction), two files are created ending in `-results.json` for JSON representation of all discovered constraints and `-summary.json`, containing only the durations (in seconds), mean duration, and number of results.
 
 
-## Frontend
+### Frontend
 The frontend is implemented using web technologies and requires Node.js and npm to be installed on your machine. See https://docs.npmjs.com/downloading-and-installing-node-js-and-npm for more information.
 
 To also use the backend Rust implementation directly in the browser the crate `backend-wasm` (`crates/backend-wasm`) needs to be build and packaged first.

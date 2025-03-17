@@ -1,0 +1,7721 @@
+[
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "payment reminder"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "customers",
+          "second": "orders",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "payment reminder"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "customers",
+          "second": "orders",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "orders"
+        }
+      ],
+      "any": [],
+      "all": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ]
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "item out of stock"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "employees"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "employees",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "item out of stock"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "employees"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "employees",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "customers",
+          "second": "orders",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "orders"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "customers",
+          "second": "orders",
+          "reversed": false
+        }
+      ],
+      "all": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ]
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "failed delivery"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "packages"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "employees",
+          "reversed": false
+        }
+      ],
+      "all": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ]
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "payment reminder"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "orders"
+        }
+      ],
+      "any": [],
+      "all": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ]
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "payment reminder"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "payment reminder"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "payment reminder"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "payment reminder"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "reorder item"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "reorder item"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "reorder item"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "reorder item"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "reorder item"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "item out of stock"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "employees"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "reorder item"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "item out of stock"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "employees"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "reorder item"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "item out of stock"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "item out of stock"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "item out of stock"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "item out of stock"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "employees"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "item out of stock"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "employees"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "reorder item"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "reorder item"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "reorder item"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "customers"
+        },
+        {
+          "type": "O2O",
+          "first": "customers",
+          "second": "orders",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "customers"
+        },
+        {
+          "type": "Simple",
+          "object_type": "orders"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "customers",
+          "second": "employees",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "customers",
+          "second": "orders",
+          "reversed": false
+        }
+      ],
+      "all": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ]
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "failed delivery"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "failed delivery"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "failed delivery"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "failed delivery"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "reorder item"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "employees"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "employees",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "reorder item"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "employees"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "employees",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "payment reminder"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "orders"
+        }
+      ],
+      "any": [],
+      "all": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ]
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "payment reminder"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "orders"
+        }
+      ],
+      "any": [],
+      "all": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ]
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "payment reminder"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "customers",
+          "second": "orders",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "payment reminder"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "customers",
+          "second": "orders",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "failed delivery"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "failed delivery"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "failed delivery"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "failed delivery"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "failed delivery"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "failed delivery"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "failed delivery"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "failed delivery"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "failed delivery"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "employees"
+        },
+        {
+          "type": "Simple",
+          "object_type": "packages"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "employees",
+          "reversed": false
+        }
+      ],
+      "all": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ]
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "orders"
+        }
+      ],
+      "any": [],
+      "all": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ]
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "orders"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "customers",
+          "second": "orders",
+          "reversed": false
+        }
+      ],
+      "all": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ]
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "customers",
+          "second": "orders",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "failed delivery"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "failed delivery"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "failed delivery"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "failed delivery"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "item out of stock"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "employees"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "employees",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "item out of stock"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "employees"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "employees",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "packages"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "employees"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "employees",
+          "reversed": false
+        }
+      ],
+      "all": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ]
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "payment reminder"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "payment reminder"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "payment reminder"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "payment reminder"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "arc_type": "DF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "packages"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "employees",
+          "reversed": false
+        }
+      ],
+      "all": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ]
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "reorder item"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "employees"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "reorder item"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "employees"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "packages"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "employees",
+          "reversed": false
+        }
+      ],
+      "all": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ]
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "payment reminder"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "payment reminder"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "payment reminder"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "payment reminder"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "failed delivery"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "employees"
+        },
+        {
+          "type": "Simple",
+          "object_type": "packages"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "employees",
+          "reversed": false
+        }
+      ],
+      "all": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ]
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "employees"
+        },
+        {
+          "type": "Simple",
+          "object_type": "packages"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "employees",
+          "reversed": false
+        }
+      ],
+      "all": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ]
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "packages"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "employees",
+          "reversed": false
+        }
+      ],
+      "all": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ]
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "item out of stock"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pay order"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "item out of stock"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "item out of stock"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "reorder item"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "employees"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "item out of stock"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "reorder item"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "employees"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "item out of stock"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "reorder item"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "customers"
+        },
+        {
+          "type": "O2O",
+          "first": "customers",
+          "second": "orders",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "confirm order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "arc_type": "DFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "customers"
+        },
+        {
+          "type": "Simple",
+          "object_type": "orders"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "customers",
+          "second": "orders",
+          "reversed": false
+        }
+      ],
+      "all": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ]
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "packages"
+        }
+      ],
+      "any": [
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "employees",
+          "reversed": false
+        }
+      ],
+      "all": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ]
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "item out of stock"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "item out of stock"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "item out of stock"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "package delivered"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "reorder item"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "employees"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "employees",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "send package"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "reorder item"
+    },
+    "arc_type": "ASS",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "employees"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "packages",
+          "second": "employees",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "payment reminder"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "payment reminder"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "payment reminder"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "payment reminder"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "pick item"
+    },
+    "arc_type": "EFREV",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        },
+        {
+          "type": "O2O",
+          "first": "items",
+          "second": "products",
+          "reversed": false
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  },
+  {
+    "from": {
+      "type": "Activity",
+      "activity": "place order"
+    },
+    "to": {
+      "type": "Activity",
+      "activity": "create package"
+    },
+    "arc_type": "EF",
+    "label": {
+      "each": [
+        {
+          "type": "Simple",
+          "object_type": "products"
+        }
+      ],
+      "any": [
+        {
+          "type": "Simple",
+          "object_type": "items"
+        },
+        {
+          "type": "O2O",
+          "first": "orders",
+          "second": "items",
+          "reversed": false
+        }
+      ],
+      "all": []
+    },
+    "counts": [
+      1,
+      null
+    ]
+  }
+]
