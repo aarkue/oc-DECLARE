@@ -45,8 +45,8 @@ export function translateArcTypeFromRsToTs(arcType: OCDeclareArcType): EdgeType 
 export function flowEdgeToOCDECLARE(e: CustomEdge, flow: ReactFlowInstance<ActivityNode, CustomEdge>): OCDeclareArc {
     const [arc_type, counts] = translateArcInfo(e.data!);
     return {
-        from: flow.getNode(e.source)!.data.isObject === "init" ? { type: "ObjectInit", object_type: flow.getNode(e.source)!.data.type } : flow.getNode(e.source)!.data.isObject === "exit" ? { type: "ObjectEnd", object_type: flow.getNode(e.source)!.data.type } : { type: "Activity", activity: flow.getNode(e.source)!.data.type },
-        to: flow.getNode(e.target)!.data.isObject === "init" ? { type: "ObjectInit", object_type: flow.getNode(e.target)!.data.type } : flow.getNode(e.target)!.data.isObject === "exit" ? { type: "ObjectEnd", object_type: flow.getNode(e.target)!.data.type } : { type: "Activity", activity: flow.getNode(e.target)!.data.type },
+        from: flow.getNode(e.source)!.data.isObject === "init" ? "<init> " + flow.getNode(e.source)!.data.type  : flow.getNode(e.source)!.data.isObject === "exit" ?  "<exit> " + flow.getNode(e.source)!.data.type  : flow.getNode(e.source)!.data.type,
+        to: flow.getNode(e.target)!.data.isObject === "init" ? "<init> " + flow.getNode(e.target)!.data.type  : flow.getNode(e.target)!.data.isObject === "exit" ?  "<exit> " + flow.getNode(e.target)!.data.type  : flow.getNode(e.target)!.data.type,
         arc_type,
         counts,
         label: e.data!.objectTypes
@@ -60,18 +60,21 @@ export function getEdgeViolationPerc(arc: OCDeclareArc): number {
 
 import { v4 as uuidv4 } from 'uuid';
 import { applyLayoutToNodes } from "./automatic-layout";
+// import { ObjectTypeAssociation } from "crates/shared/bindings/ObjectTypeAssociation";
 export async function addArcsToFlow(discoverdArcs: OCDeclareArc[], flow: ReactFlowInstance<ActivityNode, CustomEdge>) {
     const nodeNameToIDs: Record<string, string> = {};
     const edges: CustomEdge[] = [];
     const nodes: ActivityNode[] = [];
     for (const arc of discoverdArcs) {
         const edgeType = translateArcTypeFromRsToTs(arc.arc_type);
-        // const NON_RESOURCE_TYPES = ["orders", "items", "packages"];
+        // const NON_RESOURCE_TYPES = ["orders", "items", "packages","Offer","Application"];
         // const isNotOnlyResource = arc.label.all.map(oi => getLastOT(oi)).find(ot => NON_RESOURCE_TYPES.includes(ot)) || arc.label.each.map(oi => getLastOT(oi)).find(ot => NON_RESOURCE_TYPES.includes(ot)) || arc.label.any.map(oi => getLastOT(oi)).find(ot => NON_RESOURCE_TYPES.includes(ot));
+        // if(isNotOnlyResource){
         const sourceID = lookupIDOrCreateNode(arc.from, nodeNameToIDs, nodes);
         const targetID = lookupIDOrCreateNode(arc.to, nodeNameToIDs, nodes);
         const edgeID = uuidv4();
         edges.push({ id: edgeID, source: sourceID, target: targetID, data: { type: edgeType, objectTypes: arc.label, cardinality: arc.counts }, ...getMarkersForEdge(edgeType, edgeID) })
+        // }
     }
     applyLayoutToNodes(nodes, edges).then(() => {
         flow.addNodes(nodes);
@@ -88,26 +91,20 @@ export async function addArcsToFlow(discoverdArcs: OCDeclareArc[], flow: ReactFl
 // }
 
 function lookupIDOrCreateNode(node: OCDeclareNode, nodeIDMap: Record<string, string>, nodes: ActivityNode[]): string {
-    let nodeName = node.type === "Activity" ? node.activity : (node.type === "ObjectInit" ? "<init> " + node.object_type : "<exit> " + node.object_type);
+
     let isObject: ActivityNode['data']['isObject'] = undefined;
-    if (node.type === "Activity") {
-        if (node.activity.includes("<init> ")) {
-            isObject = "init";
-        } else if (node.activity.includes("<exit> ")) {
-            isObject = "exit";
-        }
-    } else if (node.type === "ObjectInit") {
-        isObject = "init"
-    } else {
-        isObject = "exit"
+    if (node.includes("<init> ")) {
+        isObject = "init";
+    } else if (node.includes("<exit> ")) {
+        isObject = "exit";
     }
-    if (nodeIDMap[nodeName] == undefined) {
+    if (true || nodeIDMap[node] == undefined) {
         const id = uuidv4();
-        nodes.push({ id: id, type: "activity", position: { x: 0, y: 0 }, data: { isObject, type: node.type === "Activity" ? node.activity.replace("<init> ", "").replace("<exit> ", "") : node.object_type } })
-        nodeIDMap[nodeName] = id;
+        nodes.push({ id: id, type: "activity", position: { x: 0, y: 0 }, data: { isObject, type: node.replace("<init> ", "").replace("<exit> ", "") } })
+        nodeIDMap[node] = id;
         return id;
     } else {
-        return nodeIDMap[nodeName];
+        return nodeIDMap[node];
     }
 }
 

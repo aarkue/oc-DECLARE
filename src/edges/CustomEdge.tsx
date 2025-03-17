@@ -367,10 +367,9 @@ function EditEdgeLabelsDialog({ open, initialValue, onClose, colors }: { open: b
     }}>
         <DialogContent className="min-h-[30rem]">
             <DialogHeader>
-                <DialogTitle>Edit Edge Object Type Label</DialogTitle>
+                <DialogTitle>Edit Edge Object Involvement</DialogTitle>
                 <DialogDescription>
-                    This action cannot be undone. This will permanently delete your account
-                    and remove your data from our servers.
+                    Modify the object involvments of this edge.
                 </DialogDescription>
                 <div className="mt-2 flex flex-col h-full">
                     {(["each", "all", "any"] as const).map(t => <div key={t} className="relative min-h-[4rem]">
@@ -409,7 +408,7 @@ function EditEdgeLabelsDialog({ open, initialValue, onClose, colors }: { open: b
                                 <TabsTrigger value="O2O">O2O (Indirect)</TabsTrigger>
                             </TabsList>
                             <TabsContent value="Simple">
-                                {addValue.t.type === "Simple" && <>Keep it simple!
+                                {addValue.t.type === "Simple" && <>Direct association of objects and events.
                                     <div className="mt-1">
                                         <Input type="text" value={addValue.t.object_type} onChange={(ev) => {
                                             setAddValue({ ...addValue, t: { type: "Simple", object_type: ev.currentTarget.value } })
@@ -418,7 +417,7 @@ function EditEdgeLabelsDialog({ open, initialValue, onClose, colors }: { open: b
                                 </>}
                             </TabsContent>
                             <TabsContent value="O2O">
-                                {addValue.t.type === "O2O" && <>Via an object-to-object  relationship!
+                                {addValue.t.type === "O2O" && <>Association through an object-to-object indirection.
                                     <div className="flex gap-x-2 mt-1">
 
                                         <Input type="text" value={addValue.t.first} onChange={(ev) => {
