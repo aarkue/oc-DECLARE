@@ -115,6 +115,21 @@ impl OCDeclareArc {
         ret.arc_type = arc_type;
         ret
     }
+
+    pub fn as_template_string(&self) -> String {
+        format!(
+            "{}({}, {}, {},{},{})",
+            self.arc_type.get_name(),
+            self.from.0,
+            self.to.0,
+            self.label.as_template_string(),
+            self.counts.0.unwrap_or_default(),
+            self.counts
+                .1
+                .map(|x| x.to_string())
+                .unwrap_or(String::from("∞"))
+        )
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
@@ -477,6 +492,18 @@ pub enum OCDeclareArcType {
     DFREV,
 }
 
+impl OCDeclareArcType {
+    pub fn get_name(&self) -> &'static str {
+        match self {
+            OCDeclareArcType::ASS => "AS",
+            OCDeclareArcType::EF => "EF",
+            OCDeclareArcType::EFREV => "EP",
+            OCDeclareArcType::DF => "DF",
+            OCDeclareArcType::DFREV => "DP",
+        }
+    }
+}
+
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize, PartialOrd, Ord, TS)]
 #[ts(export)]
 #[serde(tag = "type")]
@@ -509,6 +536,13 @@ impl ObjectTypeAssociation {
             first: ot1.into(),
             second: ot2.into(),
             reversed: true,
+        }
+    }
+
+    pub fn as_template_string(&self) -> String {
+        match self {
+            ObjectTypeAssociation::Simple { object_type } => object_type.clone(),
+            ObjectTypeAssociation::O2O { first, second, reversed } => format!("{}{}{}",first, if !reversed {">"} else {"<"},second),
         }
     }
 
@@ -570,6 +604,28 @@ pub struct OCDeclareArcLabel {
     each: Vec<ObjectTypeAssociation>,
     any: Vec<ObjectTypeAssociation>,
     all: Vec<ObjectTypeAssociation>,
+}
+
+impl OCDeclareArcLabel {
+    pub fn as_template_string(&self) -> String {
+        let mut ret = String::new();
+        if !self.each.is_empty() {
+            ret.push_str(&format!("Each({})",self.each.iter().map(|ot| ot.as_template_string()).join(",")));
+        }
+        if !self.all.is_empty() {
+            if !self.each.is_empty() {
+                ret.push_str(", ");
+            }
+            ret.push_str(&format!("All({})",self.all.iter().map(|ot| ot.as_template_string()).join(",")));
+        }
+        if !self.any.is_empty() {
+            if !self.each.is_empty() || !self.any.is_empty() {
+                ret.push_str(", ");
+            }
+            ret.push_str(&format!("Any({})",self.any.iter().map(|ot| ot.as_template_string()).join(",")));
+        }
+        ret
+    }
 }
 
 // fn get_out_types<'a>(ras: &'a HashSet<ObjectTypeAssociation>) -> impl Iterator<Item = &'a String> {

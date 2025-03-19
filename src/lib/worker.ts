@@ -1,6 +1,6 @@
 
 import { OCDeclareArc } from "crates/shared/bindings/OCDeclareArc";
-import init, { discover_oc_declare_constraints, get_all_edge_violation_percentage_perf, get_ot_act_involvements, initThreadPool, load_ocel_json, load_ocel_xml, unload_ocel } from "../../crates/backend-wasm/pkg/backend_wasm";
+import init, { discover_oc_declare_constraints, get_all_edge_violation_percentage_perf, get_edge_as_template_text, get_ot_act_involvements, initThreadPool, load_ocel_json, load_ocel_xml, unload_ocel } from "../../crates/backend-wasm/pkg/backend_wasm";
 
 // listen for messages from UI thread
 onmessage = function (e: MessageEvent<{ type: "load-ocel", file: File } | { type: "unload-ocel" } | { type: "discover" } | { type: "evaluate-edges", edges: OCDeclareArc[], edgeIDs: string[] } | { type: "" }>) {
@@ -37,6 +37,10 @@ onmessage = function (e: MessageEvent<{ type: "load-ocel", file: File } | { type
         this.postMessage({ type: "discovered", discoveredArcs });
     } else if (e.data.type === "evaluate-edges") {
         const edgeJSON = JSON.stringify(e.data.edges);
+        console.log(edgeJSON);
+        for(const x of e.data.edges){
+            console.log(get_edge_as_template_text(JSON.stringify(x)));
+        }
         const beginning = Date.now();
         const violFracs = get_all_edge_violation_percentage_perf(edgeJSON);
         console.log("TOTAL Evaluation took " + ((Date.now() - beginning) / 1000) + "s");
