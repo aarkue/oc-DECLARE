@@ -66,22 +66,22 @@ export async function addArcsToFlow(discoverdArcs: OCDeclareArc[], flow: ReactFl
         // const NON_RESOURCE_TYPES = ["orders", "items", "packages","Offer","Application"];
         // const isNotOnlyResource = arc.label.all.map(oi => getLastOT(oi)).find(ot => NON_RESOURCE_TYPES.includes(ot)) || arc.label.each.map(oi => getLastOT(oi)).find(ot => NON_RESOURCE_TYPES.includes(ot)) || arc.label.any.map(oi => getLastOT(oi)).find(ot => NON_RESOURCE_TYPES.includes(ot));
         // if(isNotOnlyResource){
-        const from = typeof arc.from === "object" ? arc.from['activity'] : arc.from;
-        const to = typeof arc.to === "object" ? arc.to['activity'] : arc.to;
-        const flag = (from === "place order" && to === "confirm order")
-            || (from === "confirm order" && to === "pick item")
-            || (from === "pay order" && to === "pick item")
-            || (from === "confirm order" && to === "pay order")
-            || (from === "pick item" && to === "send package")
-            || (from === "send package" && to === "package delivered")
-            || (from === "payment reminder" && to === "package delivered")
-            || (from === "A_Cancelled" && to === "O_Cancelled")
-        if (flag) {
+        // const from = typeof arc.from === "object" ? arc.from['activity'] : arc.from;
+        // const to = typeof arc.to === "object" ? arc.to['activity'] : arc.to;
+        // const flag = (from === "place order" && to === "confirm order")
+        //     || (from === "confirm order" && to === "pick item")
+        //     || (from === "pay order" && to === "pick item")
+        //     || (from === "confirm order" && to === "pay order")
+        //     || (from === "pick item" && to === "send package")
+        //     || (from === "send package" && to === "package delivered")
+        //     || (from === "payment reminder" && to === "package delivered")
+        //     || (from === "A_Cancelled" && to === "O_Cancelled")
+        // if (flag) {
             const sourceID = lookupIDOrCreateNode(arc.from, nodeNameToIDs, nodes);
             const targetID = lookupIDOrCreateNode(arc.to, nodeNameToIDs, nodes);
             const edgeID = uuidv4();
             edges.push({ id: edgeID, source: sourceID, target: targetID, data: { type: edgeType, objectTypes: arc.label, cardinality: arc.counts }, ...getMarkersForEdge(edgeType, edgeID) })
-        }
+        // }
         // }
     }
     applyLayoutToNodes(nodes, edges).then(() => {
