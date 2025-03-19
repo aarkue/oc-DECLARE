@@ -109,7 +109,7 @@ function lookupIDOrCreateNode(node: OCDeclareNode, nodeIDMap: Record<string, str
     } else if (node.includes("<exit> ")) {
         isObject = "exit";
     }
-    if (false || nodeIDMap[node] == undefined) {
+    if (true || nodeIDMap[node] == undefined) {
         const id = uuidv4();
         nodes.push({ id: id, type: "activity", position: { x: 0, y: 0 }, data: { isObject, type: node.replace("<init> ", "").replace("<exit> ", "") } })
         nodeIDMap[node] = id;

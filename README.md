@@ -10,6 +10,9 @@ This repository contains the following parts:
 There is an interactive **web demo** of OC-DECLARE available at [**https://oc-declare.vercel.app/**](https://oc-declare.vercel.app/).
 It can be used directly in your browser and without installing anything. Note, that the web version is slower and less scalable than running the approach natively. However, it is great for experimenting or quickly trying out the OC-DECLARE implementation.
 
+In the web version, OCEL 2.0 files in the XML and JSON format are supported. Discovery in the web version does not use object-to-object (O2O) relationships.
+See [https://www.ocel-standard.org/event-logs/overview/](https://www.ocel-standard.org/event-logs/overview/) for a list of publicly available example datasets.
+
 
 ## Screenshots
 ![Image showing the basic user interface](1.png)
