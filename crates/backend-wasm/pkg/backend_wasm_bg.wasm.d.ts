@@ -4,6 +4,7 @@ export const load_ocel_json: (a: number, b: number) => void;
 export const load_ocel_xml: (a: number, b: number) => number;
 export const get_edge_violation_percentage: (a: number, b: number) => [number, number];
 export const get_edge_violation_percentage_perf: (a: number, b: number) => [number, number, number];
+export const get_edge_as_template_text: (a: number, b: number) => [number, number, number, number];
 export const get_all_edge_violation_percentage: (a: number, b: number) => [number, number, number, number];
 export const get_all_edge_violation_percentage_perf: (a: number, b: number) => [number, number, number, number];
 export const get_ot_act_involvements: () => [number, number];

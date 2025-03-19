@@ -179,7 +179,7 @@ export default function CustomEdge(edge: EdgeProps<CustomEdgeType> & { data: { t
                             </ContextMenuSubContent>
                         </ContextMenuPortal>
                     </ContextMenuSub>
-                    <OCELInfoContext.Consumer>
+                    {/* <OCELInfoContext.Consumer>
                         {({ ocelInfo }) => Object.keys(ocelInfo).length > 0 && <ContextMenuItem onClick={(ev) => {
                             ev.stopPropagation();
                             const x = flowEdgeToOCDECLARE(edge, flow);
@@ -190,7 +190,7 @@ export default function CustomEdge(edge: EdgeProps<CustomEdgeType> & { data: { t
                             <AlignStartVertical className='size-4 mr-1' />
                             Evaluate
                         </ContextMenuItem>}
-                    </OCELInfoContext.Consumer>
+                    </OCELInfoContext.Consumer> */}
 
                     <ContextMenuSeparator />
                     <ContextMenuItem onClick={(ev) => {
@@ -348,7 +348,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { OCELInfoContext } from "@/lib/ocel-info";
-import { flowEdgeToOCDECLARE, getEdgeViolationPerc } from "@/lib/type-conversions";
+import { flowEdgeToOCDECLARE } from "@/lib/type-conversions";
 import { ObjectTypeAssociation } from "crates/shared/bindings/ObjectTypeAssociation";
 import { OCDeclareArcLabel } from "crates/shared/bindings/OCDeclareArcLabel";
 

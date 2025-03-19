@@ -6,6 +6,7 @@ export function load_ocel_xml(ocel_xml: Uint8Array): number;
 export function unload_ocel(): void;
 export function get_edge_violation_percentage(edge_json: string): string;
 export function get_edge_violation_percentage_perf(edge_json: string): number;
+export function get_edge_as_template_text(edge_json: string): string;
 export function get_all_edge_violation_percentage(edge_json: string): string[];
 export function get_all_edge_violation_percentage_perf(edge_json: string): Float64Array;
 export function get_ot_act_involvements(): string;
@@ -27,6 +28,7 @@ export interface InitOutput {
   readonly load_ocel_xml: (a: number, b: number) => number;
   readonly get_edge_violation_percentage: (a: number, b: number) => [number, number];
   readonly get_edge_violation_percentage_perf: (a: number, b: number) => [number, number, number];
+  readonly get_edge_as_template_text: (a: number, b: number) => [number, number, number, number];
   readonly get_all_edge_violation_percentage: (a: number, b: number) => [number, number, number, number];
   readonly get_all_edge_violation_percentage_perf: (a: number, b: number) => [number, number, number, number];
   readonly get_ot_act_involvements: () => [number, number];

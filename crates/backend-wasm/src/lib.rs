@@ -78,6 +78,12 @@ pub fn get_edge_violation_percentage_perf(edge_json: String) -> Result<f64, Stri
 }
 
 #[wasm_bindgen]
+pub fn get_edge_as_template_text(edge_json: String) -> Result<String, String> {
+    let edge: OCDeclareArc = serde_json::from_str(&edge_json).map_err(|e| e.to_string())?;
+    Ok(edge.as_template_string())
+}
+
+#[wasm_bindgen]
 pub fn get_all_edge_violation_percentage(edge_json: String) -> Result<Vec<String>, String> {
     let locel_guard = WASM_MEMORY_THINGY.read().unwrap();
     if let Some(locel) = locel_guard.as_ref() {
