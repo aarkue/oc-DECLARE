@@ -17,7 +17,7 @@ import { getEdgeParams } from './edge-helpers';
 import { getRandomStringColor } from "@/lib/random-colors";
 import { ActivityNode } from '@/nodes/types';
 import { ContextMenuArrow } from '@radix-ui/react-context-menu';
-import { AlignStartVertical, ArrowLeft, ArrowRight, LucideArrowLeftRight, LucideHash, LucideShapes, LucideXCircle, TrendingUp } from 'lucide-react';
+import { ArrowLeft, ArrowRight, LucideArrowLeftRight, LucideHash, LucideShapes, LucideXCircle, TrendingUp } from 'lucide-react';
 import React, { Fragment, useEffect, useMemo, useState } from "react";
 import asSvg from "./icons/ass.svg?url";
 import dfSvg from "./icons/df.svg?url";
@@ -347,8 +347,6 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { OCELInfoContext } from "@/lib/ocel-info";
-import { flowEdgeToOCDECLARE } from "@/lib/type-conversions";
 import { ObjectTypeAssociation } from "crates/shared/bindings/ObjectTypeAssociation";
 import { OCDeclareArcLabel } from "crates/shared/bindings/OCDeclareArcLabel";
 
