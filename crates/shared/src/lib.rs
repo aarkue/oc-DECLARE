@@ -1,4 +1,5 @@
 pub mod discovery;
+pub mod reduction;
 
 use std::{
     collections::{HashMap, HashSet},

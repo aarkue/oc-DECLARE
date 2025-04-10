@@ -56,6 +56,7 @@ export function flowEdgeToOCDECLARE(e: CustomEdge, flow: ReactFlowInstance<Activ
 
 import { v4 as uuidv4 } from 'uuid';
 import { applyLayoutToNodes } from "./automatic-layout";
+import { ObjectTypeAssociation } from "crates/shared/bindings/ObjectTypeAssociation";
 // import { ObjectTypeAssociation } from "crates/shared/bindings/ObjectTypeAssociation";
 export async function addArcsToFlow(discoverdArcs: OCDeclareArc[], flow: ReactFlowInstance<ActivityNode, CustomEdge>) {
     const nodeNameToIDs: Record<string, string> = {};
@@ -64,7 +65,9 @@ export async function addArcsToFlow(discoverdArcs: OCDeclareArc[], flow: ReactFl
     for (const arc of discoverdArcs) {
         const edgeType = translateArcTypeFromRsToTs(arc.arc_type);
         // const NON_RESOURCE_TYPES = ["orders", "items", "packages","Offer","Application"];
-        // const isNotOnlyResource = arc.label.all.map(oi => getLastOT(oi)).find(ot => NON_RESOURCE_TYPES.includes(ot)) || arc.label.each.map(oi => getLastOT(oi)).find(ot => NON_RESOURCE_TYPES.includes(ot)) || arc.label.any.map(oi => getLastOT(oi)).find(ot => NON_RESOURCE_TYPES.includes(ot));
+        // const isNotOnlyResource = arc.label.all.map(oi => getLastOT(oi)).find(ot => NON_RESOURCE_TYPES.includes(ot)) || arc.label.each.map(oi => getLastOT(oi)).find(ot => NON_RESOURCE_TYPES.includes(ot))
+    // || arc.label.any.map(oi => getLastOT(oi)).find(ot => NON_RESOURCE_TYPES.includes(ot)
+    // ;
         // if(isNotOnlyResource){
         // const from = typeof arc.from === "object" ? arc.from['activity'] : arc.from;
         // const to = typeof arc.to === "object" ? arc.to['activity'] : arc.to;
@@ -90,13 +93,13 @@ export async function addArcsToFlow(discoverdArcs: OCDeclareArc[], flow: ReactFl
     })
 }
 
-// function getLastOT(otass: ObjectTypeAssociation) {
-//     if (otass.type === "Simple") {
-//         return otass.object_type
-//     } else {
-//         return otass.second;
-//     }
-// }
+function getLastOT(otass: ObjectTypeAssociation) {
+    if (otass.type === "Simple") {
+        return otass.object_type
+    } else {
+        return otass.second;
+    }
+}
 
 function lookupIDOrCreateNode(node: OCDeclareNode, nodeIDMap: Record<string, string>, nodes: ActivityNode[]): string {
 
@@ -109,7 +112,7 @@ function lookupIDOrCreateNode(node: OCDeclareNode, nodeIDMap: Record<string, str
     } else if (node.includes("<exit> ")) {
         isObject = "exit";
     }
-    if (true || nodeIDMap[node] == undefined) {
+    if (nodeIDMap[node] == undefined) {
         const id = uuidv4();
         nodes.push({ id: id, type: "activity", position: { x: 0, y: 0 }, data: { isObject, type: node.replace("<init> ", "").replace("<exit> ", "") } })
         nodeIDMap[node] = id;

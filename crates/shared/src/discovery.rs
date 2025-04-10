@@ -6,10 +6,7 @@ use process_mining::ocel::linked_ocel::IndexLinkedOCEL;
 use rayon::prelude::*;
 
 use crate::{
-    get_activity_object_involvements, get_object_to_object_involvements,
-    get_rev_object_to_object_involvements, perf, OCDeclareArc, OCDeclareArcLabel, OCDeclareArcType,
-    OCDeclareNode, ObjectInvolvementCounts, ObjectTypeAssociation, EXIT_EVENT_PREFIX,
-    INIT_EVENT_PREFIX,
+    get_activity_object_involvements, get_object_to_object_involvements, get_rev_object_to_object_involvements, perf, reduction::reduce_oc_arcs, OCDeclareArc, OCDeclareArcLabel, OCDeclareArcType, OCDeclareNode, ObjectInvolvementCounts, ObjectTypeAssociation, EXIT_EVENT_PREFIX, INIT_EVENT_PREFIX
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -286,8 +283,10 @@ pub fn discover(
                 v
             }),
     );
-
-    ret
+    let ret_len = ret.len();
+    let new_ret = reduce_oc_arcs(ret);
+    println!("Reduced {} to {}",ret_len,new_ret.len());
+    new_ret
 }
 
 fn get_stricter_arrows_for_as(
@@ -300,39 +299,40 @@ fn get_stricter_arrows_for_as(
         // Test EF
         a.arc_type = OCDeclareArcType::EF;
         if a.get_for_all_evs_perf_thresh(locel, noise_thresh) {
-            // Test DF
-            a.arc_type = OCDeclareArcType::DF;
-            // let df_viol_frac = a.get_for_all_evs_perf(locel);
-            if a.get_for_all_evs_perf_thresh(locel, noise_thresh) {
+            // // Test DF
+            // a.arc_type = OCDeclareArcType::DF;
+            // // let df_viol_frac = a.get_for_all_evs_perf(locel);
+            // if a.get_for_all_evs_perf_thresh(locel, noise_thresh) {
+            //     ret.push(a.clone());
+            // } else {
+            //     a.arc_type = OCDeclareArcType::EF;
                 ret.push(a.clone());
-            } else {
-                a.arc_type = OCDeclareArcType::EF;
-                ret.push(a.clone());
-            }
+            // }
         }
     }
-    {
-        // Test EP
-        a.arc_type = OCDeclareArcType::EFREV;
-        // let ep_viol_frac = a.get_for_all_evs_perf(locel);
-        if a.get_for_all_evs_perf_thresh(locel, noise_thresh) {
-            // Test DFREV
-            a.arc_type = OCDeclareArcType::DFREV;
-            // let dp_viol_frac = a.get_for_all_evs_perf(locel);
-            if a.get_for_all_evs_perf_thresh(locel, noise_thresh) {
-                ret.push(a.clone());
-            } else {
-                a.arc_type = OCDeclareArcType::EFREV;
-                ret.push(a.clone());
-            }
-        }
-    }
-    if ret.is_empty() && a.from != a.to {
-        a.arc_type = OCDeclareArcType::ASS;
-        // if a.get_for_all_evs_perf_thresh(locel, noise_thresh) {
-        ret.push(a);
-        // }
-    }
+    // {
+    //     // Test EP
+    //     a.arc_type = OCDeclareArcType::EFREV;
+    //     // let ep_viol_frac = a.get_for_all_evs_perf(locel);
+    //     if a.get_for_all_evs_perf_thresh(locel, noise_thresh) {
+    //         // Test DFREV
+    //         a.arc_type = OCDeclareArcType::DFREV;
+    //         // let dp_viol_frac = a.get_for_all_evs_perf(locel);
+    //         if a.get_for_all_evs_perf_thresh(locel, noise_thresh) {
+    //             ret.push(a.clone());
+    //         } else {
+    //             a.arc_type = OCDeclareArcType::EFREV;
+    //             ret.push(a.clone());
+    //         }
+    //     }
+    // }
+    // if ret.is_empty() && a.from != a.to {
+    //     // Not interested in ASS
+    //     // a.arc_type = OCDeclareArcType::ASS;
+    //     // if a.get_for_all_evs_perf_thresh(locel, noise_thresh) {
+    //     // ret.push(a);
+    //     // }
+    // }
     ret
 }
 

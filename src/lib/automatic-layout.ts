@@ -15,11 +15,17 @@ const elk = new ELK();
 // })();
 
 const defaultOptions = {
-    // "elk.stress.desiredEdgeLength": "200.0",
+    "elk.stress.desiredEdgeLength": "400.0",
     "elk.direction": "RIGHT",
-    // "elk.algorithm": "stress",
-    "elk.algorithm": "mrtree",
+    "elk.algorithm": "stress",
+    // "elk.algorithm": "mrtree",
+    // "elk.direction": "DOWN",
+    // "elk.algorithm": "layered",
     "elk.spacing.nodeNode": "235",
+    "elk.spacing.edgeNode": 220.0,
+    "elk.layered.spacing.baseValue": 3.0,
+    "elk.edgeRouting": "POLYLINE",
+    "elk.layered.spacing.nodeNodeBetweenLayers": 150.0,
 };
 
 export function useLayoutedElements<N extends Record<string, unknown>>() {
