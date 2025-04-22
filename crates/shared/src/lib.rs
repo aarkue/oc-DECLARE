@@ -543,7 +543,11 @@ impl ObjectTypeAssociation {
     pub fn as_template_string(&self) -> String {
         match self {
             ObjectTypeAssociation::Simple { object_type } => object_type.clone(),
-            ObjectTypeAssociation::O2O { first, second, reversed } => format!("{}{}{}",first, if !reversed {">"} else {"<"},second),
+            ObjectTypeAssociation::O2O {
+                first,
+                second,
+                reversed,
+            } => format!("{}{}{}", first, if !reversed { ">" } else { "<" }, second),
         }
     }
 
@@ -611,19 +615,28 @@ impl OCDeclareArcLabel {
     pub fn as_template_string(&self) -> String {
         let mut ret = String::new();
         if !self.each.is_empty() {
-            ret.push_str(&format!("Each({})",self.each.iter().map(|ot| ot.as_template_string()).join(",")));
+            ret.push_str(&format!(
+                "Each({})",
+                self.each.iter().map(|ot| ot.as_template_string()).join(",")
+            ));
         }
         if !self.all.is_empty() {
             if !self.each.is_empty() {
                 ret.push_str(", ");
             }
-            ret.push_str(&format!("All({})",self.all.iter().map(|ot| ot.as_template_string()).join(",")));
+            ret.push_str(&format!(
+                "All({})",
+                self.all.iter().map(|ot| ot.as_template_string()).join(",")
+            ));
         }
         if !self.any.is_empty() {
             if !self.each.is_empty() || !self.any.is_empty() {
                 ret.push_str(", ");
             }
-            ret.push_str(&format!("Any({})",self.any.iter().map(|ot| ot.as_template_string()).join(",")));
+            ret.push_str(&format!(
+                "Any({})",
+                self.any.iter().map(|ot| ot.as_template_string()).join(",")
+            ));
         }
         ret
     }
@@ -661,49 +674,40 @@ impl OCDeclareArcLabel {
             .filter(|e| !all.contains(e) && !each.contains(e))
             .cloned()
             .collect::<HashSet<_>>();
-        // let first_obj_types: HashSet<_> = get_out_types(&all)
-        //     .chain(get_out_types(&any))
-        //     .chain(get_out_types(&each))
-        //     .cloned()
-        //     .collect();
         Self {
-            each: each
-                .into_iter()
-                // .filter(|t| match t {
-                //     ObjectTypeAssociation::O2O {
-                //         first: _,
-                //         second,
-                //         reversed: _,
-                //     } => !first_obj_types.contains(second),
-                //     ObjectTypeAssociation::Simple { object_type: _ } => true,
-                // })
-                .sorted()
-                .collect(),
-            all: all
-                .into_iter()
-                // .filter(|t| match t {
-                //     ObjectTypeAssociation::O2O {
-                //         first: _,
-                //         second,
-                //         reversed: _,
-                //     } => !first_obj_types.contains(second),
-                //     ObjectTypeAssociation::Simple { object_type: _ } => true,
-                // })
-                .sorted()
-                .collect(),
-            any: any
-                .into_iter()
-                // .filter(|t| match t {
-                //     ObjectTypeAssociation::O2O {
-                //         first: _,
-                //         second,
-                //         reversed: _,
-                //     } => !first_obj_types.contains(second),
-                //     ObjectTypeAssociation::Simple { object_type: _ } => true,
-                // })
-                .sorted()
-                .collect(),
+            each: each.into_iter().sorted().collect(),
+            all: all.into_iter().sorted().collect(),
+            any: any.into_iter().sorted().collect(),
         }
+    }
+
+    pub fn intersect(&self, other: &Self) -> Self {
+        let all: Vec<ObjectTypeAssociation> = self
+            .all
+            .iter()
+            .filter(|oi| other.all.contains(&oi))
+            .cloned()
+            .collect();
+        let each: Vec<ObjectTypeAssociation> = self
+            .each
+            .iter()
+            .chain(self.all.iter())
+            .filter(|oi| !all.contains(oi))
+            .filter(|oi| other.all.contains(&oi) || other.each.contains(&oi))
+            .cloned()
+            .collect();
+        let any: Vec<ObjectTypeAssociation> = self
+            .any
+            .iter()
+            .chain(self.each.iter())
+            .chain(self.all.iter())
+            .filter(|oi| !all.contains(oi) && !each.contains(oi))
+            .filter(|oi| {
+                other.all.contains(&oi) || other.each.contains(&oi) || other.any.contains(&oi)
+            })
+            .cloned()
+            .collect();
+        Self { each, all, any }
     }
 
     pub fn is_dominated_by(&self, other: &Self) -> bool {

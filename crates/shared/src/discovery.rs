@@ -6,7 +6,7 @@ use process_mining::ocel::linked_ocel::IndexLinkedOCEL;
 use rayon::prelude::*;
 
 use crate::{
-    get_activity_object_involvements, get_object_to_object_involvements, get_rev_object_to_object_involvements, perf, reduction::reduce_oc_arcs, OCDeclareArc, OCDeclareArcLabel, OCDeclareArcType, OCDeclareNode, ObjectInvolvementCounts, ObjectTypeAssociation, EXIT_EVENT_PREFIX, INIT_EVENT_PREFIX
+    get_activity_object_involvements, get_object_to_object_involvements, get_rev_object_to_object_involvements, perf, reduction::{oc_pn_prefilter, reduce_oc_arcs}, OCDeclareArc, OCDeclareArcLabel, OCDeclareArcType, OCDeclareNode, ObjectInvolvementCounts, ObjectTypeAssociation, EXIT_EVENT_PREFIX, INIT_EVENT_PREFIX
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -103,7 +103,8 @@ pub fn discover(
 
     // Third type of discovery: Eventually-follows
     let direction = OCDeclareArcType::ASS;
-    let counts = (Some(1), None);
+    let any_counts = (Some(1), None);
+    let other_counts = (Some(1), Some(20));
     ret.par_extend(
         locel
             .events_per_type
@@ -131,6 +132,7 @@ pub fn discover(
                     &ob_ob_rev_inv,
                     o2o_mode,
                 );
+                // let obj_invs_cloned = obj_invs.clone();
                 for (ot, is_multiple) in obj_invs {
                     // ANY?
                     let any_label = OCDeclareArcLabel {
@@ -143,7 +145,7 @@ pub fn discover(
                         act2,
                         &any_label,
                         &direction,
-                        &counts,
+                        &any_counts,
                         locel,
                         noise_thresh,
                     );
@@ -162,7 +164,7 @@ pub fn discover(
                                 act2,
                                 &each_label,
                                 &direction,
-                                &counts,
+                                &other_counts,
                                 locel,
                                 noise_thresh,
                             );
@@ -179,7 +181,7 @@ pub fn discover(
                                     act2,
                                     &all_label,
                                     &direction,
-                                    &counts,
+                                    &other_counts,
                                     locel,
                                     noise_thresh,
                                 );
@@ -233,7 +235,7 @@ pub fn discover(
                                 act2,
                                 &new_arc_label,
                                 &direction,
-                                &counts,
+                                &other_counts,
                                 locel,
                                 noise_thresh,
                             );
@@ -274,8 +276,12 @@ pub fn discover(
                             counts: (Some(1), Some(20)),
                         };
                         if arc.get_for_all_evs_perf_thresh(locel, noise_thresh) {
-                            arc.counts.1 = None;
-                            get_stricter_arrows_for_as(arc, noise_thresh, locel)
+                            // if test_for_resource(&arc.label, &obj_invs_cloned) {
+                                arc.counts.1 = None;
+                                get_stricter_arrows_for_as(arc, noise_thresh, locel)
+                            // }else{
+                            //     vec![]
+                            // }
                         } else {
                             vec![]
                         }
@@ -284,8 +290,19 @@ pub fn discover(
             }),
     );
     let ret_len = ret.len();
+    // let filtered_ret: Vec<_> = ret.into_iter().filter(|e| test_for_resource(&e.label,&get_direct_or_indirect_object_involvements(
+    //     e.from.as_str(),
+    //     e.to.as_str(),
+    //     &act_ob_inv,
+    //     &ob_ob_inv,
+    //     &ob_ob_rev_inv,
+    //     o2o_mode,
+    // ))).collect();
+    // let filtered_ret_len = filtered_ret.len();
+    // println!("Filtered {} to {}",ret_len,filtered_ret_len);
     let new_ret = reduce_oc_arcs(ret);
     println!("Reduced {} to {}",ret_len,new_ret.len());
+    let new_ret = oc_pn_prefilter(new_ret, locel, noise_thresh, &act_ob_inv);
     new_ret
 }
 
@@ -308,24 +325,25 @@ fn get_stricter_arrows_for_as(
             //     a.arc_type = OCDeclareArcType::EF;
                 ret.push(a.clone());
             // }
+            // return ret;
         }
     }
     // {
     //     // Test EP
-    //     a.arc_type = OCDeclareArcType::EFREV;
-    //     // let ep_viol_frac = a.get_for_all_evs_perf(locel);
-    //     if a.get_for_all_evs_perf_thresh(locel, noise_thresh) {
+        a.arc_type = OCDeclareArcType::EFREV;
+        // let ep_viol_frac = a.get_for_all_evs_perf(locel);
+        if a.get_for_all_evs_perf_thresh(locel, noise_thresh) {
     //         // Test DFREV
     //         a.arc_type = OCDeclareArcType::DFREV;
     //         // let dp_viol_frac = a.get_for_all_evs_perf(locel);
     //         if a.get_for_all_evs_perf_thresh(locel, noise_thresh) {
     //             ret.push(a.clone());
     //         } else {
-    //             a.arc_type = OCDeclareArcType::EFREV;
-    //             ret.push(a.clone());
+                // a.arc_type = OCDeclareArcType::EFREV;
+                ret.push(a.clone());
     //         }
-    //     }
-    // }
+        // }
+    }
     // if ret.is_empty() && a.from != a.to {
     //     // Not interested in ASS
     //     // a.arc_type = OCDeclareArcType::ASS;
