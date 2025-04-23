@@ -302,7 +302,6 @@ pub fn discover(
     // println!("Filtered {} to {}",ret_len,filtered_ret_len);
     let new_ret = reduce_oc_arcs(ret);
     println!("Reduced {} to {}",ret_len,new_ret.len());
-    let new_ret = oc_pn_prefilter(new_ret, locel, noise_thresh, &act_ob_inv);
     new_ret
 }
 
