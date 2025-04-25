@@ -482,6 +482,78 @@ fn get_df_or_dp_event_perf<'a>(
     }
 }
 
+
+
+
+fn get_chain_ef_ep_event_perf<'a>(
+    objs: &'a Vec<SetFilter<ObjectIndex>>,
+    linked_ocel: &'a IndexLinkedOCEL,
+    reference_event_index: &'a EventIndex,
+    reference_event: &'a OCELEvent,
+    following: bool,
+    chain_ev_type: &String,
+) -> usize {
+    let initial: Box<dyn Iterator<Item = &EventIndex>> = match &objs[0] {
+        SetFilter::Any(items) => Box::new(
+            items
+                .iter()
+                .flat_map(|o| {
+                    linked_ocel.get_e2o_rev(o).map(|(_q, e)| e).filter(|e| {
+                        if following {
+                            e > &reference_event_index
+                        } else {
+                            e < &reference_event_index
+                        }
+                    })
+                })
+                .collect::<HashSet<_>>()
+                .into_iter(),
+        ),
+        SetFilter::All(items) => {
+            if items.is_empty() {
+                Box::new(Vec::new().into_iter())
+            } else {
+                Box::new(
+                    linked_ocel.get_e2o_rev(&items[0]).map(|e| e.1).filter(|e| {
+                        items
+                            .iter()
+                            .skip(1)
+                            .all(|o| linked_ocel.get_e2o_set(e).contains(o))
+                    }), // .copied()
+                )
+            }
+        }
+    };
+    let mut x = initial.filter(|e| {
+        if following
+            && (e < &reference_event_index) //  || reference_event.time >= linked_ocel.get_ev(e).time
+        {
+            return false;
+        }
+        if !following
+            && (e > &reference_event_index) //  || reference_event.time <= linked_ocel.get_ev(e).time
+        {
+            return false;
+        }
+        for o in objs.iter() {
+            let obs = linked_ocel.get_e2o_set(e);
+            if !o.check(obs) {
+                return false;
+            }
+        }
+        true
+    }).sorted().collect_vec();
+    if !following {
+       x.reverse();
+    }
+    let count = x.iter().take_while(|e| {
+        let e = linked_ocel.get_ev(e);
+        e.event_type != *chain_ev_type
+    }).count();
+    count
+}
+
+
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[ts(export)]
 // #[serde(tag = "type")]
@@ -491,6 +563,8 @@ pub enum OCDeclareArcType {
     EFREV,
     DF,
     DFREV,
+    CHAINEF,
+    CHAINEFREV,
 }
 
 impl OCDeclareArcType {
@@ -501,6 +575,8 @@ impl OCDeclareArcType {
             OCDeclareArcType::EFREV => "EP",
             OCDeclareArcType::DF => "DF",
             OCDeclareArcType::DFREV => "DP",
+            OCDeclareArcType::CHAINEF => "CF",
+            OCDeclareArcType::CHAINEFREV => "CP",
         }
     }
 }
@@ -932,7 +1008,7 @@ pub mod perf {
     use rayon::prelude::*;
 
     use crate::{
-        get_df_or_dp_event_perf, get_evs_with_objs_perf, OCDeclareArcLabel, OCDeclareArcType,
+        get_chain_ef_ep_event_perf, get_df_or_dp_event_perf, get_evs_with_objs_perf, OCDeclareArcLabel, OCDeclareArcType
     };
 
     pub fn get_for_all_evs_perf(
@@ -1110,6 +1186,17 @@ pub mod perf {
                         }
                     }
                     false
+                },
+                OCDeclareArcType::CHAINEF | OCDeclareArcType::CHAINEFREV => {
+                    let chain_counts = get_chain_ef_ep_event_perf(
+                        &binding,
+                        linked_ocel,
+                        ev_index,
+                        ev,
+                        arc_type == &OCDeclareArcType::CHAINEF,
+                        &ev.event_type
+                    );
+                    return counts.0.is_none_or(|c| chain_counts >= c) && counts.1.is_none_or(|c| chain_counts <= c)
                 }
             }
         })
