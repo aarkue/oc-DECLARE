@@ -7,6 +7,7 @@ use std::{
     usize,
 };
 
+use chrono::Duration;
 use itertools::Itertools;
 pub use process_mining;
 use process_mining::{
@@ -34,9 +35,10 @@ pub fn preprocess_ocel(ocel: OCEL) -> IndexLinkedOCEL {
                 .map(|(_q, e)| locel.get_ev(e).time)
                 .sorted();
             let first_ev = iter.clone().next();
-            let first_ev_time = first_ev.unwrap_or_default();
+            let first_ev_time = first_ev.unwrap_or_default() - Duration::nanoseconds(1);
             let last_ev = iter.clone().last();
-            let last_ev_time = last_ev.unwrap_or_default();
+            let last_ev_time = last_ev.unwrap_or_default() + Duration::nanoseconds(1);
+            
             vec![
                 OCELEvent {
                     id: format!("{}_{}_{}", INIT_EVENT_PREFIX, ob.object_type, ob.id),
@@ -526,12 +528,12 @@ fn get_chain_ef_ep_event_perf<'a>(
     };
     let mut x = initial.filter(|e| {
         if following
-            && (e < &reference_event_index) //  || reference_event.time >= linked_ocel.get_ev(e).time
+            && (e < &reference_event_index) // || (*e != reference_event_index && reference_event.time >= linked_ocel.get_ev(e).time)
         {
             return false;
         }
         if !following
-            && (e > &reference_event_index) //  || reference_event.time <= linked_ocel.get_ev(e).time
+            && (e > &reference_event_index) // || (*e != reference_event_index && reference_event.time <= linked_ocel.get_ev(e).time)
         {
             return false;
         }

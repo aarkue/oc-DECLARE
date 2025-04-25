@@ -112,16 +112,16 @@ pub fn discover(
             .cartesian_product(locel.events_per_type.keys())
             .par_bridge()
             .progress_count(locel.events_per_type.len() as u64 * locel.events_per_type.len() as u64)
-            .filter(|(act1, act2)| {
-                if act1.starts_with(INIT_EVENT_PREFIX)
-                    || act1.starts_with(EXIT_EVENT_PREFIX)
-                    || act2.starts_with(INIT_EVENT_PREFIX)
-                    || act2.starts_with(EXIT_EVENT_PREFIX)
-                {
-                    return false;
-                }
-                true
-            })
+            // .filter(|(act1, act2)| {
+            //     if act1.starts_with(INIT_EVENT_PREFIX)
+            //         || act1.starts_with(EXIT_EVENT_PREFIX)
+            //         || act2.starts_with(INIT_EVENT_PREFIX)
+            //         || act2.starts_with(EXIT_EVENT_PREFIX)
+            //     {
+            //         return false;
+            //     }
+            //     true
+            // })
             .flat_map(|(act1, act2)| {
                 let mut act_arcs = Vec::new();
                 let obj_invs = get_direct_or_indirect_object_involvements(

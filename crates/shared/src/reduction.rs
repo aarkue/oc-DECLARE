@@ -7,7 +7,9 @@ use process_mining::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::{OCDeclareArc, OCDeclareArcType, ObjectInvolvementCounts};
+use crate::{
+    OCDeclareArc, OCDeclareArcType, ObjectInvolvementCounts, EXIT_EVENT_PREFIX, INIT_EVENT_PREFIX,
+};
 
 pub fn reduce_oc_arcs(arcs: Vec<OCDeclareArc>) -> Vec<OCDeclareArc> {
     let mut ret = arcs.clone();
@@ -75,6 +77,11 @@ pub fn oc_pn_prefilter(
                 && a.arc_type == OCDeclareArcType::EF
                 && b.arc_type == OCDeclareArcType::EFREV
             {
+                if a.from.as_str().starts_with(INIT_EVENT_PREFIX)
+                    && a.to.as_str().starts_with(EXIT_EVENT_PREFIX)
+                {
+                    continue;
+                }
                 // Next, build compatible label
                 // And test if compatible label holds also with c_min=c_max=1
                 let common_label = a.label.intersect(&b.label);
@@ -142,34 +149,40 @@ pub fn oc_pn_prefilter(
                                 && c2.arc_type == OCDeclareArcType::EF
                                 && c1.from.as_str() == c2.from.as_str()
                             {
-                                let d = arc_map.get(c1.from.as_str()).iter().flat_map(|a| a.iter()).find(|arc| arc.from == a.from);
-                                if d.is_some(){
+                                let d = arc_map
+                                    .get(c1.from.as_str())
+                                    .iter()
+                                    .flat_map(|a| a.iter())
+                                    .find(|arc| arc.from == a.from);
+                                if d.is_some() {
                                     continue;
                                 }
                                 let c_common_label = c1.label.intersect(&c2.label);
                                 if c_common_label.is_dominated_by(&common_label) {
                                     // C is an optional loop candidate :)
-                                    for (ot,in_arcs,out_arcs) in &mut new_places {
+                                    for (ot, in_arcs, out_arcs) in &mut new_places {
                                         let all = c_common_label.all.iter().find(|l| match l {
-                                            crate::ObjectTypeAssociation::Simple { object_type } => object_type == ot,
-                                            _ => false
+                                            crate::ObjectTypeAssociation::Simple {
+                                                object_type,
+                                            } => object_type == ot,
+                                            _ => false,
                                         });
                                         if let Some(x) = all {
-                                            in_arcs.push((c1.from.0.clone(),true));
-                                            out_arcs.push((c1.from.0.clone(),true));
+                                            in_arcs.push((c1.from.0.clone(), true));
+                                            out_arcs.push((c1.from.0.clone(), true));
                                         }
 
                                         let each = c_common_label.each.iter().find(|l| match l {
-                                            crate::ObjectTypeAssociation::Simple { object_type } => object_type == ot,
-                                            _ => false
+                                            crate::ObjectTypeAssociation::Simple {
+                                                object_type,
+                                            } => object_type == ot,
+                                            _ => false,
                                         });
                                         if let Some(x) = each {
                                             // TODO: Correct!
-                                            in_arcs.push((c1.from.0.clone(),false));
-                                            out_arcs.push((c1.from.0.clone(),false));
+                                            in_arcs.push((c1.from.0.clone(), false));
+                                            out_arcs.push((c1.from.0.clone(), false));
                                         }
-
-
                                     }
                                     println!(
                                         "{} is a candidate for {}\n{:?} and {:?}",
@@ -199,40 +212,42 @@ pub fn oc_pn_prefilter(
         PlaceID,
         (HashMap<TransitionID, bool>, HashMap<TransitionID, bool>),
     > = HashMap::new();
-    let mut place_groups: HashMap<PlaceID,usize> = HashMap::new();
-    for (group_index,place_group) in places.iter().enumerate() {
-    for (ot, froms, tos) in place_group {
-        let place_id = net.add_place(None);
-        place_groups.insert(place_id.clone(), group_index);
-        for (from, from_multi) in froms {
-            let from = trans_map.get(from.as_str()).unwrap();
-            net.add_arc(
-                ArcType::transition_to_place(*from, place_id),
-                Some(if *from_multi { 10 } else { 1 }),
+    let mut place_groups: HashMap<PlaceID, usize> = HashMap::new();
+    for (group_index, place_group) in places.iter().enumerate() {
+        for (ot, froms, tos) in place_group {
+            let place_id = net.add_place(None);
+            place_groups.insert(place_id.clone(), group_index);
+            for (from, from_multi) in froms {
+                let from = trans_map.get(from.as_str()).unwrap();
+                net.add_arc(
+                    ArcType::transition_to_place(*from, place_id),
+                    Some(if *from_multi { 10 } else { 1 }),
+                );
+            }
+            for (to, to_multi) in tos {
+                let to = trans_map.get(to.as_str()).unwrap();
+                net.add_arc(
+                    ArcType::place_to_transition(place_id, *to),
+                    Some(if *to_multi { 10 } else { 1 }),
+                );
+            }
+            place_object_type.insert(place_id.clone(), ot.to_string());
+            place_in_out_mult.insert(
+                place_id,
+                (
+                    froms
+                        .iter()
+                        .map(|(from, multi)| {
+                            (trans_map.get(from.as_str()).unwrap().clone(), *multi)
+                        })
+                        .collect(),
+                    tos.iter()
+                        .map(|(to, multi)| (trans_map.get(to.as_str()).unwrap().clone(), *multi))
+                        .collect(),
+                ),
             );
         }
-        for (to, to_multi) in tos {
-            let to = trans_map.get(to.as_str()).unwrap();
-            net.add_arc(
-                ArcType::place_to_transition(place_id, *to),
-                Some(if *to_multi { 10 } else { 1 }),
-            );
-        }
-        place_object_type.insert(place_id.clone(), ot.to_string());
-        place_in_out_mult.insert(
-            place_id,
-            (
-                froms
-                    .iter()
-                    .map(|(from, multi)| (trans_map.get(from.as_str()).unwrap().clone(), *multi))
-                    .collect(),
-                tos.iter()
-                    .map(|(to, multi)| (trans_map.get(to.as_str()).unwrap().clone(), *multi))
-                    .collect(),
-            ),
-        );
     }
-}
     #[derive(Debug, Clone, Deserialize, Serialize)]
     struct OCPetriNet {
         petri_net: PetriNet,
@@ -240,14 +255,14 @@ pub fn oc_pn_prefilter(
         // place_in_out_mult: HashMap<PlaceID, (bool, bool)>,
         place_in_out_mult:
             HashMap<PlaceID, (HashMap<TransitionID, bool>, HashMap<TransitionID, bool>)>,
-            place_groups: HashMap<PlaceID,usize>,
+        place_groups: HashMap<PlaceID, usize>,
     }
     // net.export_pnml("./oc-pn-logistics.pnml").unwrap();
     let oc_pn = OCPetriNet {
         petri_net: net,
         place_object_type,
         place_in_out_mult,
-        place_groups
+        place_groups,
     };
     serde_json::to_writer_pretty(
         File::create(format!("./oc-pn-chain-{}.json", name)).unwrap(),
@@ -263,7 +278,8 @@ mod test {
     };
 
     use crate::{
-        discovery::discover, get_activity_object_involvements, reduction::oc_pn_prefilter,
+        discovery::discover, get_activity_object_involvements, preprocess_ocel,
+        reduction::oc_pn_prefilter,
     };
 
     #[test]
@@ -271,19 +287,26 @@ mod test {
         // let ocel = import_ocel_json_from_path("/home/aarkue/dow/hpc-ocel-2025-04-01.json").unwrap();
         // let ocel =  import_ocel_json_from_path("/home/aarkue/dow/ocel/order-management.json").unwrap();
         // let ocel = import_ocel_json_from_path("/home/aarkue/dow/pm4Bundestag_20250406_periode_20_including_promulgation_proclamation.json").unwrap();
-        let ocel = import_ocel_json_from_path("/home/aarkue/dow/ocel/ocel2-p2p.json").unwrap();
+        // let ocel: process_mining::OCEL = import_ocel_json_from_path("/home/aarkue/dow/ocel/ocel2-p2p.json").unwrap();
         // let ocel = import_ocel_json_from_path("/home/aarkue/dow/ocel/ContainerLogistics.json").unwrap();
         // let ocel = import_ocel_json_from_path("/home/aarkue/dow/ocel/age_of_empires_ocel2_10_match_filter.json").unwrap();
         // let ocel = import_ocel_json_from_path("/home/aarkue/dow/ocel/bpic2017-o2o-workflow-qualifier-index-no-ev-attrs-sm.json").unwrap();
         // let ocel = import_ocel_xml_file("/home/aarkue/dow/ocel/lrm/01_o2c(2).xml");
-        // let ocel = import_ocel_xml_file("/home/aarkue/dow/ocel/socel2_hinge.xml");
+        let ocel = import_ocel_xml_file("/home/aarkue/dow/ocel/socel2_hinge.xml");
         // let ocel = import_ocel_xml_file("/home/aarkue/dow/ocel/age_of_empires_ocel2.xml");
         // let ocel = import_ocel_xml_file("/home/aarkue/dow/ocel_v3-fixed.xml");
-        let locel = IndexLinkedOCEL::from(ocel);
-        let noise_thresh = 0.2;
+        let locel = preprocess_ocel(ocel);
+        // let locel = IndexLinkedOCEL::from(ocel);
+        let noise_thresh = 0.1;
         let res = discover(&locel, noise_thresh, crate::discovery::O2OMode::None);
         let act_ob_inv = get_activity_object_involvements(&locel);
-        let new_ret = oc_pn_prefilter(&format!("p2p-{noise_thresh}"), res, &locel, noise_thresh, &act_ob_inv);
+        let new_ret = oc_pn_prefilter(
+            &format!("pre-processed-hinge-{noise_thresh}"),
+            res,
+            &locel,
+            noise_thresh,
+            &act_ob_inv,
+        );
         // println!("Discovered {} constraints", res.len());
         // let results_file =
         //     std::fs::File::create(format!("reduced-order-0.2noise.json")).unwrap();
