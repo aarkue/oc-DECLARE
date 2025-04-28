@@ -112,35 +112,32 @@ pub fn oc_pn_prefilter(
                     && new_arc_2.get_for_all_evs_perf_thresh(locel, noise_thresh)
                 {
                     let mut new_places = Vec::new();
-                    new_arc_1.label.all.iter().for_each(|oa| match oa {
-                        crate::ObjectTypeAssociation::Simple { object_type } => {
-                            new_places.push((
-                                object_type.to_string(),
-                                vec![(a.from.0.to_string(), true)],
-                                vec![(a.to.0.to_string(), true)],
-                            ));
-                        }
-                        _ => {}
-                    });
-                    new_arc_1.label.each.iter().for_each(|oa| match oa {
-                        crate::ObjectTypeAssociation::Simple { object_type } => {
-                            let first_multiple = oi
-                                .get(a.from.as_str())
-                                .unwrap()
-                                .get(object_type)
-                                .unwrap()
-                                .max
-                                > 1;
-                            let second_multiple =
-                                oi.get(a.to.as_str()).unwrap().get(object_type).unwrap().max > 1;
-                            new_places.push((
-                                object_type.to_string(),
-                                vec![(a.from.0.to_string(), first_multiple)],
-                                vec![(a.to.0.to_string(), second_multiple)],
-                            ));
-                        }
-                        _ => {}
-                    });
+                    new_arc_1
+                        .label
+                        .all
+                        .iter()
+                        .chain(new_arc_1.label.each.iter())
+                        .for_each(|oa| match oa {
+                            crate::ObjectTypeAssociation::Simple { object_type } => {
+                                let first_multiple = oi
+                                    .get(a.from.as_str())
+                                    .unwrap()
+                                    .get(object_type)
+                                    .unwrap()
+                                    .max
+                                    > 1;
+                                let second_multiple =
+                                    oi.get(a.to.as_str()).unwrap().get(object_type).unwrap().max
+                                        > 1;
+                                new_places.push((
+                                    object_type.to_string(),
+                                    vec![(a.from.0.to_string(), first_multiple)],
+                                    vec![(a.to.0.to_string(), second_multiple)],
+                                ));
+                            }
+                            _ => {}
+                        });
+
                     println!("PASSED: {}", new_arc_1.as_template_string());
                     // Test for optional C
                     for c1 in arc_map.get(&a.from.0).iter().flat_map(|x| x.iter()) {
@@ -161,28 +158,30 @@ pub fn oc_pn_prefilter(
                                 if c_common_label.is_dominated_by(&common_label) {
                                     // C is an optional loop candidate :)
                                     for (ot, in_arcs, out_arcs) in &mut new_places {
-                                        let all = c_common_label.all.iter().find(|l| match l {
-                                            crate::ObjectTypeAssociation::Simple {
-                                                object_type,
-                                            } => object_type == ot,
-                                            _ => false,
-                                        });
-                                        if let Some(x) = all {
-                                            in_arcs.push((c1.from.0.clone(), true));
-                                            out_arcs.push((c1.from.0.clone(), true));
-                                        }
+                                        c_common_label
+                                            .all
+                                            .iter()
+                                            .chain(c_common_label.each.iter())
+                                            .for_each(|oa| match oa {
+                                                crate::ObjectTypeAssociation::Simple {
+                                                    object_type,
+                                                } => {
+                                                    let is_multi = oi
+                                                        .get(c1.from.as_str())
+                                                        .unwrap()
+                                                        .get(object_type)
+                                                        .unwrap()
+                                                        .max
+                                                        > 1;
+                                                    if ot == object_type {
+                                                        in_arcs.push((c1.from.0.clone(), is_multi));
+                                                        out_arcs
+                                                            .push((c1.from.0.clone(), is_multi));
+                                                    }
+                                                }
 
-                                        let each = c_common_label.each.iter().find(|l| match l {
-                                            crate::ObjectTypeAssociation::Simple {
-                                                object_type,
-                                            } => object_type == ot,
-                                            _ => false,
-                                        });
-                                        if let Some(x) = each {
-                                            // TODO: Correct!
-                                            in_arcs.push((c1.from.0.clone(), false));
-                                            out_arcs.push((c1.from.0.clone(), false));
-                                        }
+                                                _ => todo!(),
+                                            });
                                     }
                                     println!(
                                         "{} is a candidate for {}\n{:?} and {:?}",
@@ -285,23 +284,24 @@ mod test {
     #[test]
     fn test_reduction() {
         // let ocel = import_ocel_json_from_path("/home/aarkue/dow/hpc-ocel-2025-04-01.json").unwrap();
-        // let ocel =  import_ocel_json_from_path("/home/aarkue/dow/ocel/order-management.json").unwrap();
+        let ocel =
+            import_ocel_json_from_path("/home/aarkue/dow/ocel/order-management.json").unwrap();
         // let ocel = import_ocel_json_from_path("/home/aarkue/dow/pm4Bundestag_20250406_periode_20_including_promulgation_proclamation.json").unwrap();
         // let ocel: process_mining::OCEL = import_ocel_json_from_path("/home/aarkue/dow/ocel/ocel2-p2p.json").unwrap();
         // let ocel = import_ocel_json_from_path("/home/aarkue/dow/ocel/ContainerLogistics.json").unwrap();
         // let ocel = import_ocel_json_from_path("/home/aarkue/dow/ocel/age_of_empires_ocel2_10_match_filter.json").unwrap();
         // let ocel = import_ocel_json_from_path("/home/aarkue/dow/ocel/bpic2017-o2o-workflow-qualifier-index-no-ev-attrs-sm.json").unwrap();
         // let ocel = import_ocel_xml_file("/home/aarkue/dow/ocel/lrm/01_o2c(2).xml");
-        let ocel = import_ocel_xml_file("/home/aarkue/dow/ocel/socel2_hinge.xml");
+        // let ocel = import_ocel_xml_file("/home/aarkue/dow/ocel/socel2_hinge.xml");
         // let ocel = import_ocel_xml_file("/home/aarkue/dow/ocel/age_of_empires_ocel2.xml");
         // let ocel = import_ocel_xml_file("/home/aarkue/dow/ocel_v3-fixed.xml");
         let locel = preprocess_ocel(ocel);
         // let locel = IndexLinkedOCEL::from(ocel);
-        let noise_thresh = 0.1;
+        let noise_thresh = 0.0;
         let res = discover(&locel, noise_thresh, crate::discovery::O2OMode::None);
         let act_ob_inv = get_activity_object_involvements(&locel);
         let new_ret = oc_pn_prefilter(
-            &format!("pre-processed-hinge-{noise_thresh}"),
+            &format!("pre-processed-order2-{noise_thresh}"),
             res,
             &locel,
             noise_thresh,
