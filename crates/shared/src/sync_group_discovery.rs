@@ -1,11 +1,16 @@
 use std::{
-    collections::{HashMap, HashSet}, fs::File, time::Instant
+    collections::{HashMap, HashSet},
+    fs::File,
+    time::Instant,
 };
 
 use indicatif::ParallelProgressIterator;
 use itertools::Itertools;
 use process_mining::{
-    import_ocel_json_from_path, import_ocel_xml_file, ocel::linked_ocel::{IndexLinkedOCEL, LinkedOCELAccess}, petri_net::petri_net_struct::{ArcType, PlaceID, TransitionID}, PetriNet
+    import_ocel_json_from_path, import_ocel_xml_file,
+    ocel::linked_ocel::{IndexLinkedOCEL, LinkedOCELAccess},
+    petri_net::petri_net_struct::{ArcType, PlaceID, TransitionID},
+    PetriNet,
 };
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -308,17 +313,32 @@ fn add_optional_steps(
         .collect()
 }
 
-pub fn perform_sync_group_discovery(locel: &IndexLinkedOCEL, noise_thresh: f64) {
+#[derive(Debug, Clone, Deserialize, Serialize)]
+struct OCPetriNet {
+    petri_net: PetriNet,
+    place_object_type: HashMap<PlaceID, String>,
+    // place_in_out_mult: HashMap<PlaceID, (bool, bool)>,
+    place_in_out_mult: HashMap<PlaceID, (HashMap<TransitionID, bool>, HashMap<TransitionID, bool>)>,
+    place_groups: HashMap<PlaceID, usize>,
+}
+
+fn perform_sync_group_discovery(
+    locel: &IndexLinkedOCEL,
+    noise_thresh: f64,
+) -> (
+    Vec<(String, String, OCDeclareArcLabel, Vec<String>)>,
+    OCPetriNet,
+) {
     let ass = mine_associations(locel, noise_thresh);
     let fit = incoporate_control_flow_and_ensure_fitness(locel, noise_thresh, ass);
     let red = perform_transitive_reduction(fit);
     let opt = add_optional_steps(locel, noise_thresh, red);
 
-    println!("{:#?}", opt);
-    println!("{}", opt.len());
+    // println!("{:#?}", opt);
+    // println!("{}", opt.len());
 
     // Construct Synchronized Place Groups and Places in Petri Nets
-    let act_ot_involvements =  get_activity_object_involvements(locel);
+    let act_ot_involvements = get_activity_object_involvements(locel);
 
     let mut net = PetriNet::new();
     let trans_map: HashMap<&str, TransitionID> = locel
@@ -332,34 +352,49 @@ pub fn perform_sync_group_discovery(locel: &IndexLinkedOCEL, noise_thresh: f64) 
     > = HashMap::new();
     let mut place_groups: HashMap<PlaceID, usize> = HashMap::new();
     let mut place_group_index = 0;
-    for (a, b, l1, opts) in opt {
+    for (a, b, l1, opts) in &opt {
         let a_trans = trans_map.get(a.as_str()).unwrap();
         let b_trans = trans_map.get(b.as_str()).unwrap();
-        let from_multi = true;
         if !l1.all.is_empty() {
             assert!(l1.each.is_empty());
-            for oa in l1.all {
+            for oa in &l1.all {
                 if let ObjectTypeAssociation::Simple { object_type } = oa {
                     let place_id = net.add_place(None);
                     place_groups.insert(place_id.clone(), place_group_index);
                     place_object_type.insert(place_id.clone(), object_type.to_string());
                     net.add_arc(
                         ArcType::transition_to_place(*a_trans, place_id),
-                        act_ot_involvements.get(&a).unwrap().get(&object_type).map(|w| if w.max > 1 || w.min < 1 { 10 } else { 1 } ),
+                        act_ot_involvements
+                            .get(a)
+                            .unwrap()
+                            .get(object_type)
+                            .map(|w| if w.max > 1 || w.min < 1 { 10 } else { 1 }),
                     );
                     net.add_arc(
                         ArcType::place_to_transition(place_id, *b_trans),
-                        act_ot_involvements.get(&b).unwrap().get(&object_type).map(|w| if w.max > 1 || w.min < 1 { 10 } else { 1 } ),
+                        act_ot_involvements
+                            .get(b)
+                            .unwrap()
+                            .get(object_type)
+                            .map(|w| if w.max > 1 || w.min < 1 { 10 } else { 1 }),
                     );
-                    for opt_act in &opts {
+                    for opt_act in opts {
                         let opt_trans = trans_map.get(opt_act.as_str()).unwrap();
                         net.add_arc(
                             ArcType::transition_to_place(*opt_trans, place_id),
-                            act_ot_involvements.get(opt_act).unwrap().get(&object_type).map(|w| if w.max > 1 || w.min < 1 { 10 } else { 1 } ),
+                            act_ot_involvements
+                                .get(opt_act)
+                                .unwrap()
+                                .get(object_type)
+                                .map(|w| if w.max > 1 || w.min < 1 { 10 } else { 1 }),
                         );
                         net.add_arc(
                             ArcType::place_to_transition(place_id, *opt_trans),
-                            act_ot_involvements.get(opt_act).unwrap().get(&object_type).map(|w| if w.max > 1 || w.min < 1 { 10 } else { 1 } ),
+                            act_ot_involvements
+                                .get(opt_act)
+                                .unwrap()
+                                .get(object_type)
+                                .map(|w| if w.max > 1 || w.min < 1 { 10 } else { 1 }),
                         );
                     }
                 }
@@ -373,95 +408,101 @@ pub fn perform_sync_group_discovery(locel: &IndexLinkedOCEL, noise_thresh: f64) 
                 place_object_type.insert(place_id.clone(), object_type.to_string());
                 net.add_arc(
                     ArcType::transition_to_place(*a_trans, place_id),
-                    act_ot_involvements.get(&a).unwrap().get(object_type).map(|w| if w.max > 1 || w.min < 1 { 10 } else { 1 } ),
+                    act_ot_involvements
+                        .get(a)
+                        .unwrap()
+                        .get(object_type)
+                        .map(|w| if w.max > 1 || w.min < 1 { 10 } else { 1 }),
                 );
                 net.add_arc(
                     ArcType::place_to_transition(place_id, *b_trans),
-                    act_ot_involvements.get(&b).unwrap().get(object_type).map(|w| if w.max > 1 || w.min < 1 { 10 } else { 1 } ),
+                    act_ot_involvements
+                        .get(b)
+                        .unwrap()
+                        .get(object_type)
+                        .map(|w| if w.max > 1 || w.min < 1 { 10 } else { 1 }),
                 );
 
-                for opt_act in &opts {
+                for opt_act in opts {
                     let opt_trans = trans_map.get(opt_act.as_str()).unwrap();
                     net.add_arc(
                         ArcType::transition_to_place(*opt_trans, place_id),
-                        act_ot_involvements.get(opt_act).unwrap().get(object_type).map(|w| if w.max > 1 || w.min < 1 { 10 } else { 1 } ),
+                        act_ot_involvements
+                            .get(opt_act)
+                            .unwrap()
+                            .get(object_type)
+                            .map(|w| if w.max > 1 || w.min < 1 { 10 } else { 1 }),
                     );
                     net.add_arc(
                         ArcType::place_to_transition(place_id, *opt_trans),
-                        act_ot_involvements.get(opt_act).unwrap().get(object_type).map(|w| if w.max > 1 || w.min < 1 { 10 } else { 1 } ),
+                        act_ot_involvements
+                            .get(opt_act)
+                            .unwrap()
+                            .get(object_type)
+                            .map(|w| if w.max > 1 || w.min < 1 { 10 } else { 1 }),
                     );
                 }
             }
         }
+    }
 
-    }
-    #[derive(Debug, Clone, Deserialize, Serialize)]
-    struct OCPetriNet {
-        petri_net: PetriNet,
-        place_object_type: HashMap<PlaceID, String>,
-        // place_in_out_mult: HashMap<PlaceID, (bool, bool)>,
-        place_in_out_mult:
-            HashMap<PlaceID, (HashMap<TransitionID, bool>, HashMap<TransitionID, bool>)>,
-        place_groups: HashMap<PlaceID, usize>,
-    }
-    // net.export_pnml("./oc-pn-logistics.pnml").unwrap();
     let oc_pn = OCPetriNet {
         petri_net: net,
         place_object_type,
         place_in_out_mult,
         place_groups,
     };
-    let name = "orders";
-    serde_json::to_writer_pretty(
-        File::create(format!("./NEW-approach-{}.json", name)).unwrap(),
-        &oc_pn,
-    )
-    .unwrap();
-        // for (ot, froms, tos) in place_group {
-        //     let place_id = net.add_place(None);
-        //     place_groups.insert(place_id.clone(), group_index);
-        //     for (from, from_multi) in froms {
-        //         let from = trans_map.get(from.as_str()).unwrap();
-        //         net.add_arc(
-        //             ArcType::transition_to_place(*from, place_id),
-        //             Some(if *from_multi { 10 } else { 1 }),
-        //         );
-        //     }
-        //     for (to, to_multi) in tos {
-        //         let to = trans_map.get(to.as_str()).unwrap();
-        //         net.add_arc(
-        //             ArcType::place_to_transition(place_id, *to),
-        //             Some(if *to_multi { 10 } else { 1 }),
-        //         );
-        //     }
-        //     place_object_type.insert(place_id.clone(), ot.to_string());
-        //     place_in_out_mult.insert(
-        //         place_id,
-        //         (
-        //             froms
-        //                 .iter()
-        //                 .map(|(from, multi)| {
-        //                     (trans_map.get(from.as_str()).unwrap().clone(), *multi)
-        //                 })
-        //                 .collect(),
-        //             tos.iter()
-        //                 .map(|(to, multi)| (trans_map.get(to.as_str()).unwrap().clone(), *multi))
-        //                 .collect(),
-        //         ),
-        //     );
-        // }
+    (opt, oc_pn)
 }
 
 #[test]
-fn test_sync_group_discovery() {
-    let ocel = import_ocel_json_from_path("/home/aarkue/dow/ocel/order-management.json").unwrap();
+fn sync_group_discovery_eval_table() {
+    let datasets = [
+        ("Order", "/home/aarkue/dow/ocel/order-management.json"),
+        ("P2P", "/home/aarkue/dow/ocel/ocel2-p2p.json"),
+        ("Logistics", "/home/aarkue/dow/ocel/ContainerLogistics.json"),
+        ("Hinge", "/home/aarkue/dow/ocel/socel2_hinge.xml"),
+    ];
+    // let noise_thresholds = [0.00, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30];
+    let noise_thresholds = [0.00, 0.10, 0.20, 0.30];
+
+    for (name, path) in datasets {
+        let ocel = if path.ends_with(".json") {
+            import_ocel_json_from_path(path).unwrap()
+        } else {
+            import_ocel_xml_file(path)
+        };
+        let locel = IndexLinkedOCEL::from(ocel);
+        print!(
+            "{name} & {} & {} & {} & {} ",
+            locel.get_ev_types().count(),
+            locel.get_all_evs().count(),
+            locel.get_ob_types().count(),
+            locel.get_all_obs().count()
+        );
+        for noise_thresh in noise_thresholds {
+            let now = Instant::now();
+            let (candidates, oc_sync_pn) = perform_sync_group_discovery(&locel, noise_thresh);
+            let duration = now.elapsed();
+            let num_places = oc_sync_pn.petri_net.places.len();
+            let num_place_groups = candidates.iter().filter(|c| !c.2.all.is_empty()).count();
+            print!(
+                "& {:.2}s & {num_places} & {num_place_groups} ",
+                duration.as_secs_f64()
+            );
+            // println!("{name} with {noise_thresh} yielded {num_places} places with {num_place_groups} groups in  {:?}", duration.as_secs_f64());
+            serde_json::to_writer_pretty(
+                File::create(format!("./ocpn-place-groups_{name}-{noise_thresh}.json")).unwrap(),
+                &oc_sync_pn,
+            )
+            .unwrap();
+        }
+        println!("\\\\");
+    }
+    // let ocel = import_ocel_json_from_path("/home/aarkue/dow/ocel/order-management.json").unwrap();
     // let ocel: process_mining::OCEL = import_ocel_json_from_path("/home/aarkue/dow/ocel/ocel2-p2p.json").unwrap();
     // let ocel = import_ocel_json_from_path("/home/aarkue/dow/ocel/ContainerLogistics.json").unwrap();
     // let ocel = import_ocel_json_from_path("/home/aarkue/dow/ocel/bpic2017-o2o-workflow-qualifier-index-no-ev-attrs-sm.json").unwrap();
-        // let ocel = import_ocel_xml_file("/home/aarkue/dow/ocel/socel2_hinge.xml");
-    let locel = IndexLinkedOCEL::from(ocel);
-    let now = Instant::now();
-    let noise_thresh = 0.2;
-    let res = perform_sync_group_discovery(&locel, noise_thresh);
-    println!("Took {:?}", now.elapsed());
+    // let ocel = import_ocel_xml_file("/home/aarkue/dow/ocel/socel2_hinge.xml");
+    // let ocel = import_ocel_xml_file("/home/aarkue/dow/ocel_inventory_management.xml");
 }
