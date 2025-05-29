@@ -1,5 +1,6 @@
 pub mod discovery;
 pub mod reduction;
+pub mod sync_group_discovery;
 
 use std::{
     collections::{HashMap, HashSet},
@@ -487,13 +488,14 @@ fn get_df_or_dp_event_perf<'a>(
 
 
 
-fn get_chain_ef_ep_event_perf<'a>(
+fn get_alternate_ef_ep_event_perf<'a>(
     objs: &'a Vec<SetFilter<ObjectIndex>>,
     linked_ocel: &'a IndexLinkedOCEL,
     reference_event_index: &'a EventIndex,
     reference_event: &'a OCELEvent,
     following: bool,
-    chain_ev_type: &String,
+    alternate_ev_type: &str,
+    to_ev_type: &str,
 ) -> usize {
     let initial: Box<dyn Iterator<Item = &EventIndex>> = match &objs[0] {
         SetFilter::Any(items) => Box::new(
@@ -528,12 +530,12 @@ fn get_chain_ef_ep_event_perf<'a>(
     };
     let mut x = initial.filter(|e| {
         if following
-            && (e < &reference_event_index) // || (*e != reference_event_index && reference_event.time >= linked_ocel.get_ev(e).time)
+            && (e <= &reference_event_index) // || (*e != reference_event_index && reference_event.time >= linked_ocel.get_ev(e).time)
         {
             return false;
         }
         if !following
-            && (e > &reference_event_index) // || (*e != reference_event_index && reference_event.time <= linked_ocel.get_ev(e).time)
+            && (e >= &reference_event_index) // || (*e != reference_event_index && reference_event.time <= linked_ocel.get_ev(e).time)
         {
             return false;
         }
@@ -548,10 +550,17 @@ fn get_chain_ef_ep_event_perf<'a>(
     if !following {
        x.reverse();
     }
-    let count = x.iter().take_while(|e| {
+    let mut count = 0;
+    for e in x {
         let e = linked_ocel.get_ev(e);
-        e.event_type != *chain_ev_type
-    }).count();
+        if e.event_type == *alternate_ev_type {
+            break;
+        }else{
+           if e.event_type == to_ev_type {
+            count += 1;
+           }
+        }
+    }
     count
 }
 
@@ -565,8 +574,8 @@ pub enum OCDeclareArcType {
     EFREV,
     DF,
     DFREV,
-    CHAINEF,
-    CHAINEFREV,
+    ALTEF,
+    ALTEFREV,
 }
 
 impl OCDeclareArcType {
@@ -577,8 +586,8 @@ impl OCDeclareArcType {
             OCDeclareArcType::EFREV => "EP",
             OCDeclareArcType::DF => "DF",
             OCDeclareArcType::DFREV => "DP",
-            OCDeclareArcType::CHAINEF => "CF",
-            OCDeclareArcType::CHAINEFREV => "CP",
+            OCDeclareArcType::ALTEF => "AF",
+            OCDeclareArcType::ALTEFREV => "AP",
         }
     }
 }
@@ -1010,7 +1019,7 @@ pub mod perf {
     use rayon::prelude::*;
 
     use crate::{
-        get_chain_ef_ep_event_perf, get_df_or_dp_event_perf, get_evs_with_objs_perf, OCDeclareArcLabel, OCDeclareArcType
+        get_alternate_ef_ep_event_perf, get_df_or_dp_event_perf, get_evs_with_objs_perf, OCDeclareArcLabel, OCDeclareArcType
     };
 
     pub fn get_for_all_evs_perf(
@@ -1189,16 +1198,18 @@ pub mod perf {
                     }
                     false
                 },
-                OCDeclareArcType::CHAINEF | OCDeclareArcType::CHAINEFREV => {
-                    let chain_counts = get_chain_ef_ep_event_perf(
+                OCDeclareArcType::ALTEF | OCDeclareArcType::ALTEFREV => {
+                    let chain_counts = get_alternate_ef_ep_event_perf(
                         &binding,
                         linked_ocel,
                         ev_index,
                         ev,
-                        arc_type == &OCDeclareArcType::CHAINEF,
-                        &ev.event_type
+                        arc_type == &OCDeclareArcType::ALTEF,
+                        &ev.event_type,
+                        to_et,
+                        // if arc_type == &OCDeclareArcType::CHAINEFREV { &ev.event_type } else {to_et}
                     );
-                    return counts.0.is_none_or(|c| chain_counts >= c) && counts.1.is_none_or(|c| chain_counts <= c)
+                    return !(counts.0.is_none_or(|c| chain_counts >= c) && counts.1.is_none_or(|c| chain_counts <= c))
                 }
             }
         })
