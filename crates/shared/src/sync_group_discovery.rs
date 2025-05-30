@@ -17,9 +17,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     discovery::get_direct_or_indirect_object_involvements, get_activity_object_involvements,
-    get_object_to_object_involvements, get_rev_object_to_object_involvements, perf, OCDeclareArc,
-    OCDeclareArcLabel, OCDeclareArcType, OCDeclareNode, ObjectInvolvementCounts,
-    ObjectTypeAssociation,
+    get_object_to_object_involvements, get_rev_object_to_object_involvements, perf,
+    preprocess_ocel, OCDeclareArc, OCDeclareArcLabel, OCDeclareArcType, OCDeclareNode,
+    ObjectInvolvementCounts, ObjectTypeAssociation, EXIT_EVENT_PREFIX, INIT_EVENT_PREFIX,
 };
 
 pub fn mine_associations(
@@ -338,11 +338,13 @@ fn perform_sync_group_discovery(
     // println!("{}", opt.len());
 
     // Construct Synchronized Place Groups and Places in Petri Nets
+    
     let act_ot_involvements = get_activity_object_involvements(locel);
 
     let mut net = PetriNet::new();
     let trans_map: HashMap<&str, TransitionID> = locel
         .get_ev_types()
+        .filter(|et| !et.starts_with(INIT_EVENT_PREFIX) && !et.starts_with(EXIT_EVENT_PREFIX))
         .map(|et| (et, net.add_transition(Some(et.to_string()), None)))
         .collect();
     let mut place_object_type = HashMap::new();
@@ -353,15 +355,80 @@ fn perform_sync_group_discovery(
     let mut place_groups: HashMap<PlaceID, usize> = HashMap::new();
     let mut place_group_index = 0;
     for (a, b, l1, opts) in &opt {
-        let a_trans = trans_map.get(a.as_str()).unwrap();
-        let b_trans = trans_map.get(b.as_str()).unwrap();
         if !l1.all.is_empty() {
             assert!(l1.each.is_empty());
             for oa in &l1.all {
                 if let ObjectTypeAssociation::Simple { object_type } = oa {
+                    if a.starts_with(INIT_EVENT_PREFIX) && b.starts_with(EXIT_EVENT_PREFIX) {
+                        continue;
+                    }
                     let place_id = net.add_place(None);
-                    place_groups.insert(place_id.clone(), place_group_index);
                     place_object_type.insert(place_id.clone(), object_type.to_string());
+                    if !a.starts_with(INIT_EVENT_PREFIX) {
+                        let a_trans = trans_map.get(a.as_str()).unwrap();
+                        net.add_arc(
+                            ArcType::transition_to_place(*a_trans, place_id),
+                            act_ot_involvements
+                                .get(a)
+                                .unwrap()
+                                .get(object_type)
+                                .map(|w| if w.max > 1 || w.min < 1 { 10 } else { 1 }),
+                        );
+                    }
+                    if !b.starts_with(EXIT_EVENT_PREFIX) {
+                        let b_trans = trans_map.get(b.as_str()).unwrap();
+
+                        net.add_arc(
+                            ArcType::place_to_transition(place_id, *b_trans),
+                            act_ot_involvements
+                                .get(b)
+                                .unwrap()
+                                .get(object_type)
+                                .map(|w| if w.max > 1 || w.min < 1 { 10 } else { 1 }),
+                        );
+                    }
+
+                    if !a.starts_with(INIT_EVENT_PREFIX) && !b.starts_with(EXIT_EVENT_PREFIX) {
+                        place_groups.insert(place_id.clone(), place_group_index);
+                        for opt_act in opts {
+                            if !opt_act.starts_with(INIT_EVENT_PREFIX)
+                                && !opt_act.starts_with(EXIT_EVENT_PREFIX)
+                            {
+                                let opt_trans = trans_map.get(opt_act.as_str()).unwrap();
+                                net.add_arc(
+                                    ArcType::transition_to_place(*opt_trans, place_id),
+                                    act_ot_involvements
+                                        .get(opt_act)
+                                        .unwrap()
+                                        .get(object_type)
+                                        .map(|w| if w.max > 1 || w.min < 1 { 10 } else { 1 }),
+                                );
+                                net.add_arc(
+                                    ArcType::place_to_transition(place_id, *opt_trans),
+                                    act_ot_involvements
+                                        .get(opt_act)
+                                        .unwrap()
+                                        .get(object_type)
+                                        .map(|w| if w.max > 1 || w.min < 1 { 10 } else { 1 }),
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+            place_group_index += 1;
+        } else if !l1.each.is_empty() {
+            assert!(l1.each.len() == 1);
+            if let Some(ObjectTypeAssociation::Simple { object_type }) = l1.each.first() {
+                if a.starts_with(INIT_EVENT_PREFIX) && b.starts_with(EXIT_EVENT_PREFIX) {
+                    continue;
+                }
+                let place_id = net.add_place(None);
+                // place_groups.insert(place_id.clone(), place_group_index);
+                place_object_type.insert(place_id.clone(), object_type.to_string());
+                if !a.starts_with(INIT_EVENT_PREFIX) {
+                    let a_trans = trans_map.get(a.as_str()).unwrap();
+
                     net.add_arc(
                         ArcType::transition_to_place(*a_trans, place_id),
                         act_ot_involvements
@@ -370,6 +437,10 @@ fn perform_sync_group_discovery(
                             .get(object_type)
                             .map(|w| if w.max > 1 || w.min < 1 { 10 } else { 1 }),
                     );
+                }
+
+                if !b.starts_with(EXIT_EVENT_PREFIX) {
+                    let b_trans = trans_map.get(b.as_str()).unwrap();
                     net.add_arc(
                         ArcType::place_to_transition(place_id, *b_trans),
                         act_ot_involvements
@@ -378,69 +449,31 @@ fn perform_sync_group_discovery(
                             .get(object_type)
                             .map(|w| if w.max > 1 || w.min < 1 { 10 } else { 1 }),
                     );
-                    for opt_act in opts {
-                        let opt_trans = trans_map.get(opt_act.as_str()).unwrap();
-                        net.add_arc(
-                            ArcType::transition_to_place(*opt_trans, place_id),
-                            act_ot_involvements
-                                .get(opt_act)
-                                .unwrap()
-                                .get(object_type)
-                                .map(|w| if w.max > 1 || w.min < 1 { 10 } else { 1 }),
-                        );
-                        net.add_arc(
-                            ArcType::place_to_transition(place_id, *opt_trans),
-                            act_ot_involvements
-                                .get(opt_act)
-                                .unwrap()
-                                .get(object_type)
-                                .map(|w| if w.max > 1 || w.min < 1 { 10 } else { 1 }),
-                        );
-                    }
                 }
-            }
-            place_group_index += 1;
-        } else if !l1.each.is_empty() {
-            assert!(l1.each.len() == 1);
-            if let Some(ObjectTypeAssociation::Simple { object_type }) = l1.each.first() {
-                let place_id = net.add_place(None);
-                // place_groups.insert(place_id.clone(), place_group_index);
-                place_object_type.insert(place_id.clone(), object_type.to_string());
-                net.add_arc(
-                    ArcType::transition_to_place(*a_trans, place_id),
-                    act_ot_involvements
-                        .get(a)
-                        .unwrap()
-                        .get(object_type)
-                        .map(|w| if w.max > 1 || w.min < 1 { 10 } else { 1 }),
-                );
-                net.add_arc(
-                    ArcType::place_to_transition(place_id, *b_trans),
-                    act_ot_involvements
-                        .get(b)
-                        .unwrap()
-                        .get(object_type)
-                        .map(|w| if w.max > 1 || w.min < 1 { 10 } else { 1 }),
-                );
-
-                for opt_act in opts {
-                    let opt_trans = trans_map.get(opt_act.as_str()).unwrap();
-                    net.add_arc(
-                        ArcType::transition_to_place(*opt_trans, place_id),
-                        act_ot_involvements
-                            .get(opt_act)
-                            .unwrap()
-                            .get(object_type)
-                            .map(|w| if w.max > 1 || w.min < 1 { 10 } else { 1 }),
-                    );
-                    net.add_arc(
-                        ArcType::place_to_transition(place_id, *opt_trans),
-                        act_ot_involvements
-                            .get(opt_act)
-                            .unwrap()
-                            .get(object_type)
-                            .map(|w| if w.max > 1 || w.min < 1 { 10 } else { 1 }),
-                    );
+                if !a.starts_with(INIT_EVENT_PREFIX) && !b.starts_with(EXIT_EVENT_PREFIX) {
+                    for opt_act in opts {
+                        if !opt_act.starts_with(INIT_EVENT_PREFIX)
+                            && !opt_act.starts_with(EXIT_EVENT_PREFIX)
+                        {
+                            let opt_trans = trans_map.get(opt_act.as_str()).unwrap();
+                            net.add_arc(
+                                ArcType::transition_to_place(*opt_trans, place_id),
+                                act_ot_involvements
+                                    .get(opt_act)
+                                    .unwrap()
+                                    .get(object_type)
+                                    .map(|w| if w.max > 1 || w.min < 1 { 10 } else { 1 }),
+                            );
+                            net.add_arc(
+                                ArcType::place_to_transition(place_id, *opt_trans),
+                                act_ot_involvements
+                                    .get(opt_act)
+                                    .unwrap()
+                                    .get(object_type)
+                                    .map(|w| if w.max > 1 || w.min < 1 { 10 } else { 1 }),
+                            );
+                        }
+                    }
                 }
             }
         }
@@ -472,7 +505,8 @@ fn sync_group_discovery_eval_table() {
         } else {
             import_ocel_xml_file(path)
         };
-        let locel = IndexLinkedOCEL::from(ocel);
+        let locel = preprocess_ocel(ocel);
+        // let locel = IndexLinkedOCEL::from(ocel);
         print!(
             "{name} & {} & {} & {} & {} ",
             locel.get_ev_types().count(),
@@ -485,7 +519,7 @@ fn sync_group_discovery_eval_table() {
             let (candidates, oc_sync_pn) = perform_sync_group_discovery(&locel, noise_thresh);
             let duration = now.elapsed();
             let num_places = oc_sync_pn.petri_net.places.len();
-            let num_place_groups = candidates.iter().filter(|c| !c.2.all.is_empty()).count();
+            let num_place_groups = oc_sync_pn.place_groups.values().unique().count();
             print!(
                 "& {:.2}s & {num_places} & {num_place_groups} ",
                 duration.as_secs_f64()
