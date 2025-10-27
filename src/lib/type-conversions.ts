@@ -10,17 +10,17 @@ export function translateArcInfo(data: CustomEdge['data']): [OCDeclareArcType, [
         case "ef":
             return ["EF", data?.cardinality ?? [1, null]]
         case "ef-rev":
-            return ["EFREV", data?.cardinality ?? [1, null]]
+            return ["EP", data?.cardinality ?? [1, null]]
         case "nef":
             return ["EF", [0, 0]]
         case "nef-rev":
-            return ["EFREV", [0, 0]]
+            return ["EP", [0, 0]]
         case "ass":
             return ["ASS", data?.cardinality ?? [1, null]]
         case "df": return ["DF", data?.cardinality ?? [1, null]]
-        case "df-rev": return ["DFREV", data?.cardinality ?? [1, null]]
+        case "df-rev": return ["DP", data?.cardinality ?? [1, null]]
         case "ndf": return ["DF", [0, 0]]
-        case "ndf-rev": return ["DFREV", [0, 0]]
+        case "ndf-rev": return ["DP", [0, 0]]
     };
 
 }
@@ -31,11 +31,11 @@ export function translateArcTypeFromRsToTs(arcType: OCDeclareArcType): EdgeType 
             return "ass"
         case "EF":
             return "ef"
-        case "EFREV":
+        case "EP":
             return "ef-rev"
         case "DF":
             return "df"
-        case "DFREV":
+        case "DP":
             return "df-rev"
     }
 
@@ -66,8 +66,10 @@ export async function addArcsToFlow(discoverdArcs: OCDeclareArc[], flow: ReactFl
         // const NON_RESOURCE_TYPES = ["orders", "items", "packages","Offer","Application"];
         // const isNotOnlyResource = arc.label.all.map(oi => getLastOT(oi)).find(ot => NON_RESOURCE_TYPES.includes(ot)) || arc.label.each.map(oi => getLastOT(oi)).find(ot => NON_RESOURCE_TYPES.includes(ot)) || arc.label.any.map(oi => getLastOT(oi)).find(ot => NON_RESOURCE_TYPES.includes(ot));
         // if(isNotOnlyResource){
+        // const consideredActs = ["crane pickup", "storage in storage milling", "radiation conservation", "accelerated cooling", "cold straightening", "edge milling", "waggon pickup", "H[0-9]", "storage in storage pusher furnace", "location rolling mill", "trimming shear", "cross tractor"];
         // const from = typeof arc.from === "object" ? arc.from['activity'] : arc.from;
         // const to = typeof arc.to === "object" ? arc.to['activity'] : arc.to;
+        // const flag = consideredActs.includes(from) && consideredActs.includes(to);
         // const flag = (from === "place order" && to === "confirm order")
         //     || (from === "confirm order" && to === "pick item")
         //     || (from === "pay order" && to === "pick item")
@@ -79,6 +81,10 @@ export async function addArcsToFlow(discoverdArcs: OCDeclareArc[], flow: ReactFl
         // if (flag) {
             const sourceID = lookupIDOrCreateNode(arc.from, nodeNameToIDs, nodes);
             const targetID = lookupIDOrCreateNode(arc.to, nodeNameToIDs, nodes);
+            // const nonHostLength = ([...arc.label.all,...arc.label.any,...arc.label.each]).filter(l => l.type !== "Simple" || l.object_type !== "Host").length
+            // if(nonHostLength === 0){
+            //     continue;
+            // }
             const edgeID = uuidv4();
             edges.push({ id: edgeID, source: sourceID, target: targetID, data: { type: edgeType, objectTypes: arc.label, cardinality: arc.counts }, ...getMarkersForEdge(edgeType, edgeID) })
         // }
@@ -109,7 +115,7 @@ function lookupIDOrCreateNode(node: OCDeclareNode, nodeIDMap: Record<string, str
     } else if (node.includes("<exit> ")) {
         isObject = "exit";
     }
-    if (true || nodeIDMap[node] == undefined) {
+    if (nodeIDMap[node] == undefined) {
         const id = uuidv4();
         nodes.push({ id: id, type: "activity", position: { x: 0, y: 0 }, data: { isObject, type: node.replace("<init> ", "").replace("<exit> ", "") } })
         nodeIDMap[node] = id;

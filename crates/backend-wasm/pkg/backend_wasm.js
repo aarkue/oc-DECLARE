@@ -405,14 +405,6 @@ function __wbg_get_imports() {
         const ret = new Function(getStringFromWasm0(arg0, arg1));
         return ret;
     };
-    imports.wbg.__wbg_now_2c95c9de01293173 = function(arg0) {
-        const ret = arg0.now();
-        return ret;
-    };
-    imports.wbg.__wbg_performance_7a3ffd0b17f663ad = function(arg0) {
-        const ret = arg0.performance;
-        return ret;
-    };
     imports.wbg.__wbg_startWorkers_2ca11761e08ff5d5 = function(arg0, arg1, arg2) {
         const ret = startWorkers(arg0, arg1, wbg_rayon_PoolBuilder.__wrap(arg2));
         return ret;
@@ -432,10 +424,6 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_static_accessor_WINDOW_5de37043a91a9c40 = function() {
         const ret = typeof window === 'undefined' ? null : window;
         return isLikeNone(ret) ? 0 : addToExternrefTable0(ret);
-    };
-    imports.wbg.__wbg_timeOrigin_9f29a08704a944d0 = function(arg0) {
-        const ret = arg0.timeOrigin;
-        return ret;
     };
     imports.wbg.__wbindgen_init_externref_table = function() {
         const table = wasm.__wbindgen_export_3;

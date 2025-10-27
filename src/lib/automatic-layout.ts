@@ -84,8 +84,8 @@ export async function applyLayoutToNodes<N extends Record<string, unknown>>(
         }),
         edges: edges.map((e) => ({
             id: e.id,
-            sources: [e.sourceHandle ?? e.source],
-            targets: [e.targetHandle ?? e.target],
+            sources: [e.data?.type.includes("rev") ? (e.targetHandle ?? e.target) : (e.sourceHandle ?? e.source)],
+            targets: [e.data?.type.includes("rev") ?  (e.sourceHandle ?? e.source) : (e.targetHandle ?? e.target)],
             properties: {
             },
             layoutOptions: {

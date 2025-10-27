@@ -1,8 +1,8 @@
 use std::{env, fs::File, hint::black_box, path::PathBuf, time::Instant};
 
-use process_mining::{import_ocel_json_from_path, ocel::linked_ocel::IndexLinkedOCEL};
+use shared::{O2OMode, OCDeclareDiscoveryOptions, process_mining::import_ocel_json_from_path};
 use serde::{Deserialize, Serialize};
-use shared::discovery::{discover, O2OMode};
+use shared::{discover_behavior_constraints, preprocess_ocel, reduction::reduce_oc_arcs};
 
 fn main() {
     let base_path: Option<String> = env::args().skip(1).next();
@@ -25,7 +25,7 @@ fn main() {
             for (name, path) in event_logs {
                 println!("Evaluating on {name}.");
                 let ocel = import_ocel_json_from_path(path).unwrap();
-                let locel = IndexLinkedOCEL::from_ocel(ocel);
+                let locel = preprocess_ocel(ocel);
                 for o2o_mode in [O2OMode::None, O2OMode::Direct] {
                     println!("{:?}", o2o_mode);
                     let mut eval_res = EvaluationResult {
@@ -34,9 +34,13 @@ fn main() {
                         mean_duration: 0.0,
                     };
                     let mut res = Vec::new();
+                    let mut reduced = Vec::new();
                     for i in 0..num_runs {
+                        let mut options = OCDeclareDiscoveryOptions::default();
+                        options.noise_threshold  = noise_thresh;
+                        options.o2o_mode = o2o_mode;
                         let now = Instant::now();
-                        res = black_box(discover(&locel, noise_thresh, o2o_mode));
+                        res = black_box(discover_behavior_constraints(&locel, options));
                         let duration = now.elapsed();
                         eval_res.durations_seconds.push(duration.as_secs_f64());
                         if i == 0 {
@@ -44,7 +48,13 @@ fn main() {
                         } else {
                             assert_eq!(eval_res.number_of_results, res.len());
                         }
-                        println!("Got {} results in {:?}", res.len(), duration);
+                        reduced = reduce_oc_arcs(&res);
+                        println!(
+                            "Got {} (reduced to {}) results in {:?}",
+                            res.len(),
+                            reduced.len(),
+                            duration
+                        );
                     }
                     eval_res.mean_duration = eval_res.durations_seconds.iter().sum::<f64>()
                         / eval_res.durations_seconds.len() as f64;
@@ -55,6 +65,10 @@ fn main() {
                     let results_file =
                         File::create(format!("{}-{:?}-results.json", name, o2o_mode)).unwrap();
                     serde_json::to_writer_pretty(results_file, &res).unwrap();
+                    let reduced_file =
+                        File::create(format!("{}-{:?}-reduced-results.json", name, o2o_mode))
+                            .unwrap();
+                    serde_json::to_writer_pretty(reduced_file, &reduced).unwrap();
                 }
             }
         }

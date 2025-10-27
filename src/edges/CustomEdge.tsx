@@ -25,7 +25,7 @@ import dpSvg from "./icons/dp.svg?url";
 import efSvg from "./icons/ef.svg?url";
 import epSvg from "./icons/ep.svg?url";
 import { ALL_EDGE_TYPES, CustomEdge as CustomEdgeType, EdgeType, getMarkersForEdge } from './types';
-const DISTANCE_FACTOR = 13;
+const DISTANCE_FACTOR = 16;
 const interactionWidth = 20;
 
 

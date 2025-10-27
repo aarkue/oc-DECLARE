@@ -1,5 +1,8 @@
 # OC-DECLARE
 
+**Note: The main code of OC-DECLARE is currently being upstreamed to the Rust4PM project and the `process_mining` crate.
+See also https://github.com/aarkue/rust4pm and the https://github.com/aarkue/rust4pm/tree/feat/oc-declare branch.**
+
 This repository contains the following parts:
 
 1. Visual Editor for OC-DECLARE

@@ -4,12 +4,9 @@ pub use wasm_bindgen_rayon::init_thread_pool;
 use std::sync::RwLock;
 
 use shared::{
-    discovery::{discover, O2OMode},
-    get_activity_object_involvements, preprocess_ocel,
-    process_mining::{
+    OCDeclareArc, OCDeclareDiscoveryOptions, discover_behavior_constraints, get_activity_object_involvements, preprocess_ocel, process_mining::{
         import_ocel_json_from_slice, import_ocel_xml_slice, ocel::linked_ocel::IndexLinkedOCEL,
-    },
-    OCDeclareArc,
+    }, reduction::reduce_oc_arcs
 };
 use wasm_bindgen::prelude::*;
 
@@ -56,7 +53,7 @@ pub fn get_edge_violation_percentage(edge_json: String) -> String {
     let locel_guard = WASM_MEMORY_THINGY.read().unwrap();
     if let Some(locel) = locel_guard.as_ref() {
         let edge: OCDeclareArc = serde_json::from_str(&edge_json).unwrap();
-        let all_res = edge.get_for_all_evs(locel);
+        let all_res = edge.get_for_all_evs_perf(locel);
 
         serde_json::to_string(&all_res).unwrap()
     } else {
@@ -92,7 +89,7 @@ pub fn get_all_edge_violation_percentage(edge_json: String) -> Result<Vec<String
             .iter()
             .map(|edge| {
                 //    let edge: OCDeclareArc = serde_json::from_str(json).unwrap();
-                let all_res = edge.get_for_all_evs(locel);
+                let all_res = edge.get_for_all_evs_perf(locel);
                 serde_json::to_string(&all_res).unwrap()
             })
             .collect();
@@ -142,8 +139,13 @@ pub fn get_ot_act_involvements() -> String {
 pub fn discover_oc_declare_constraints(noise_thresh: f64) -> Result<String, String> {
     let locel_guard = WASM_MEMORY_THINGY.read().unwrap();
     if let Some(locel) = locel_guard.as_ref() {
-        let discovered_arcs = discover(locel, noise_thresh, O2OMode::None);
-        Ok(serde_json::to_string(&discovered_arcs).unwrap())
+        let mut options =  OCDeclareDiscoveryOptions::default();
+        options.noise_threshold = noise_thresh;
+        // options.counts_for_generation.1 = Some(20);
+        options.counts_for_filter.1 = Some(5);
+        let discovered_arcs = discover_behavior_constraints(locel,options);
+        let reduced = reduce_oc_arcs(&discovered_arcs);
+        Ok(serde_json::to_string(&reduced).unwrap())
     } else {
         Err(String::from("Failed"))
     }
