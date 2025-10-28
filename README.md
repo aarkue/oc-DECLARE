@@ -3,6 +3,13 @@
 **Note: The main code of OC-DECLARE is currently being upstreamed to the Rust4PM project and the `process_mining` crate.
 See also https://github.com/aarkue/rust4pm and the https://github.com/aarkue/rust4pm/tree/feat/oc-declare branch.**
 
+The **Python bindings** for OC-DECLARE are in `oc_declare_python` and are also available in PyPi (https://pypi.org/project/oc-declare/).
+
+They can be installed using **`pip install oc-declare`**.
+
+
+---
+
 This repository contains the following parts:
 
 1. Visual Editor for OC-DECLARE
