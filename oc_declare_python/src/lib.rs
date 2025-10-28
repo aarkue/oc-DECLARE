@@ -14,6 +14,7 @@ struct ProcessedOCEL {
     locel: IndexLinkedOCEL,
 }
 
+#[derive(Debug, Clone)]
 #[pyclass]
 /// An individual OC-DECLARE constraint arc
 struct OCDeclareArc {
@@ -25,16 +26,16 @@ impl OCDeclareArc {
     #[new]
     /// Construct a new OC-DECLARE arc
     ///
-    #[pyo3(signature = (from_act: "str", to_act: "str", arc_type: "Literal['AS', 'EF', 'EP', 'DF', 'DP']", all_ots: "list[str]", each_ots: "list[str]", any_ots: "list[str]", min_count: "Optional[int]", max_count: "Optional[int]") -> "OCDeclareArc")]
+    #[pyo3(signature = (from_act: "str", to_act: "str", arc_type: "Literal['AS', 'EF', 'EP', 'DF', 'DP']", min_count: "Optional[int]", max_count: "Optional[int]", /, all_ots: "list[str]"= vec![], each_ots: "list[str]"= vec![], any_ots: "list[str]"= vec![]) -> "OCDeclareArc")]
     pub fn new(
         from_act: String,
         to_act: String,
         arc_type: String,
+        min_count: Option<usize>,
+        max_count: Option<usize>,
         all_ots: Vec<String>,
         each_ots: Vec<String>,
         any_ots: Vec<String>,
-        min_count: Option<usize>,
-        max_count: Option<usize>,
     ) -> PyResult<Self> {
         let arc_type = OCDeclareArcType::parse_str(&arc_type)
             .ok_or(PyErr::new::<PyValueError, _>("Invalid arc type."))?;
@@ -249,6 +250,16 @@ fn discover(
         .collect())
 }
 
+#[pyfunction]
+#[pyo3(signature = (processed_ocel: "ProcessedOCEL", constraint: "OCDeclareArc", /) -> "double")]
+/// Evaluate an OC-DECLARE constraint given a pre-processed OCEL
+/// yielding the fraction of relevant event satisfying the constraints
+///
+/// Returns 1 if all source events fulfill the constraint and 0 if all source events violate the constraint.
+fn check_conformance(processed_ocel: &ProcessedOCEL, constraint: OCDeclareArc) -> PyResult<f64> {
+    return Ok(1.0 - constraint.arc.get_for_all_evs_perf(&processed_ocel.locel));
+}
+
 /// OC-DECLARE Binding for Python
 #[pymodule]
 fn oc_declare(m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -256,5 +267,6 @@ fn oc_declare(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<OCDeclareArc>()?;
     m.add_function(wrap_pyfunction!(import_ocel2, m)?)?;
     m.add_function(wrap_pyfunction!(discover, m)?)?;
+    m.add_function(wrap_pyfunction!(check_conformance, m)?)?;
     Ok(())
 }
