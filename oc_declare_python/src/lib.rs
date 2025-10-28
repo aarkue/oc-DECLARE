@@ -1,5 +1,12 @@
-use pyo3::{exceptions::PyIOError, prelude::*};
-use shared::{OCDeclareDiscoveryOptions, process_mining::{self, ocel::linked_ocel::IndexLinkedOCEL}};
+use pyo3::{
+    exceptions::{PyIOError, PyValueError},
+    prelude::*,
+};
+use shared::{
+    process_mining::{self, ocel::linked_ocel::IndexLinkedOCEL},
+    O2OMode, OCDeclareArcLabel, OCDeclareArcType, OCDeclareDiscoveryOptions, OCDeclareNode,
+    ObjectTypeAssociation,
+};
 
 #[pyclass]
 /// Pre-Processed OCEL
@@ -7,23 +14,193 @@ struct ProcessedOCEL {
     locel: IndexLinkedOCEL,
 }
 
-
 #[pyclass]
 /// An individual OC-DECLARE constraint arc
 struct OCDeclareArc {
     arc: shared::OCDeclareArc,
 }
 
-
 #[pymethods]
 impl OCDeclareArc {
+    #[new]
+    /// Construct a new OC-DECLARE arc
+    ///
+    #[pyo3(signature = (from_act: "str", to_act: "str", arc_type: "Literal['AS', 'EF', 'EP', 'DF', 'DP']", all_ots: "list[str]", each_ots: "list[str]", any_ots: "list[str]", min_count: "Optional[int]", max_count: "Optional[int]") -> "OCDeclareArc")]
+    pub fn new(
+        from_act: String,
+        to_act: String,
+        arc_type: String,
+        all_ots: Vec<String>,
+        each_ots: Vec<String>,
+        any_ots: Vec<String>,
+        min_count: Option<usize>,
+        max_count: Option<usize>,
+    ) -> PyResult<Self> {
+        let arc_type = OCDeclareArcType::parse_str(&arc_type)
+            .ok_or(PyErr::new::<PyValueError, _>("Invalid arc type."))?;
+        let label = OCDeclareArcLabel {
+            each: each_ots
+                .into_iter()
+                .map(|ot| ObjectTypeAssociation::Simple { object_type: ot })
+                .collect(),
+            any: any_ots
+                .into_iter()
+                .map(|ot| ObjectTypeAssociation::Simple { object_type: ot })
+                .collect(),
+            all: all_ots
+                .into_iter()
+                .map(|ot| ObjectTypeAssociation::Simple { object_type: ot })
+                .collect(),
+        };
+        let arc = shared::OCDeclareArc {
+            from: OCDeclareNode::new(from_act),
+            to: OCDeclareNode::new(to_act),
+            arc_type,
+            label,
+            counts: (min_count, max_count),
+        };
+        Ok(Self { arc: arc })
+    }
     /// Get string representation of OC-DECLARE arc
     pub fn to_string(&self) -> String {
         self.arc.as_template_string()
     }
 
-}
+    pub fn __repr__(&self) -> String {
+        format!("OC-DECLARE Arc: {}", self.to_string())
+    }
 
+    pub fn __str__(&self) -> String {
+        self.to_string()
+    }
+
+    // Write getters/setters for all fields of OCDeclareArc
+    // Add documentation to each
+    /// Get the source activity of the arc.
+    #[getter]
+    pub fn from_activity(&self) -> String {
+        self.arc.from.as_str().to_string()
+    }
+
+    /// Get the target activity of the arc.
+    #[getter]
+    pub fn to_activity(&self) -> String {
+        self.arc.to.as_str().to_string()
+    }
+
+    /// Get the type of the arc (e.g., "EF", "DF", "AS").
+    #[getter]
+    pub fn arc_type_name(&self) -> String {
+        self.arc.arc_type.get_name().to_string()
+    }
+
+    /// Get the object types involved with the 'ALL' quantifier.
+    #[getter]
+    pub fn all_ots(&self) -> Vec<String> {
+        self.arc
+            .label
+            .all
+            .iter()
+            .map(|ota| ota.as_template_string())
+            .collect()
+    }
+
+    /// Get the object types involved with the 'EACH' quantifier.
+    #[getter]
+    pub fn each_ots(&self) -> Vec<String> {
+        self.arc
+            .label
+            .each
+            .iter()
+            .map(|ota| ota.as_template_string())
+            .collect()
+    }
+
+    /// Get the object types involved with the 'ANY' quantifier.
+    #[getter]
+    pub fn any_ots(&self) -> Vec<String> {
+        self.arc
+            .label
+            .any
+            .iter()
+            .map(|ota| ota.as_template_string())
+            .collect()
+    }
+
+    /// Get the minimum count for the arc.
+    #[getter]
+    pub fn min_count(&self) -> Option<usize> {
+        self.arc.counts.0
+    }
+
+    /// Get the maximum count for the arc.
+    #[getter]
+    pub fn max_count(&self) -> Option<usize> {
+        self.arc.counts.1
+    }
+
+    // Next, setters
+    // Again, add documentation
+    /// Set the source activity of the arc.
+    #[setter]
+    pub fn set_from_activity(&mut self, from_act: String) {
+        self.arc.from = OCDeclareNode::new(from_act);
+    }
+
+    /// Set the target activity of the arc.
+    #[setter]
+    pub fn set_to_activity(&mut self, to_act: String) {
+        self.arc.to = OCDeclareNode::new(to_act);
+    }
+
+    /// Set the type of the arc (e.g., "EF", "DF", "AS").
+    #[setter]
+    pub fn set_arc_type(&mut self, arc_type: String) -> PyResult<()> {
+        self.arc.arc_type =
+            OCDeclareArcType::parse_str(&arc_type)
+                .ok_or(PyErr::new::<PyValueError, _>("Invalid arc type."))?;
+        Ok(())
+    }
+
+    /// Set the object types involved with the 'ALL' quantifier.
+    #[setter]
+    pub fn set_all_ots(&mut self, all_ots: Vec<String>) {
+        self.arc.label.all = all_ots
+            .into_iter()
+            .map(|ot| ObjectTypeAssociation::Simple { object_type: ot })
+            .collect();
+    }
+
+    /// Set the object types involved with the 'EACH' quantifier.
+    #[setter]
+    pub fn set_each_ots(&mut self, each_ots: Vec<String>) {
+        self.arc.label.each = each_ots
+            .into_iter()
+            .map(|ot| ObjectTypeAssociation::Simple { object_type: ot })
+            .collect();
+    }
+
+    /// Set the object types involved with the 'ANY' quantifier.
+    #[setter]
+    pub fn set_any_ots(&mut self, any_ots: Vec<String>) {
+        self.arc.label.any = any_ots
+            .into_iter()
+            .map(|ot| ObjectTypeAssociation::Simple { object_type: ot })
+            .collect();
+    }
+
+    /// Set the minimum count for the arc.
+    #[setter]
+    pub fn set_min_count(&mut self, min_count: Option<usize>) {
+        self.arc.counts.0 = min_count;
+    }
+
+    /// Set the maximum count for the arc.
+    #[setter]
+    pub fn set_max_count(&mut self, max_count: Option<usize>) {
+        self.arc.counts.1 = max_count;
+    }
+}
 
 #[pyfunction]
 #[pyo3(signature = (path: "str", /) -> "ProcessedOCEL")]
@@ -43,16 +220,33 @@ fn import_ocel2(path: String) -> PyResult<ProcessedOCEL> {
     Ok(ProcessedOCEL { locel })
 }
 
-
-
 #[pyfunction]
-#[pyo3(signature = (processed_ocel: "ProcessedOCEL", noise_thresh: "double", /) -> "int")]
+#[pyo3(signature = (processed_ocel: "ProcessedOCEL", /, noise_thresh: "double" = 0.2, acts_to_use: "Optional[list[str]]" = None, o2o_mode: "Optional[Literal['None', 'Direct', 'Reversed', 'Bidirectional']]"  = None) -> "list[OCDeclareArc]")]
 /// Discover OC-DECLARE constraints given a pre-processed OCEL and a noise threshold
-fn discover(processed_ocel: &ProcessedOCEL,noise_thresh: f64,) -> PyResult<Vec<OCDeclareArc>> {
+fn discover(
+    processed_ocel: &ProcessedOCEL,
+    noise_thresh: f64,
+    acts_to_use: Option<Vec<String>>,
+    o2o_mode: Option<String>,
+) -> PyResult<Vec<OCDeclareArc>> {
     let mut options = OCDeclareDiscoveryOptions::default();
     options.noise_threshold = noise_thresh;
-    let discovered_constraints = shared::discover_behavior_constraints(&processed_ocel.locel, options);
-    Ok(discovered_constraints.into_iter().map(|arc| OCDeclareArc { arc}).collect())
+    options.acts_to_use = acts_to_use;
+    if let Some(o2o_mode) = o2o_mode {
+        options.o2o_mode = match o2o_mode.as_str() {
+            "None" => O2OMode::None,
+            "Direct" => O2OMode::Direct,
+            "Reversed" => O2OMode::Reversed,
+            "Bidirectional" => O2OMode::Bidirectional,
+            _ => return Err(PyErr::new::<PyValueError, _>("Invalid O2O mode. Valid options are: 'None', 'Direct', 'Reversed', 'Bidirectional'.")),
+        };
+    }
+    let discovered_constraints =
+        shared::discover_behavior_constraints(&processed_ocel.locel, options);
+    Ok(discovered_constraints
+        .into_iter()
+        .map(|arc| OCDeclareArc { arc })
+        .collect())
 }
 
 /// OC-DECLARE Binding for Python
