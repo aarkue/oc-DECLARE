@@ -461,7 +461,7 @@ checksum = "830b246a0e5f20af87141b25c173cd1b609bd7779a4617d6ec582abaf90870f3"
 
 [[package]]
 name = "oc_declare"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "pyo3",
  "shared",
@@ -518,7 +518,7 @@ dependencies = [
 [[package]]
 name = "process_mining"
 version = "0.3.25"
-source = "git+https://github.com/aarkue/rust4pm?branch=feat%2Foc-declare#dd95daad7564f39ee70afb5bc10e0d04c0ee33b9"
+source = "git+https://github.com/aarkue/rust4pm?branch=feat%2Foc-declare#19822b43489f9ea4b691d5b0a038a1238fd6bd12"
 dependencies = [
  "chrono",
  "flate2",
